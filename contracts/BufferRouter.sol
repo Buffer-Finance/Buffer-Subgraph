@@ -3,23 +3,20 @@
 pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "../Interfaces/InterfacesBinary.sol";
+import "../interfaces/Interfaces.sol";
 
 /**
  * @author Heisenberg
  * @notice Buffer Options Router Contract
  */
-contract OptionRouter is AccessControl, IOptionRouter {
-    bytes32 public constant BOT_ROLE = keccak256("BOT_ROLE");
-    uint256 MAX_WAIT_TIME = 1 minutes;
+contract BufferRouter is AccessControl, IBufferRouter {
+    uint16 MAX_WAIT_TIME = 1 minutes;
     uint256 public nextQueueId = 0;
     address public publisher;
     uint256 public nextQueueIdToProcess = 0;
     bool public isInPrivateKeeperMode = true;
-    IKeeperPayment public keeper;
 
     mapping(address => uint256[]) public userQueuedIds;
     mapping(address => uint256[]) public userCancelledQueuedIds;
@@ -28,9 +25,8 @@ contract OptionRouter is AccessControl, IOptionRouter {
     mapping(address => bool) public contractRegistry;
     mapping(address => bool) public isKeeper;
 
-    constructor(address _publisher, IKeeperPayment _keeper) {
+    constructor(address _publisher) {
         publisher = _publisher;
-        keeper = _keeper;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
@@ -60,6 +56,9 @@ contract OptionRouter is AccessControl, IOptionRouter {
      *  USER WRITE FUNCTIONS
      ***********************************************/
 
+    /**
+     * @notice Adds an option creation request in the queue
+     */
     function initiateTrade(
         uint256 totalFee,
         uint256 period,
@@ -68,14 +67,21 @@ contract OptionRouter is AccessControl, IOptionRouter {
         uint256 expectedStrike,
         uint256 slippage,
         bool allowPartialFill,
-        string memory referralCode
+        string memory referralCode,
+        uint256 traderNFTId
     ) external returns (uint256 queueId) {
-        _validateContract(targetContract);
+        // Checks if the target contract has been registered
+        require(
+            contractRegistry[targetContract],
+            "Router: Unauthorized contract"
+        );
         IBufferBinaryOptions optionsContract = IBufferBinaryOptions(
             targetContract
         );
+
         optionsContract.runInitialChecks(slippage, period, totalFee);
 
+        // Transfer the fee specified from the user to this contract.
         // User has to approve first inorder to execute this function
         IERC20(optionsContract.tokenX()).transferFrom(
             msg.sender,
@@ -97,24 +103,27 @@ contract OptionRouter is AccessControl, IOptionRouter {
             slippage,
             allowPartialFill,
             block.timestamp,
-            0,
             true,
-            referralCode
+            referralCode,
+            traderNFTId
         );
 
         queuedTrades[queueId] = queuedTrade;
 
         userQueuedIds[msg.sender].push(queueId);
 
-        emit InitiateTrade(queueId, msg.sender, block.timestamp);
+        emit InitiateTrade(msg.sender, queueId, block.timestamp);
     }
 
+    /**
+     * @notice Cancels a queued traded. Can only be called by the trade owner
+     */
     function cancelQueuedTrade(uint256 queueId) external {
         QueuedTrade memory queuedTrade = queuedTrades[queueId];
         require(msg.sender == queuedTrade.user, "Router: Forbidden");
         require(queuedTrade.isQueued, "Router: Trade has already been opened");
         _cancelQueuedTrade(queueId);
-        emit CancelTrade(queueId, queuedTrade.user, "User Cancelled");
+        emit CancelTrade(queuedTrade.user, queueId, "User Cancelled");
     }
 
     /************************************************
@@ -122,11 +131,11 @@ contract OptionRouter is AccessControl, IOptionRouter {
      ***********************************************/
 
     /**
-     * @notice Resolves all queued trades
+     * @notice Verifies the trade parameter via the signature and resolves all the valid queued trades
      */
     function resolveQueuedTrades(OpenTradeParams[] calldata params) external {
         _validateKeeper();
-        for (uint256 index = 0; index < params.length; index++) {
+        for (uint32 index = 0; index < params.length; index++) {
             OpenTradeParams memory currentParams = params[index];
             QueuedTrade memory queuedTrade = queuedTrades[
                 currentParams.queueId
@@ -137,6 +146,7 @@ contract OptionRouter is AccessControl, IOptionRouter {
                 currentParams.price,
                 currentParams.signature
             );
+            // Silently fail if the signature doesn't match
             if (!isSignerVerifed) {
                 emit FailResolve(
                     currentParams.queueId,
@@ -148,17 +158,19 @@ contract OptionRouter is AccessControl, IOptionRouter {
                 !queuedTrade.isQueued ||
                 currentParams.timestamp != queuedTrade.queuedTime
             ) {
-                // "Router: Trade has already been opened or cancelled" so ignore this trade or the price is wrong
+                // Trade has already been opened or cancelled or the timestamp is wrong.
+                // So ignore this trade.
                 continue;
             }
 
+            // If the opening time is much greater than the queue time then cancel the trade
             if (block.timestamp - queuedTrade.queuedTime <= MAX_WAIT_TIME) {
                 _openQueuedTrade(currentParams.queueId, currentParams.price);
             } else {
                 _cancelQueuedTrade(currentParams.queueId);
                 emit CancelTrade(
-                    currentParams.queueId,
                     queuedTrade.user,
+                    currentParams.queueId,
                     "Wait time too high"
                 );
             }
@@ -173,19 +185,20 @@ contract OptionRouter is AccessControl, IOptionRouter {
     }
 
     /**
-     * @notice Unlocks an array of options
+     * @notice Verifies the option parameter via the signature and unlocks an array of options
      */
     function unlockOptions(CloseTradeParams[] calldata optionData) external {
         _validateKeeper();
 
-        uint256 arrayLength = optionData.length;
-        for (uint256 i = 0; i < arrayLength; i++) {
+        uint32 arrayLength = uint32(optionData.length);
+        for (uint32 i = 0; i < arrayLength; i++) {
             CloseTradeParams memory params = optionData[i];
-            IBufferOptionsRead optionsContract = IBufferOptionsRead(
+            IBufferBinaryOptions optionsContract = IBufferBinaryOptions(
                 params.asset
             );
-            (, , uint256 amount, , , uint256 expiration, , , ) = optionsContract
-                .options(params.optionId);
+            (, , , , , uint256 expiration, , , ) = optionsContract.options(
+                params.optionId
+            );
 
             bool isSignerVerifed = _validateSigner(
                 params.expiryTimestamp,
@@ -194,11 +207,13 @@ contract OptionRouter is AccessControl, IOptionRouter {
                 params.signature
             );
 
+            // Silently fail if the timestamp of the signature is wrong
             if (expiration != params.expiryTimestamp) {
                 emit FailUnlock(params.optionId, "Router: Wrong price");
                 continue;
             }
 
+            // Silently fail if the signature doesn't match
             if (!isSignerVerifed) {
                 emit FailUnlock(
                     params.optionId,
@@ -213,7 +228,6 @@ contract OptionRouter is AccessControl, IOptionRouter {
                 emit FailUnlock(params.optionId, reason);
                 continue;
             }
-            keeper.distributeForClose(params.optionId, amount, msg.sender);
         }
     }
 
@@ -236,13 +250,6 @@ contract OptionRouter is AccessControl, IOptionRouter {
     /************************************************
      *  INTERNAL FUNCTIONS
      ***********************************************/
-    function _validateContract(address targetContract) private view {
-        require(
-            contractRegistry[targetContract],
-            "Router: Unauthorized contract"
-        );
-    }
-
     function _validateKeeper() private view {
         require(
             !isInPrivateKeeperMode || isKeeper[msg.sender],
@@ -269,6 +276,7 @@ contract OptionRouter is AccessControl, IOptionRouter {
             queuedTrade.targetContract
         );
 
+        // Check if slippage lies within the bounds
         bool isSlippageWithinRange = optionsContract.isStrikeValid(
             queuedTrade.slippage,
             price,
@@ -278,34 +286,51 @@ contract OptionRouter is AccessControl, IOptionRouter {
         if (!isSlippageWithinRange) {
             _cancelQueuedTrade(queueId);
             emit CancelTrade(
-                queueId,
                 queuedTrade.user,
+                queueId,
                 "Slippage limit exceeds"
             );
 
             return;
         }
+
+        // Check all the parameters and compute the amount and revised fee
         uint256 amount;
         uint256 revisedFee;
-        try
-            optionsContract.checkParams(
-                queuedTrade.totalFee,
-                queuedTrade.allowPartialFill,
-                queuedTrade.referralCode,
-                queuedTrade.user,
+        bool isReferralValid;
+        IBufferBinaryOptions.OptionParams
+            memory optionParams = IBufferBinaryOptions.OptionParams(
+                queuedTrade.expectedStrike,
+                0,
                 queuedTrade.period,
-                queuedTrade.isAbove
-            )
-        returns (uint256 _amount, uint256 _revisedFee) {
-            (amount, revisedFee) = (_amount, _revisedFee);
+                queuedTrade.isAbove,
+                queuedTrade.allowPartialFill,
+                queuedTrade.totalFee,
+                queuedTrade.user,
+                queuedTrade.referralCode,
+                queuedTrade.traderNFTId
+            );
+        try optionsContract.checkParams(optionParams) returns (
+            uint256 _amount,
+            uint256 _revisedFee,
+            bool _isReferralValid
+        ) {
+            (amount, revisedFee, isReferralValid) = (
+                _amount,
+                _revisedFee,
+                _isReferralValid
+            );
         } catch Error(string memory reason) {
-            // Cancel the trade
             _cancelQueuedTrade(queueId);
-            emit CancelTrade(queueId, queuedTrade.user, reason);
+            emit CancelTrade(queuedTrade.user, queueId, reason);
             return;
         }
+
+        // Transfer the fee to the target options contract
         IERC20 tokenX = IERC20(optionsContract.tokenX());
         tokenX.transfer(queuedTrade.targetContract, revisedFee);
+
+        // Refund the user in case the trade amount was lesser
         if (revisedFee < queuedTrade.totalFee) {
             tokenX.transfer(
                 queuedTrade.user,
@@ -313,25 +338,18 @@ contract OptionRouter is AccessControl, IOptionRouter {
             );
         }
 
-        try
-            optionsContract.createFromRouter(
-                queuedTrade.user,
-                revisedFee,
-                queuedTrade.period,
-                queuedTrade.isAbove,
-                price,
-                amount,
-                queuedTrade.referralCode
-            )
-        {} catch Error(string memory reason) {
-            // Cancel the trade
-            _cancelQueuedTrade(queueId);
-            emit CancelTrade(queueId, queuedTrade.user, reason);
-            return;
-        }
+        optionParams.totalFee = revisedFee;
+        optionParams.strike = price;
+        optionParams.amount = amount;
+
+        uint256 optionId = optionsContract.createFromRouter(
+            optionParams,
+            isReferralValid
+        );
+
         queuedTrade.isQueued = false;
-        keeper.distributeForOpen(queueId, amount, msg.sender);
-        emit OpenTrade(queueId, queuedTrade.user);
+
+        emit OpenTrade(queuedTrade.user, queueId, optionId);
     }
 
     function _cancelQueuedTrade(uint256 queueId) internal {
@@ -340,7 +358,6 @@ contract OptionRouter is AccessControl, IOptionRouter {
             queuedTrade.targetContract
         );
         queuedTrade.isQueued = false;
-        queuedTrade.cancellationTime = block.timestamp;
         IERC20(optionsContract.tokenX()).transfer(
             queuedTrade.user,
             queuedTrade.totalFee
