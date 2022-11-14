@@ -3,11 +3,11 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: BufferBinaryEuropeanATMOptionsV2
+    name: BufferBinaryOptions
     network: arbitrum-goerli
     source:
       address: '0x7cf2809e96de47A5FbAF92d1274e51827e9BdC4F'
-      abi: BufferBinaryEuropeanATMOptionsV2
+      abi: BufferBinaryOptions
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -15,8 +15,8 @@ dataSources:
       entities:
         - UserOptionData
       abis:
-        - name: BufferBinaryEuropeanATMOptionsV2
-          file: ./abis/BufferBinaryEuropeanATMOptionsV2.json
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
       eventHandlers:
         - event: Create(indexed address,indexed uint256,uint256,uint256)
           handler: handleCreate
@@ -30,7 +30,7 @@ dataSources:
     network: arbitrum-goerli
     source:
       address: '0x39DDC21420e8c721Cb880De9a218963393022381'
-      abi: BufferBinaryEuropeanATMOptionsV2
+      abi: BufferBinaryOptions
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -38,8 +38,8 @@ dataSources:
       entities:
         - UserOptionData
       abis:
-        - name: BufferBinaryEuropeanATMOptionsV2
-          file: ./abis/BufferBinaryEuropeanATMOptionsV2.json
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
       eventHandlers:
         - event: Create(indexed address,indexed uint256,uint256,uint256)
           handler: handleCreate
@@ -53,7 +53,7 @@ dataSources:
     network: arbitrum-goerli
     source:
       address: '0x1C1Bb44A1CF1566659B94a0615b8443fC6144368'
-      abi: BufferBinaryEuropeanATMOptionsV2
+      abi: BufferBinaryOptions
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -61,8 +61,8 @@ dataSources:
       entities:
         - UserOptionData
       abis:
-        - name: BufferBinaryEuropeanATMOptionsV2
-          file: ./abis/BufferBinaryEuropeanATMOptionsV2.json
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
       eventHandlers:
         - event: Create(indexed address,indexed uint256,uint256,uint256)
           handler: handleCreate
@@ -76,7 +76,7 @@ dataSources:
     network: arbitrum-goerli
     source:
       address: '0xb5c2fAEeF541Da50448589272cd7ca2fDb06C339'
-      abi: BufferBinaryEuropeanATMOptionsV2
+      abi: BufferBinaryOptions
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -84,8 +84,8 @@ dataSources:
       entities:
         - UserOptionData
       abis:
-        - name: BufferBinaryEuropeanATMOptionsV2
-          file: ./abis/BufferBinaryEuropeanATMOptionsV2.json
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
       eventHandlers:
         - event: Create(indexed address,indexed uint256,uint256,uint256)
           handler: handleCreate
@@ -95,11 +95,11 @@ dataSources:
           handler: handleExercise    
       file: ./src/mapping.ts
   - kind: ethereum/contract
-    name: Router
+    name: BufferRouter
     network: arbitrum-goerli
     source:
       address: '0x767173fd3DD0A12df0f17D90A9810020d1c22A33'
-      abi: Router
+      abi: BufferRouter
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -107,8 +107,8 @@ dataSources:
       entities:
         - UserOptionData
       abis:
-        - name: Router
-          file: ./abis/Router.json
+        - name: BufferRouter
+          file: ./abis/BufferRouter.json
       eventHandlers:
         - event: InitiateTrade(indexed address,uint256,uint256)
           handler: handleInitiateTrade

@@ -1,4 +1,4 @@
-import { Create, Expire, Exercise, BufferBinaryEuropeanATMOptionsV2 } from '../generated/BufferBinaryEuropeanATMOptionsV2/BufferBinaryEuropeanATMOptionsV2'
+import { Create, Expire, Exercise, BufferBinaryOptions } from '../generated/BufferBinaryOptions/BufferBinaryOptions'
 import { InitiateTrade, CancelTrade, Router, OpenTrade } from '../generated/Router/Router'
 
 import { UserOptionData } from '../generated/schema'
@@ -6,7 +6,7 @@ import { UserOptionData } from '../generated/schema'
 export function handleCreate(event: Create): void {
   let optionID = event.params.id
   let contractAddress = event.address
-  let contract = BufferBinaryEuropeanATMOptionsV2.bind(contractAddress)
+  let contract = BufferBinaryOptions.bind(contractAddress)
   let optionData = contract.options(optionID)
   let referrenceID = `${event.params.id}${contractAddress}${optionData.value0}`
   let userOptionData = new UserOptionData(referrenceID)
