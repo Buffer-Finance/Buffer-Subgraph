@@ -1,3 +1,7 @@
-# Example Subgraph
+# Buffer V1 Subgraph
 
-An example to help you get started with The Graph. For more information see the docs on https://thegraph.com/docs/.
+## Subgraph Endpoint
+
+All Trade Data : [https://api.thegraph.com/subgraphs/name/bufferfinance/buffer-subgraph-v1](https://api.thegraph.com/subgraphs/name/bufferfinance/buffer-subgraph-v) 
+
+Synced At : [https://thegraph.com/hosted-service/subgraph/bufferfinance/buffer-subgraph-v1](https://thegraph.com/hosted-service/subgraph/bufferfinance/buffer-subgraph-v1)
