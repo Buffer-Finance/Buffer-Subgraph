@@ -1,0 +1,20 @@
+type UserOptionData @entity {
+  id: String! 
+  optionID: BigInt
+  strike: BigInt
+  totalFee: BigInt
+  userAddress : Bytes
+  contractAddress : Bytes
+  creationTime : BigInt
+  expirationPrice : BigInt
+  payout : BigInt
+  settlementFee : BigInt
+  state : Int
+  amount : BigInt
+  expirationTime : BigInt
+  isAbove : Boolean
+  queueID : BigInt
+  slippage : BigInt
+  depositToken : String
+
+}
