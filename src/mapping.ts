@@ -1,7 +1,27 @@
 import { Create, Expire, Exercise, BufferBinaryOptions } from '../generated/BufferBinaryOptions/BufferBinaryOptions'
 import { InitiateTrade, CancelTrade, Router, OpenTrade } from '../generated/Router/Router'
-
+import { State } from './config'
 import { UserOptionData } from '../generated/schema'
+
+export function handleInitiateTrade(event: InitiateTrade): void {
+  let queueID = event.params.queueId
+  let contractAddress = event.address
+  let state = State.queued
+  let referrenceID = `${queueID}${contractAddress}${state}`
+  let userOptionData = new UserOptionData(referrenceID)
+  let contract = Router.bind(contractAddress)
+  let queuedTradeData = contract.queuedTrades(queueID)
+  userOptionData.queueID = queueID
+  userOptionData.userAddress = event.params.account
+  userOptionData.state = state
+  userOptionData.strike = queuedTradeData.value7
+  userOptionData.totalFee = queuedTradeData.value3
+  userOptionData.contractAddress = queuedTradeData.value6
+  userOptionData.slippage = queuedTradeData.value8
+  userOptionData.isAbove = queuedTradeData.value5 ? true : false
+  userOptionData.depositToken = "USDC"
+  userOptionData.save()
+}
 
 export function handleCreate(event: Create): void {
   let optionID = event.params.id
@@ -25,68 +45,54 @@ export function handleCreate(event: Create): void {
   userOptionData.save()
 }
 
-
-export function handleExercise(event: Exercise): void {
-  let referrenceID = `${event.params.id}${event.address}${1}`
+export function handleOpenTrade(event: OpenTrade): void {
+  let queueID = event.params.queueId
+  let referrenceID = `${queueID}${event.address}${State.queued}`  
   let userOptionData = UserOptionData.load(referrenceID)
   if (userOptionData != null) {
-    userOptionData.state = 2
+    userOptionData.state = 6
+    userOptionData.save()  
+  } else {
+    throw new Error('Corresponding queued trade does not exist')
+  }
+}
+
+export function handleCancelTrade (event: CancelTrade): void {
+  let queueID = event.params.queueId
+  let referrenceID = `${queueID}${event.address}${State.queued}`
+  let userOptionData = UserOptionData.load(referrenceID)
+  if (userOptionData != null) {
+    userOptionData.state = State.cancelled
+    userOptionData.save()
+  } else {
+    throw new Error('Corresponding queued trade does not exist')
+  }
+}
+
+
+export function handleExercise(event: Exercise): void {
+  let referrenceID = `${event.params.id}${event.address}${State.active}`
+  let userOptionData = UserOptionData.load(referrenceID)
+  if (userOptionData != null) {
+    userOptionData.state = State.exercised
     userOptionData.payout = event.params.profit
     userOptionData.expirationPrice = event.params.priceAtExpiration
     userOptionData.save()  
+  } else {
+    throw new Error('Corresponding trade does not exist')
   }
 }
 
 
 export function handleExpire(event: Expire): void {
-  let referrenceID = `${event.params.id}${event.address}${1}`
+  let referrenceID = `${event.params.id}${event.address}${State.active}`
   let userOptionData = UserOptionData.load(referrenceID)
   if (userOptionData != null) {
-    userOptionData.state = 3
+    userOptionData.state = State.expired
     userOptionData.expirationPrice = event.params.priceAtExpiration
     userOptionData.save()  
-  }
-}
-
-export function handleInitiateTrade(event: InitiateTrade): void {
-  let queueID = event.params.queueId
-  let contractAddress = event.address
-  let state = 4
-  let referrenceID = `${queueID}${contractAddress}${state}`
-  let userOptionData = new UserOptionData(referrenceID)
-  let contract = Router.bind(contractAddress)
-  let queuedTradeData = contract.queuedTrades(queueID)
-  userOptionData.queueID = queueID
-  userOptionData.userAddress = event.params.account
-  userOptionData.state = state
-  userOptionData.strike = queuedTradeData.value7
-  userOptionData.totalFee = queuedTradeData.value3
-  userOptionData.contractAddress = queuedTradeData.value6
-  userOptionData.slippage = queuedTradeData.value8
-  userOptionData.isAbove = queuedTradeData.value5 ? true : false
-  userOptionData.depositToken = "USDC"
-  userOptionData.save()
-}
-  
-//TODO : TEST
-export function handleCancelTrade (event: CancelTrade): void {
-  let queueID = event.params.queueId
-  let referrenceID = `${queueID}${event.address}${4}`
-  let userOptionData = UserOptionData.load(referrenceID)
-  if (userOptionData != null) {
-    userOptionData.state = 5
-    userOptionData.save()
-  }
-}
-
-//TODO : TEST
-export function handleOpenTrade(event: OpenTrade): void {
-  let queueID = event.params.queueId
-  let referrenceID = `${queueID}${event.address}${4}`  
-  let userOptionData = UserOptionData.load(referrenceID)
-  if (userOptionData != null) {
-    userOptionData.state = 6
-    userOptionData.save()  
+  } else {
+    throw new Error('Corresponding trade does not exist')
   }
 }
 

@@ -6,7 +6,7 @@ dataSources:
     name: BufferBinaryOptions
     network: arbitrum-goerli
     source:
-      address: '0x7cf2809e96de47A5FbAF92d1274e51827e9BdC4F'
+      address: '0x1297A832701E7ae7925b196080eA99242DF53C5d'
       abi: BufferBinaryOptions
     mapping:
       kind: ethereum/events
@@ -29,7 +29,7 @@ dataSources:
     name: BufferBinaryEuropeanATMOptionsETHBTC
     network: arbitrum-goerli
     source:
-      address: '0x39DDC21420e8c721Cb880De9a218963393022381'
+      address: '0x430FA5C50BDd956a1242b4CA1265875bE00e9cA6'
       abi: BufferBinaryOptions
     mapping:
       kind: ethereum/events
@@ -52,7 +52,7 @@ dataSources:
     name: BufferBinaryEuropeanATMOptionsETHBUSD
     network: arbitrum-goerli
     source:
-      address: '0x1C1Bb44A1CF1566659B94a0615b8443fC6144368'
+      address: '0xd5d01849e028f5c7B69c9653D9EA01cB88A3B154'
       abi: BufferBinaryOptions
     mapping:
       kind: ethereum/events
@@ -75,7 +75,7 @@ dataSources:
     name: BufferBinaryEuropeanATMOptionsFOREX
     network: arbitrum-goerli
     source:
-      address: '0xb5c2fAEeF541Da50448589272cd7ca2fDb06C339'
+      address: '0x59A2D66B13168A52965a257007B1DFD7CA89cCA3'
       abi: BufferBinaryOptions
     mapping:
       kind: ethereum/events
@@ -98,7 +98,7 @@ dataSources:
     name: BufferRouter
     network: arbitrum-goerli
     source:
-      address: '0x767173fd3DD0A12df0f17D90A9810020d1c22A33'
+      address: '0x233Da126e42037e6996F6243bd988568fb57B547'
       abi: BufferRouter
     mapping:
       kind: ethereum/events
@@ -114,6 +114,6 @@ dataSources:
           handler: handleInitiateTrade
         - event: CancelTrade(indexed address,uint256,string)
           handler: handleCancelTrade    
-        - event: OpenTrade(indexed address,uint256)
+        - event: OpenTrade(indexed address,uint256,uint256)
           handler: handleOpenTrade    
       file: ./src/mapping.ts
