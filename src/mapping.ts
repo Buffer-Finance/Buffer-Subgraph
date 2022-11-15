@@ -47,11 +47,11 @@ export function handleCreate(event: Create): void {
 
 export function handleOpenTrade(event: OpenTrade): void {
   let queueID = event.params.queueId
-  let referrenceID = `${queueID}${event.address}${State.queued}`  
-  let userOptionData = UserOptionData.load(referrenceID)
-  if (userOptionData != null) {
-    userOptionData.state = 6
-    userOptionData.save()  
+  let queueReferrenceID = `${queueID}${event.address}${State.queued}`  
+  let userQueuedData = UserOptionData.load(queueReferrenceID)
+  if (userQueuedData != null) {
+    userQueuedData.state = State.undefined
+    userQueuedData.save()  
   } else {
     throw new Error('Corresponding queued trade does not exist')
   }

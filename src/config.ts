@@ -4,4 +4,5 @@ export enum State {
   expired = 3,
   queued = 4,
   cancelled = 5,
+  undefined = 6
 }
