@@ -6,7 +6,7 @@ dataSources:
     name: BufferBinaryOptions
     network: arbitrum-goerli
     source:
-      address: '0x1297A832701E7ae7925b196080eA99242DF53C5d'
+      address: '0xFECEBCcaD8e7cbafa087e031EF37FE4e3179593d'
       abi: BufferBinaryOptions
     mapping:
       kind: ethereum/events
@@ -29,7 +29,7 @@ dataSources:
     name: BufferBinaryEuropeanATMOptionsETHBTC
     network: arbitrum-goerli
     source:
-      address: '0x430FA5C50BDd956a1242b4CA1265875bE00e9cA6'
+      address: '0x3112B77b4EB7b7ed80dD7fc36D2BD641AD158f36'
       abi: BufferBinaryOptions
     mapping:
       kind: ethereum/events
@@ -52,7 +52,7 @@ dataSources:
     name: BufferBinaryEuropeanATMOptionsETHBUSD
     network: arbitrum-goerli
     source:
-      address: '0xd5d01849e028f5c7B69c9653D9EA01cB88A3B154'
+      address: '0xcB2CADdDF38C9DA6D3198CDF90babAFFefb75c9c'
       abi: BufferBinaryOptions
     mapping:
       kind: ethereum/events
@@ -75,7 +75,7 @@ dataSources:
     name: BufferBinaryEuropeanATMOptionsFOREX
     network: arbitrum-goerli
     source:
-      address: '0x59A2D66B13168A52965a257007B1DFD7CA89cCA3'
+      address: '0x05b944005A0159F84f971bF4C5B080e05f7a8c8D'
       abi: BufferBinaryOptions
     mapping:
       kind: ethereum/events
@@ -98,7 +98,7 @@ dataSources:
     name: BufferRouter
     network: arbitrum-goerli
     source:
-      address: '0x233Da126e42037e6996F6243bd988568fb57B547'
+      address: '0x31B1850Df80CA0AAbD6bd2F37B5bbE86BF304784'
       abi: BufferRouter
     mapping:
       kind: ethereum/events
