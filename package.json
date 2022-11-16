@@ -1,13 +1,14 @@
 {
-  "name": "buffer-subgraph-demo",
+  "name": "buffer-subgraph-v1",
   "version": "0.1.0",
   "scripts": {
-    "create": "graph create bufferfinance/Buffer-Subgraph  --node https://api.thegraph.com/deploy/",
-    "create-local": "graph create bufferfinance/Buffer-Subgraph --node http://127.0.0.1:8020",
+    "build-contract": "solc contracts/Gravity.sol --abi -o abis --overwrite && solc contracts/Gravity.sol --bin -o bin --overwrite",
+    "create": "graph create bufferfinance/buffer-subgraph-v1  --node https://api.thegraph.com/deploy/",
+    "create-local": "graph create bufferfinance/buffer-subgraph-v1 --node http://127.0.0.1:8020",
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy bufferfinance/Buffer-Subgraph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-local": "graph deploy bufferfinance/Buffer-Subgraph --ipfs http://127.0.0.1:5001 --node http://127.0.0.1:8020"
+    "deploy": "graph deploy bufferfinance/buffer-subgraph-v1 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-local": "graph deploy bufferfinance/buffer-subgraph-v1 --ipfs http://127.0.0.1:5001 --node http://127.0.0.1:8020"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.30.2",

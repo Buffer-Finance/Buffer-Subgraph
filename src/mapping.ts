@@ -1,5 +1,5 @@
 import { Create, Expire, Exercise, BufferBinaryOptions } from '../generated/BufferBinaryOptions/BufferBinaryOptions'
-import { InitiateTrade, CancelTrade, Router, OpenTrade } from '../generated/Router/Router'
+import { InitiateTrade, CancelTrade, BufferRouter, OpenTrade } from '../generated/BufferRouter/BufferRouter'
 import { State } from './config'
 import { UserOptionData } from '../generated/schema'
 
@@ -9,7 +9,7 @@ export function handleInitiateTrade(event: InitiateTrade): void {
   let state = State.queued
   let referrenceID = `${queueID}${contractAddress}${state}`
   let userOptionData = new UserOptionData(referrenceID)
-  let contract = Router.bind(contractAddress)
+  let contract = BufferRouter.bind(contractAddress)
   let queuedTradeData = contract.queuedTrades(queueID)
   userOptionData.queueID = queueID
   userOptionData.userAddress = event.params.account
