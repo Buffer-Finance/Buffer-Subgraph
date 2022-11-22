@@ -24,7 +24,9 @@ dataSources:
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise    
+          handler: handleExercise  
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral 
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferRouter

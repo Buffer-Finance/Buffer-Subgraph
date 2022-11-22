@@ -1,7 +1,8 @@
-import { Create, Expire, Exercise, BufferBinaryOptions } from '../generated/BufferBinaryOptions/BufferBinaryOptions'
+import { Create, Expire, Exercise, BufferBinaryOptions, UpdateReferral } from '../generated/BufferBinaryOptions/BufferBinaryOptions'
 import { InitiateTrade, CancelTrade, BufferRouter, OpenTrade } from '../generated/BufferRouter/BufferRouter'
 import { State } from './config'
-import { UserOptionData, User, OptionContract, QueuedOptionData } from '../generated/schema'
+import { UserOptionData, User, OptionContract, QueuedOptionData, ReferralData } from '../generated/schema'
+import { bigInt, BigInt } from '@graphprotocol/graph-ts'
 
 
 export function handleInitiateTrade(event: InitiateTrade): void {
@@ -166,3 +167,47 @@ export function handleExpire(event: Expire): void {
     } 
   } 
 }
+
+
+export function handleUpdateReferral(event: UpdateReferral): void {
+  let user = event.params.user
+  let referrer = event.params.referrer
+  const zero = new BigInt(0)
+  
+  let userReferralDataV1 = ReferralData.load(user)
+  if (userReferralDataV1 == null) {
+    let userReferralDataV1 = new ReferralData(user)
+    userReferralDataV1.user = user
+    userReferralDataV1.totalDiscountAvailed = zero
+    userReferralDataV1.totalRebateEarned = zero
+    userReferralDataV1.totalTradersReferred = zero
+    userReferralDataV1.totalTradingVolume = zero
+    userReferralDataV1.totalVolumeOfReferredTrades = zero
+    userReferralDataV1.save()  
+  } else {
+    if (event.params.isReferralValid) {
+      userReferralDataV1.totalDiscountAvailed = userReferralDataV1.totalDiscountAvailed + event.params.rebate
+      userReferralDataV1.totalTradingVolume = userReferralDataV1.totalDiscountAvailed + event.params.totalFee
+      userReferralDataV1.save() 
+    }   
+  }
+
+  let referrerReferralDataV1 = ReferralData.load(referrer)
+  if (referrerReferralDataV1 == null) {
+    let referrerReferralDataV1 = new ReferralData(referrer)
+    referrerReferralDataV1.user = user
+    referrerReferralDataV1.totalDiscountAvailed = zero
+    referrerReferralDataV1.totalRebateEarned = zero
+    referrerReferralDataV1.totalTradersReferred = zero
+    referrerReferralDataV1.totalTradingVolume = zero
+    referrerReferralDataV1.totalVolumeOfReferredTrades = zero
+    referrerReferralDataV1.save()  
+  } else {
+    referrerReferralDataV1.totalTradersReferred = referrerReferralDataV1.totalTradersReferred + new BigInt(1)
+    referrerReferralDataV1.totalVolumeOfReferredTrades = referrerReferralDataV1.totalVolumeOfReferredTrades + event.params.totalFee
+    referrerReferralDataV1.totalRebateEarned = referrerReferralDataV1.totalRebateEarned + event.params.referrerFee
+    referrerReferralDataV1.save()    
+  }
+  
+}
+
