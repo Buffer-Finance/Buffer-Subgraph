@@ -1,20 +1,68 @@
-type UserOptionData @entity {
+type OptionContract @entity {
+  id: Bytes! 
+  address: Bytes
+  asset: String
+  isPaused : Boolean
+}
+
+type User @entity {
+  id: Bytes! 
+  address: Bytes!
+  allTradesCount: Int
+  allActiveTrades : Int
+  allExpiredTrades : Int
+  allExercisedTrades : Int
+}
+
+
+type QueuedOptionData @entity {
   id: String! 
-  optionID: BigInt
+  optionContract : OptionContract!
   strike: BigInt
   totalFee: BigInt
-  userAddress : Bytes
-  contractAddress : Bytes
-  creationTime : BigInt
-  expirationPrice : BigInt
-  payout : BigInt
-  settlementFee : BigInt
+  user : User
   state : Int
-  amount : BigInt
-  expirationTime : BigInt
   isAbove : Boolean
   queueID : BigInt
   slippage : BigInt
   depositToken : String
+}
 
+
+type UserOptionData @entity {
+  id: String! 
+  optionContract : OptionContract!
+  optionID: BigInt
+  strike: BigInt
+  totalFee: BigInt
+  user : User!
+  creationTime : BigInt
+  expirationPrice : BigInt
+  payout : BigInt
+  state : Int
+  amount : BigInt
+  expirationTime : BigInt
+  isAbove : Boolean
+  depositToken : String
+  queueID : BigInt
+}
+
+
+type ReferralData @entity {
+  id: String! 
+  user : User
+  totalTradersReferred : BigInt
+  totalVolumeOfReferredTrades : BigInt
+  totalRebateEarned : BigInt
+  totalTradingVolume : BigInt
+  totalDiscountAvailed : BigInt
+}
+
+
+type OptionStats @entity {
+  id: String! 
+  currentAbovePositions : BigInt
+  currentBelowPositions : BigInt
+  totalSettlementFees : BigInt
+  totalVolume : BigInt
 }

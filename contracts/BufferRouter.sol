@@ -140,9 +140,12 @@ contract BufferRouter is AccessControl, IBufferRouter {
             QueuedTrade memory queuedTrade = queuedTrades[
                 currentParams.queueId
             ];
+            IBufferBinaryOptions optionsContract = IBufferBinaryOptions(
+                queuedTrade.targetContract
+            );
             bool isSignerVerifed = _validateSigner(
                 currentParams.timestamp,
-                currentParams.asset,
+                optionsContract.assetPair(),
                 currentParams.price,
                 currentParams.signature
             );
@@ -194,7 +197,7 @@ contract BufferRouter is AccessControl, IBufferRouter {
         for (uint32 i = 0; i < arrayLength; i++) {
             CloseTradeParams memory params = optionData[i];
             IBufferBinaryOptions optionsContract = IBufferBinaryOptions(
-                params.asset
+                params.targetContract
             );
             (, , , , , uint256 expiration, , , ) = optionsContract.options(
                 params.optionId
@@ -202,7 +205,7 @@ contract BufferRouter is AccessControl, IBufferRouter {
 
             bool isSignerVerifed = _validateSigner(
                 params.expiryTimestamp,
-                params.asset,
+                optionsContract.assetPair(),
                 params.priceAtExpiry,
                 params.signature
             );
@@ -259,12 +262,12 @@ contract BufferRouter is AccessControl, IBufferRouter {
 
     function _validateSigner(
         uint256 timestamp,
-        address asset,
+        string memory assetPair,
         uint256 price,
         bytes memory signature
     ) internal view returns (bool) {
         bytes32 digest = ECDSA.toEthSignedMessageHash(
-            keccak256(abi.encodePacked(timestamp, asset, price))
+            keccak256(abi.encodePacked(assetPair, timestamp, price))
         );
         address recoveredSigner = ECDSA.recover(digest, signature);
         return recoveredSigner == publisher;

@@ -25,7 +25,7 @@ contract BufferBinaryOptions is
     uint16 public baseSettlementFeePercentageForAbove; // Factor of 1e2
     uint16 public baseSettlementFeePercentageForBelow; // Factor of 1e2
     uint16 public stepSize = 250; // Factor of 1e2
-    string public assetPair;
+    string public override assetPair;
 
     ILiquidityPool public override pool;
     IOptionsConfig public override config;
@@ -199,6 +199,7 @@ contract BufferBinaryOptions is
     )
         public
         view
+        override
         returns (
             uint256 total,
             uint256 settlementFee,
@@ -287,7 +288,12 @@ contract BufferBinaryOptions is
     /**
      * @notice Calculates max option amount based on the pool's capacity
      */
-    function getMaxUtilization() public view returns (uint256 maxAmount) {
+    function getMaxUtilization()
+        public
+        view
+        override
+        returns (uint256 maxAmount)
+    {
         // Calculate the max option size due to asset wise pool utilization limit
         uint256 totalPoolBalance = pool.totalTokenXBalance();
         uint256 availableBalance = totalPoolBalance - totalLockedAmount;
@@ -432,8 +438,8 @@ contract BufferBinaryOptions is
     {
         // Probability for ATM options will always be 0.5 due to which we can skip using BSM
         premium = amount / 2;
-        settlementFee = (amount * settlementFeePercentage) / 1e4;
-        total = settlementFee + premium;
+        total = (premium * 1e4) / (1e4 - settlementFeePercentage);
+        settlementFee = total - premium;
     }
 
     /**
@@ -481,6 +487,7 @@ contract BufferBinaryOptions is
                     _getbaseSettlementFeePercentage(isAbove)
                 );
                 emit UpdateReferral(
+                    user,
                     referrer,
                     isReferralValid,
                     totalFee,

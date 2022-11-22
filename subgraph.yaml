@@ -18,18 +18,18 @@ dataSources:
         - name: BufferBinaryOptions
           file: ./abis/BufferBinaryOptions.json
       eventHandlers:
-        - event: Create(indexed address,indexed uint256,uint256,uint256)
-          handler: handleCreate
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise    
+          handler: handleExercise     
+        # - event: UpdateReferral(address,bool,uint256,uint256,uint256,string)
+        #   handler: handleUpdateReferral  
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferRouter
     network: arbitrum-goerli
     source:
-      address: '0x31B1850Df80CA0AAbD6bd2F37B5bbE86BF304784'
+      address: '0xb7CEBC382B8A0bf7ecB98FEA7d6B5E65125d58b1'
       abi: BufferRouter
       startBlock: 130000 
     mapping:
