@@ -72,23 +72,23 @@ export function handleOpenTrade(event: OpenTrade): void {
     } else {
       throw new Error('Corresponding queued trade does not exist')
     }
-    // let optionContractInstance = BufferBinaryOptions.bind(contractAddress) 
-    // let optionData = optionContractInstance.options(optionID)
-    // let referrenceID = `${optionID}${contractAddress}`
-    // let userOptionData = new UserOptionData(referrenceID)
-    // userOptionData.optionID = event.params.optionId
-    // userOptionData.user = event.params.account
-    // userOptionData.totalFee = optionData.value7
-    // userOptionData.state = optionData.value0
-    // userOptionData.strike = optionData.value1
-    // userOptionData.amount = optionData.value2
-    // userOptionData.expirationTime = optionData.value5
-    // userOptionData.isAbove = optionData.value6 ? true : false
-    // userOptionData.creationTime = optionData.value8
-    // userOptionData.optionContract = contractAddress
-    // userOptionData.depositToken = "USDC"
-    // userOptionData.queueID = queueID
-    // userOptionData.save()
+    let optionContractInstance = BufferBinaryOptions.bind(contractAddress) 
+    let optionData = optionContractInstance.options(optionID)
+    let referrenceID = `${optionID}${contractAddress}`
+    let userOptionData = new UserOptionData(referrenceID)
+    userOptionData.optionID = event.params.optionId
+    userOptionData.user = event.params.account
+    userOptionData.totalFee = optionData.value7
+    userOptionData.state = optionData.value0
+    userOptionData.strike = optionData.value1
+    userOptionData.amount = optionData.value2
+    userOptionData.expirationTime = optionData.value5
+    userOptionData.isAbove = optionData.value6 ? true : false
+    userOptionData.creationTime = optionData.value8
+    userOptionData.optionContract = contractAddress
+    userOptionData.depositToken = "USDC"
+    userOptionData.queueID = queueID
+    userOptionData.save()
   }
 }
 
