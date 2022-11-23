@@ -51,7 +51,7 @@ type UserOptionData @entity {
 type ReferralData @entity {
   id: Bytes! 
   user : User!
-  totalTradersReferred : BigInt!
+  totalTradesReferred : Int!
   totalVolumeOfReferredTrades : BigInt!
   totalRebateEarned : BigInt!
   totalTradingVolume : BigInt!

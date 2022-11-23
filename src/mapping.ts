@@ -45,6 +45,7 @@ export function handleInitiateTrade(event: InitiateTrade): void {
   }
 }
 
+
 export function handleOpenTrade(event: OpenTrade): void {
   let routerContract = BufferRouter.bind(event.address)
   let queueID = event.params.queueId
@@ -176,38 +177,42 @@ export function handleUpdateReferral(event: UpdateReferral): void {
   
   let userReferralDataV1 = ReferralData.load(user)
   if (userReferralDataV1 == null) {
-    let userReferralDataV1 = new ReferralData(user)
-    userReferralDataV1.user = user
-    userReferralDataV1.totalDiscountAvailed = zero
-    userReferralDataV1.totalRebateEarned = zero
-    userReferralDataV1.totalTradersReferred = zero
-    userReferralDataV1.totalTradingVolume = zero
-    userReferralDataV1.totalVolumeOfReferredTrades = zero
-    userReferralDataV1.save()  
-  } else {
+    let userReferralDataTemp = new ReferralData(user)
+    userReferralDataTemp.user = user
+    userReferralDataTemp.totalDiscountAvailed = zero
+    userReferralDataTemp.totalRebateEarned = zero
+    userReferralDataTemp.totalTradesReferred = 0
+    userReferralDataTemp.totalTradingVolume = zero
+    userReferralDataTemp.totalVolumeOfReferredTrades = zero
+    userReferralDataTemp.save()  
+  } 
+  let userReferralDataV2 = ReferralData.load(user)
+  if (userReferralDataV2 != null) {
     if (event.params.isReferralValid) {
-      userReferralDataV1.totalDiscountAvailed = userReferralDataV1.totalDiscountAvailed + event.params.rebate
-      userReferralDataV1.totalTradingVolume = userReferralDataV1.totalDiscountAvailed + event.params.totalFee
-      userReferralDataV1.save() 
-    }   
+      userReferralDataV2.totalDiscountAvailed = userReferralDataV2.totalDiscountAvailed.plus(event.params.rebate)
+      userReferralDataV2.totalTradingVolume = userReferralDataV2.totalTradingVolume.plus(event.params.totalFee)
+      userReferralDataV2.save() 
+    }  
   }
 
   let referrerReferralDataV1 = ReferralData.load(referrer)
   if (referrerReferralDataV1 == null) {
-    let referrerReferralDataV1 = new ReferralData(referrer)
-    referrerReferralDataV1.user = user
-    referrerReferralDataV1.totalDiscountAvailed = zero
-    referrerReferralDataV1.totalRebateEarned = zero
-    referrerReferralDataV1.totalTradersReferred = zero
-    referrerReferralDataV1.totalTradingVolume = zero
-    referrerReferralDataV1.totalVolumeOfReferredTrades = zero
-    referrerReferralDataV1.save()  
-  } else {
-    referrerReferralDataV1.totalTradersReferred = referrerReferralDataV1.totalTradersReferred + new BigInt(1)
-    referrerReferralDataV1.totalVolumeOfReferredTrades = referrerReferralDataV1.totalVolumeOfReferredTrades + event.params.totalFee
-    referrerReferralDataV1.totalRebateEarned = referrerReferralDataV1.totalRebateEarned + event.params.referrerFee
-    referrerReferralDataV1.save()    
+    let referrerReferralDataV1Temp = new ReferralData(referrer)
+    referrerReferralDataV1Temp.user = referrer
+    referrerReferralDataV1Temp.totalDiscountAvailed = zero
+    referrerReferralDataV1Temp.totalRebateEarned = zero
+    referrerReferralDataV1Temp.totalTradesReferred = 0
+    referrerReferralDataV1Temp.totalTradingVolume = zero
+    referrerReferralDataV1Temp.totalVolumeOfReferredTrades = zero
+    referrerReferralDataV1Temp.save()  
   }
-  
+
+  let referrerReferralDataV2 = ReferralData.load(referrer)
+  if (referrerReferralDataV2 != null) {
+    referrerReferralDataV2.totalTradesReferred = referrerReferralDataV2.totalTradesReferred + 1
+    referrerReferralDataV2.totalVolumeOfReferredTrades = referrerReferralDataV2.totalVolumeOfReferredTrades.plus(event.params.totalFee)
+    referrerReferralDataV2.totalRebateEarned = referrerReferralDataV2.totalRebateEarned.plus(event.params.referrerFee)
+    referrerReferralDataV2.save()   
+  }
 }
 
