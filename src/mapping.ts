@@ -1,7 +1,7 @@
 import { Create, Expire, Exercise, BufferBinaryOptions, UpdateReferral } from '../generated/BufferBinaryOptions/BufferBinaryOptions'
 import { InitiateTrade, CancelTrade, BufferRouter, OpenTrade } from '../generated/BufferRouter/BufferRouter'
 import { State } from './config'
-import { UserOptionData, User, OptionContract, QueuedOptionData, ReferralData } from '../generated/schema'
+import { UserOptionData, User, OptionContract, QueuedOptionData, ReferralData, OptionStats } from '../generated/schema'
 import { bigInt, BigInt } from '@graphprotocol/graph-ts'
 
 
@@ -104,7 +104,33 @@ export function handleCreate(event: Create): void {
   userOptionData.creationTime = optionData.value8
   userOptionData.optionContract = contractAddress
   userOptionData.depositToken = "USDC"
+  userOptionData.settlementFee = event.params.settlementFee
   userOptionData.save()
+
+  const zero = new BigInt(0)
+  let optionStats = OptionStats.load("V1")
+  if (optionStats == null) {
+    let optionStats =new  OptionStats("V1")
+    optionStats.currentAbovePositions = 0
+    optionStats.currentBelowPositions = 0
+    optionStats.totalSettlementFeesBFR = zero
+    optionStats.totalSettlementFeesUSDC = zero
+    optionStats.totalVolumeBFR = zero
+    optionStats.totalVolumeUSDC = zero
+    optionStats.save()
+  } 
+  let optionStatsV1 = OptionStats.load("V1")
+  if (optionStatsV1 != null) { 
+    if (optionData.value6) {
+      optionStatsV1.currentAbovePositions += 1
+    } else {
+      optionStatsV1.currentBelowPositions += 1
+    }
+    optionStatsV1.totalVolumeBFR.plus(event.params.totalFee)
+    optionStatsV1.totalVolumeUSDC.plus(event.params.totalFee)
+    optionStatsV1.save()
+
+  }
 }
 
 
@@ -189,7 +215,8 @@ export function handleUpdateReferral(event: UpdateReferral): void {
   let userReferralDataV2 = ReferralData.load(user)
   if (userReferralDataV2 != null) {
     if (event.params.isReferralValid) {
-      userReferralDataV2.totalDiscountAvailed = userReferralDataV2.totalDiscountAvailed.plus(event.params.rebate)
+      let discount = event.params.rebate.div(6)
+      userReferralDataV2.totalDiscountAvailed = userReferralDataV2.totalDiscountAvailed.plus(discount)
       userReferralDataV2.totalTradingVolume = userReferralDataV2.totalTradingVolume.plus(event.params.totalFee)
       userReferralDataV2.save() 
     }  

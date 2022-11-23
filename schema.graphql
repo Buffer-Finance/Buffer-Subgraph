@@ -45,6 +45,7 @@ type UserOptionData @entity {
   isAbove : Boolean
   depositToken : String
   queueID : BigInt
+  settlementFee : BigInt
 }
 
 
@@ -61,8 +62,10 @@ type ReferralData @entity {
 
 type OptionStats @entity {
   id: String! 
-  currentAbovePositions : BigInt
-  currentBelowPositions : BigInt
-  totalSettlementFees : BigInt
-  totalVolume : BigInt
+  currentAbovePositions : Int!
+  currentBelowPositions : Int!
+  totalSettlementFeesBFR : BigInt!
+  totalVolumeBFR : BigInt!
+  totalSettlementFeesUSDC : BigInt!
+  totalVolumeUSDC : BigInt!
 }
