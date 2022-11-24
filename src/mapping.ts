@@ -1,7 +1,7 @@
 import { Create, Expire, Exercise, BufferBinaryOptions, UpdateReferral } from '../generated/BufferBinaryOptions/BufferBinaryOptions'
 import { InitiateTrade, CancelTrade, BufferRouter, OpenTrade } from '../generated/BufferRouter/BufferRouter'
 import { State } from './config'
-import { UserOptionData, User, OptionContract, QueuedOptionData, ReferralData, OptionStats } from '../generated/schema'
+import { UserOptionData, User, OptionContract, QueuedOptionData, ReferralData, OptionStat} from '../generated/schema'
 import { bigInt, BigInt } from '@graphprotocol/graph-ts'
 
 
@@ -40,7 +40,6 @@ export function handleInitiateTrade(event: InitiateTrade): void {
     userOptionData.optionContract = contractAddress
     userOptionData.slippage = queuedTradeData.value8
     userOptionData.isAbove = queuedTradeData.value5 ? true : false
-    userOptionData.depositToken = "USDC"
     userOptionData.save()
   }
 }
@@ -103,33 +102,93 @@ export function handleCreate(event: Create): void {
   userOptionData.isAbove = optionData.value6 ? true : false
   userOptionData.creationTime = optionData.value8
   userOptionData.optionContract = contractAddress
-  userOptionData.depositToken = "USDC"
   userOptionData.settlementFee = event.params.settlementFee
   userOptionData.save()
 
   const zero = new BigInt(0)
-  let optionStats = OptionStats.load("V1")
+  let tokenReferrenceID = `USDC`
+
+  let optionStats = OptionStat.load(tokenReferrenceID)
   if (optionStats == null) {
-    let optionStats =new  OptionStats("V1")
+    let optionStats = new  OptionStat(tokenReferrenceID)
     optionStats.currentAbovePositions = 0
     optionStats.currentBelowPositions = 0
-    optionStats.totalSettlementFeesBFR = zero
-    optionStats.totalSettlementFeesUSDC = zero
-    optionStats.totalVolumeBFR = zero
-    optionStats.totalVolumeUSDC = zero
+    optionStats.totalSettlementFees = zero
+    optionStats.totalVolume = zero
     optionStats.save()
   } 
-  let optionStatsV1 = OptionStats.load("V1")
+  let optionStatsV1 = OptionStat.load(tokenReferrenceID)
   if (optionStatsV1 != null) { 
     if (optionData.value6) {
       optionStatsV1.currentAbovePositions += 1
     } else {
       optionStatsV1.currentBelowPositions += 1
     }
-    optionStatsV1.totalVolumeBFR.plus(event.params.totalFee)
-    optionStatsV1.totalVolumeUSDC.plus(event.params.totalFee)
+    optionStatsV1.totalVolume = optionStatsV1.totalVolume.plus(event.params.totalFee)
+    optionStatsV1.totalSettlementFees = optionStatsV1.totalSettlementFees.plus(event.params.settlementFee)
     optionStatsV1.save()
+  }
+}
 
+
+export function handleCreateForBFR(event: Create): void {
+  let optionID = event.params.id
+  let contractAddress = event.address
+  let contract = BufferBinaryOptions.bind(contractAddress)
+  let optionData = contract.options(optionID)
+  let referrenceID = `${event.params.id}${contractAddress}`
+  let userOptionData = new UserOptionData(referrenceID)
+
+  let user = User.load(event.params.account)
+  if (user != null) {
+    user.address = event.params.account
+    user.allActiveTrades = user.allActiveTrades + 1
+    user.allTradesCount = user.allTradesCount + 1
+    user.save()  
+  }
+  let optionContract = OptionContract.load(contractAddress)
+  if (optionContract != null) {
+    let optionContractInstance = BufferBinaryOptions.bind(event.address)
+    optionContract.asset = optionContractInstance.assetPair()
+    optionContract.isPaused = optionContractInstance.isPaused() ? true : false
+    optionContract.address = contractAddress
+    optionContract.save()  
+  } 
+
+  userOptionData.optionID = event.params.id
+  userOptionData.user = event.params.account
+  userOptionData.totalFee = event.params.totalFee
+  userOptionData.state = optionData.value0
+  userOptionData.strike = optionData.value1
+  userOptionData.amount = optionData.value2
+  userOptionData.expirationTime = optionData.value5
+  userOptionData.isAbove = optionData.value6 ? true : false
+  userOptionData.creationTime = optionData.value8
+  userOptionData.optionContract = contractAddress
+  userOptionData.settlementFee = event.params.settlementFee
+  userOptionData.save()
+  let tokenReferrenceID = `BFR`
+
+  const zero = new BigInt(0)
+  let optionStats = OptionStat.load(tokenReferrenceID)
+  if (optionStats == null) {
+    let optionStats = new  OptionStat(tokenReferrenceID)
+    optionStats.currentAbovePositions = 0
+    optionStats.currentBelowPositions = 0
+    optionStats.totalSettlementFees = zero
+    optionStats.totalVolume = zero
+    optionStats.save()
+  } 
+  let optionStatsV1 = OptionStat.load(tokenReferrenceID)
+  if (optionStatsV1 != null) { 
+    if (optionData.value6) {
+      optionStatsV1.currentAbovePositions += 1
+    } else {
+      optionStatsV1.currentBelowPositions += 1
+    }
+    optionStatsV1.totalVolume = optionStatsV1.totalVolume.plus(event.params.totalFee)
+    optionStatsV1.totalSettlementFees = optionStatsV1.totalSettlementFees.plus(event.params.settlementFee)
+    optionStatsV1.save()
   }
 }
 
@@ -215,7 +274,7 @@ export function handleUpdateReferral(event: UpdateReferral): void {
   let userReferralDataV2 = ReferralData.load(user)
   if (userReferralDataV2 != null) {
     if (event.params.isReferralValid) {
-      let discount = event.params.rebate.div(6)
+      let discount = event.params.rebate.div(BigInt.fromI32(6))
       userReferralDataV2.totalDiscountAvailed = userReferralDataV2.totalDiscountAvailed.plus(discount)
       userReferralDataV2.totalTradingVolume = userReferralDataV2.totalTradingVolume.plus(event.params.totalFee)
       userReferralDataV2.save() 

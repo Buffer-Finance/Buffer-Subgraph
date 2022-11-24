@@ -14,7 +14,6 @@ type User @entity {
   allExercisedTrades : Int
 }
 
-
 type QueuedOptionData @entity {
   id: String! 
   optionContract : OptionContract!
@@ -60,12 +59,10 @@ type ReferralData @entity {
 }
 
 
-type OptionStats @entity {
+type OptionStat @entity {
   id: String! 
   currentAbovePositions : Int!
   currentBelowPositions : Int!
-  totalSettlementFeesBFR : BigInt!
-  totalVolumeBFR : BigInt!
-  totalSettlementFeesUSDC : BigInt!
-  totalVolumeUSDC : BigInt!
+  totalVolume : BigInt!
+  totalSettlementFees : BigInt!
 }
