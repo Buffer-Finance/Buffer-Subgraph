@@ -25,6 +25,7 @@ type QueuedOptionData @entity {
   queueID : BigInt
   slippage : BigInt
   depositToken : String
+  reason : String
 }
 
 

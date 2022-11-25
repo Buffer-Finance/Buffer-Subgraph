@@ -203,6 +203,7 @@ export function handleCancelTrade (event: CancelTrade): void {
     let userQueuedData = QueuedOptionData.load(referrenceID)
     if (userQueuedData != null) {
       userQueuedData.state = State.cancelled
+      userQueuedData.reason = event.params.reason
       userQueuedData.save()
     } else {
       throw new Error('Corresponding queued trade does not exist')
