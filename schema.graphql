@@ -61,8 +61,8 @@ type ReferralData @entity {
 
 type OptionStat @entity {
   id: String! 
-  currentAbovePositions : Int!
-  currentBelowPositions : Int!
+  currentAbovePositions : BigInt!
+  currentBelowPositions : BigInt!
   totalVolume : BigInt!
   totalSettlementFees : BigInt!
 }

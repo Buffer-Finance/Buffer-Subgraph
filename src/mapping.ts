@@ -2,7 +2,7 @@ import { Create, Expire, Exercise, BufferBinaryOptions, UpdateReferral } from '.
 import { InitiateTrade, CancelTrade, BufferRouter, OpenTrade } from '../generated/BufferRouter/BufferRouter'
 import { State } from './config'
 import { UserOptionData, User, OptionContract, QueuedOptionData, ReferralData, OptionStat} from '../generated/schema'
-import { bigInt, BigInt } from '@graphprotocol/graph-ts'
+import { BigInt } from '@graphprotocol/graph-ts'
 
 
 export function handleInitiateTrade(event: InitiateTrade): void {
@@ -111,8 +111,8 @@ export function handleCreate(event: Create): void {
   let optionStats = OptionStat.load(tokenReferrenceID)
   if (optionStats == null) {
     let optionStats = new  OptionStat(tokenReferrenceID)
-    optionStats.currentAbovePositions = 0
-    optionStats.currentBelowPositions = 0
+    optionStats.currentAbovePositions = zero
+    optionStats.currentBelowPositions = zero
     optionStats.totalSettlementFees = zero
     optionStats.totalVolume = zero
     optionStats.save()
@@ -120,9 +120,9 @@ export function handleCreate(event: Create): void {
   let optionStatsV1 = OptionStat.load(tokenReferrenceID)
   if (optionStatsV1 != null) { 
     if (optionData.value6) {
-      optionStatsV1.currentAbovePositions += 1
+      optionStatsV1.currentAbovePositions = optionStatsV1.currentAbovePositions.plus(event.params.totalFee)
     } else {
-      optionStatsV1.currentBelowPositions += 1
+      optionStatsV1.currentBelowPositions = optionStatsV1.currentBelowPositions.plus(event.params.totalFee)
     }
     optionStatsV1.totalVolume = optionStatsV1.totalVolume.plus(event.params.totalFee)
     optionStatsV1.totalSettlementFees = optionStatsV1.totalSettlementFees.plus(event.params.settlementFee)
@@ -173,8 +173,8 @@ export function handleCreateForBFR(event: Create): void {
   let optionStats = OptionStat.load(tokenReferrenceID)
   if (optionStats == null) {
     let optionStats = new  OptionStat(tokenReferrenceID)
-    optionStats.currentAbovePositions = 0
-    optionStats.currentBelowPositions = 0
+    optionStats.currentAbovePositions = zero
+    optionStats.currentBelowPositions = zero
     optionStats.totalSettlementFees = zero
     optionStats.totalVolume = zero
     optionStats.save()
@@ -182,9 +182,9 @@ export function handleCreateForBFR(event: Create): void {
   let optionStatsV1 = OptionStat.load(tokenReferrenceID)
   if (optionStatsV1 != null) { 
     if (optionData.value6) {
-      optionStatsV1.currentAbovePositions += 1
+      optionStatsV1.currentAbovePositions = optionStatsV1.currentAbovePositions.plus(event.params.totalFee)
     } else {
-      optionStatsV1.currentBelowPositions += 1
+      optionStatsV1.currentBelowPositions =  optionStatsV1.currentBelowPositions.plus(event.params.totalFee)
     }
     optionStatsV1.totalVolume = optionStatsV1.totalVolume.plus(event.params.totalFee)
     optionStatsV1.totalSettlementFees = optionStatsV1.totalSettlementFees.plus(event.params.settlementFee)
@@ -212,7 +212,8 @@ export function handleCancelTrade (event: CancelTrade): void {
 
 
 export function handleExercise(event: Exercise): void {
-  let referrenceID = `${event.params.id}${event.address}`
+  let
+  referrenceID = `${event.params.id}${event.address}`
   let userOptionData = UserOptionData.load(referrenceID)
   if (userOptionData != null) {
     let user = userOptionData.user
