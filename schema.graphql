@@ -59,11 +59,22 @@ type ReferralData @entity {
   totalDiscountAvailed : BigInt!
 }
 
-
 type OptionStat @entity {
   id: String! 
   currentAbovePositions : BigInt!
   currentBelowPositions : BigInt!
   totalVolume : BigInt!
   totalSettlementFees : BigInt!
+}
+
+type TradingStat @entity {
+  id: ID!
+  profit: BigInt!
+  loss: BigInt!
+  profitCumulative: BigInt!
+  lossCumulative: BigInt!
+  longOpenInterest: BigInt!
+  shortOpenInterest: BigInt!
+  timestamp: Int!
+  period: Period!
 }
