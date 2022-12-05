@@ -1,3 +1,10 @@
+enum Period {
+  hourly
+  daily
+  weekly
+  total
+}
+
 type OptionContract @entity {
   id: Bytes! 
   address: Bytes
@@ -40,7 +47,7 @@ type UserOptionData @entity {
   expirationPrice : BigInt
   payout : BigInt
   state : Int
-  amount : BigInt
+  amount : BigInt!
   expirationTime : BigInt
   isAbove : Boolean
   depositToken : String

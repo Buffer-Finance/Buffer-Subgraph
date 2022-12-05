@@ -3,7 +3,7 @@ import { InitiateTrade, CancelTrade, BufferRouter, OpenTrade } from '../generate
 import { State } from './config'
 import { UserOptionData, User, OptionContract, QueuedOptionData, ReferralData, OptionStat} from '../generated/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
-
+import { _handleCreate, _storePnl, _updateOpenInterest } from './core'
 
 export function handleInitiateTrade(event: InitiateTrade): void {
   let routerContract = BufferRouter.bind(event.address)
@@ -68,128 +68,13 @@ export function handleOpenTrade(event: OpenTrade): void {
 }
 
 
-export function handleCreate(event: Create): void {
-  let optionID = event.params.id
-  let contractAddress = event.address
-  let contract = BufferBinaryOptions.bind(contractAddress)
-  let optionData = contract.options(optionID)
-  let referrenceID = `${event.params.id}${contractAddress}`
-  let userOptionData = new UserOptionData(referrenceID)
-
-  let user = User.load(event.params.account)
-  if (user != null) {
-    user.address = event.params.account
-    user.allActiveTrades = user.allActiveTrades + 1
-    user.allTradesCount = user.allTradesCount + 1
-    user.save()  
-  }
-  let optionContract = OptionContract.load(contractAddress)
-  if (optionContract != null) {
-    let optionContractInstance = BufferBinaryOptions.bind(event.address)
-    optionContract.asset = optionContractInstance.assetPair()
-    optionContract.isPaused = optionContractInstance.isPaused() ? true : false
-    optionContract.address = contractAddress
-    optionContract.save()  
-  } 
-
-  userOptionData.optionID = event.params.id
-  userOptionData.user = event.params.account
-  userOptionData.totalFee = event.params.totalFee
-  userOptionData.state = optionData.value0
-  userOptionData.strike = optionData.value1
-  userOptionData.amount = optionData.value2
-  userOptionData.expirationTime = optionData.value5
-  userOptionData.isAbove = optionData.value6 ? true : false
-  userOptionData.creationTime = optionData.value8
-  userOptionData.optionContract = contractAddress
-  userOptionData.settlementFee = event.params.settlementFee
-  userOptionData.save()
-
-  const zero = new BigInt(0)
-  let tokenReferrenceID = `USDC`
-
-  let optionStats = OptionStat.load(tokenReferrenceID)
-  if (optionStats == null) {
-    let optionStats = new  OptionStat(tokenReferrenceID)
-    optionStats.currentAbovePositions = zero
-    optionStats.currentBelowPositions = zero
-    optionStats.totalSettlementFees = zero
-    optionStats.totalVolume = zero
-    optionStats.save()
-  } 
-  let optionStatsV1 = OptionStat.load(tokenReferrenceID)
-  if (optionStatsV1 != null) { 
-    if (optionData.value6) {
-      optionStatsV1.currentAbovePositions = optionStatsV1.currentAbovePositions.plus(event.params.totalFee)
-    } else {
-      optionStatsV1.currentBelowPositions = optionStatsV1.currentBelowPositions.plus(event.params.totalFee)
-    }
-    optionStatsV1.totalVolume = optionStatsV1.totalVolume.plus(event.params.totalFee)
-    optionStatsV1.totalSettlementFees = optionStatsV1.totalSettlementFees.plus(event.params.settlementFee)
-    optionStatsV1.save()
-  }
+export function handleCreateForUSDC(event: Create): void {
+  _handleCreate(event, 'USDC')
 }
 
 
 export function handleCreateForBFR(event: Create): void {
-  let optionID = event.params.id
-  let contractAddress = event.address
-  let contract = BufferBinaryOptions.bind(contractAddress)
-  let optionData = contract.options(optionID)
-  let referrenceID = `${event.params.id}${contractAddress}`
-  let userOptionData = new UserOptionData(referrenceID)
-
-  let user = User.load(event.params.account)
-  if (user != null) {
-    user.address = event.params.account
-    user.allActiveTrades = user.allActiveTrades + 1
-    user.allTradesCount = user.allTradesCount + 1
-    user.save()  
-  }
-  let optionContract = OptionContract.load(contractAddress)
-  if (optionContract != null) {
-    let optionContractInstance = BufferBinaryOptions.bind(event.address)
-    optionContract.asset = optionContractInstance.assetPair()
-    optionContract.isPaused = optionContractInstance.isPaused() ? true : false
-    optionContract.address = contractAddress
-    optionContract.save()  
-  } 
-
-  userOptionData.optionID = event.params.id
-  userOptionData.user = event.params.account
-  userOptionData.totalFee = event.params.totalFee
-  userOptionData.state = optionData.value0
-  userOptionData.strike = optionData.value1
-  userOptionData.amount = optionData.value2
-  userOptionData.expirationTime = optionData.value5
-  userOptionData.isAbove = optionData.value6 ? true : false
-  userOptionData.creationTime = optionData.value8
-  userOptionData.optionContract = contractAddress
-  userOptionData.settlementFee = event.params.settlementFee
-  userOptionData.save()
-  let tokenReferrenceID = `BFR`
-
-  const zero = new BigInt(0)
-  let optionStats = OptionStat.load(tokenReferrenceID)
-  if (optionStats == null) {
-    let optionStats = new  OptionStat(tokenReferrenceID)
-    optionStats.currentAbovePositions = zero
-    optionStats.currentBelowPositions = zero
-    optionStats.totalSettlementFees = zero
-    optionStats.totalVolume = zero
-    optionStats.save()
-  } 
-  let optionStatsV1 = OptionStat.load(tokenReferrenceID)
-  if (optionStatsV1 != null) { 
-    if (optionData.value6) {
-      optionStatsV1.currentAbovePositions = optionStatsV1.currentAbovePositions.plus(event.params.totalFee)
-    } else {
-      optionStatsV1.currentBelowPositions =  optionStatsV1.currentBelowPositions.plus(event.params.totalFee)
-    }
-    optionStatsV1.totalVolume = optionStatsV1.totalVolume.plus(event.params.totalFee)
-    optionStatsV1.totalSettlementFees = optionStatsV1.totalSettlementFees.plus(event.params.settlementFee)
-    optionStatsV1.save()
-  }
+  _handleCreate(event, 'BFR')
 }
 
 
@@ -216,13 +101,18 @@ export function handleExercise(event: Exercise): void {
   let
   referrenceID = `${event.params.id}${event.address}`
   let userOptionData = UserOptionData.load(referrenceID)
+  _storePnl(event.block.timestamp, event.params.profit, true)
   if (userOptionData != null) {
     let user = userOptionData.user
     userOptionData.state = State.exercised
     userOptionData.payout = event.params.profit
     userOptionData.expirationPrice = event.params.priceAtExpiration
     userOptionData.save()  
-
+    if (userOptionData.isAbove) {
+      _updateOpenInterest(event.block.timestamp, false, true, userOptionData.amount)
+    } else {
+      _updateOpenInterest(event.block.timestamp, false, false, userOptionData.amount)
+    }
     let userObject = User.load(user)
     if (userObject != null) {
       userObject.allExercisedTrades = userObject.allExercisedTrades + 1
@@ -231,7 +121,6 @@ export function handleExercise(event: Exercise): void {
     } else{
       throw new Error('Corresponding user does not exist')
     } 
-
   } 
 }
 
@@ -239,12 +128,17 @@ export function handleExercise(event: Exercise): void {
 export function handleExpire(event: Expire): void {
   let referrenceID = `${event.params.id}${event.address}`
   let userOptionData = UserOptionData.load(referrenceID)
+  _storePnl(event.block.timestamp, event.params.premium, false)
   if (userOptionData != null) {
     let user = userOptionData.user
     userOptionData.state = State.expired
     userOptionData.expirationPrice = event.params.priceAtExpiration
     userOptionData.save()  
-
+    if (userOptionData.isAbove) {
+      _updateOpenInterest(event.block.timestamp, false, true, userOptionData.amount)
+    } else {
+      _updateOpenInterest(event.block.timestamp, false, false, userOptionData.amount)
+    }
     let userObject = User.load(user)
     if (userObject != null) {
       userObject.allExpiredTrades = userObject.allExpiredTrades + 1
@@ -269,17 +163,20 @@ export function handleUpdateReferral(event: UpdateReferral): void {
     userReferralDataTemp.totalDiscountAvailed = zero
     userReferralDataTemp.totalRebateEarned = zero
     userReferralDataTemp.totalTradesReferred = 0
-    userReferralDataTemp.totalTradingVolume = zero
+    userReferralDataTemp.totalTradingVolume = event.params.totalFee
     userReferralDataTemp.totalVolumeOfReferredTrades = zero
-    userReferralDataTemp.save()  
-  } 
-  let userReferralDataV2 = ReferralData.load(user)
-  if (userReferralDataV2 != null) {
+    userReferralDataTemp.save()
     if (event.params.isReferralValid) {
       let discount = event.params.rebate.div(BigInt.fromI32(6))
-      userReferralDataV2.totalDiscountAvailed = userReferralDataV2.totalDiscountAvailed.plus(discount)
-      userReferralDataV2.totalTradingVolume = userReferralDataV2.totalTradingVolume.plus(event.params.totalFee)
-      userReferralDataV2.save() 
+      userReferralDataTemp.totalDiscountAvailed = userReferralDataTemp.totalDiscountAvailed.plus(discount)
+      userReferralDataTemp.save() 
+    }  
+  } else {
+    if (event.params.isReferralValid) {
+      let discount = event.params.rebate.div(BigInt.fromI32(6))
+      userReferralDataV1.totalDiscountAvailed = userReferralDataV1.totalDiscountAvailed.plus(discount)
+      userReferralDataV1.totalTradingVolume = userReferralDataV1.totalTradingVolume.plus(event.params.totalFee)
+      userReferralDataV1.save() 
     }  
   }
 
@@ -288,19 +185,16 @@ export function handleUpdateReferral(event: UpdateReferral): void {
     let referrerReferralDataV1Temp = new ReferralData(referrer)
     referrerReferralDataV1Temp.user = referrer
     referrerReferralDataV1Temp.totalDiscountAvailed = zero
-    referrerReferralDataV1Temp.totalRebateEarned = zero
-    referrerReferralDataV1Temp.totalTradesReferred = 0
+    referrerReferralDataV1Temp.totalRebateEarned = event.params.referrerFee
+    referrerReferralDataV1Temp.totalTradesReferred = 1
     referrerReferralDataV1Temp.totalTradingVolume = zero
-    referrerReferralDataV1Temp.totalVolumeOfReferredTrades = zero
+    referrerReferralDataV1Temp.totalVolumeOfReferredTrades = event.params.totalFee
     referrerReferralDataV1Temp.save()  
-  }
-
-  let referrerReferralDataV2 = ReferralData.load(referrer)
-  if (referrerReferralDataV2 != null) {
-    referrerReferralDataV2.totalTradesReferred = referrerReferralDataV2.totalTradesReferred + 1
-    referrerReferralDataV2.totalVolumeOfReferredTrades = referrerReferralDataV2.totalVolumeOfReferredTrades.plus(event.params.totalFee)
-    referrerReferralDataV2.totalRebateEarned = referrerReferralDataV2.totalRebateEarned.plus(event.params.referrerFee)
-    referrerReferralDataV2.save()   
+  } else {
+    referrerReferralDataV1.totalTradesReferred = referrerReferralDataV1.totalTradesReferred + 1
+    referrerReferralDataV1.totalVolumeOfReferredTrades = referrerReferralDataV1.totalVolumeOfReferredTrades.plus(event.params.totalFee)
+    referrerReferralDataV1.totalRebateEarned = referrerReferralDataV1.totalRebateEarned.plus(event.params.referrerFee)
+    referrerReferralDataV1.save()   
   }
 }
 

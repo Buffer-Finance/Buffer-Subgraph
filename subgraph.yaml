@@ -20,7 +20,7 @@ dataSources:
           file: ./abis/BufferBinaryOptions.json
       eventHandlers:
         - event: Create(indexed address,indexed uint256,uint256,uint256)
-          handler: handleCreate
+          handler: handleCreateForUSDC
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
@@ -46,7 +46,7 @@ dataSources:
           file: ./abis/BufferBinaryOptions.json
       eventHandlers:
         - event: Create(indexed address,indexed uint256,uint256,uint256)
-          handler: handleCreate
+          handler: handleCreateForUSDC
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
@@ -72,7 +72,7 @@ dataSources:
           file: ./abis/BufferBinaryOptions.json
       eventHandlers:
         - event: Create(indexed address,indexed uint256,uint256,uint256)
-          handler: handleCreate
+          handler: handleCreateForUSDC
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
@@ -98,7 +98,7 @@ dataSources:
           file: ./abis/BufferBinaryOptions.json
       eventHandlers:
         - event: Create(indexed address,indexed uint256,uint256,uint256)
-          handler: handleCreate
+          handler: handleCreateForUSDC
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
