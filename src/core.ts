@@ -37,6 +37,7 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   userOptionData.creationTime = optionData.value8
   userOptionData.optionContract = contractAddress
   userOptionData.settlementFee = event.params.settlementFee
+  userOptionData.depositToken = tokenReferrenceID
   userOptionData.save()
 
   if (optionData.value1) {
