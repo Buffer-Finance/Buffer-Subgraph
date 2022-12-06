@@ -3,14 +3,15 @@ import { InitiateTrade, CancelTrade, BufferRouter, OpenTrade } from '../generate
 import { State } from './config'
 import { UserOptionData, User, OptionContract, QueuedOptionData, ReferralData, OptionStat} from '../generated/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
-import { _handleCreate, _storePnl, _updateOpenInterest } from './core'
+import { _handleCreate, _storePnl, _updateOpenInterest, _storeUser, _storeFees } from './core'
 
 export function handleInitiateTrade(event: InitiateTrade): void {
   let routerContract = BufferRouter.bind(event.address)
   let queueID = event.params.queueId
   let queuedTradeData = routerContract.queuedTrades(queueID)
   let contractAddress = queuedTradeData.value6
-
+  _storeUser(event.block.timestamp, event.params.account, "daily")
+  _storeUser(event.block.timestamp, event.params.account, "total")
   let user = User.load(event.params.account)
   if (user == null) {
     let user = new User(event.params.account)
@@ -101,17 +102,23 @@ export function handleExercise(event: Exercise): void {
   let
   referrenceID = `${event.params.id}${event.address}`
   let userOptionData = UserOptionData.load(referrenceID)
-  _storePnl(event.block.timestamp, event.params.profit, true)
   if (userOptionData != null) {
+    let pnl = event.params.profit.div(BigInt.fromI64(1000000000000000000))
+    let amount = userOptionData.amount.div(BigInt.fromI64(1000000000000000000))
+    if (userOptionData.depositToken == "USDC") {
+      pnl = event.params.profit.div(BigInt.fromI64(1000000))
+      amount = userOptionData.amount.div(BigInt.fromI64(1000000))
+    }
+    _storePnl(event.block.timestamp, pnl, true)
     let user = userOptionData.user
     userOptionData.state = State.exercised
     userOptionData.payout = event.params.profit
     userOptionData.expirationPrice = event.params.priceAtExpiration
     userOptionData.save()  
     if (userOptionData.isAbove) {
-      _updateOpenInterest(event.block.timestamp, false, true, userOptionData.amount)
+      _updateOpenInterest(event.block.timestamp, false, true, amount)
     } else {
-      _updateOpenInterest(event.block.timestamp, false, false, userOptionData.amount)
+      _updateOpenInterest(event.block.timestamp, false, false, amount)
     }
     let userObject = User.load(user)
     if (userObject != null) {
@@ -128,16 +135,22 @@ export function handleExercise(event: Exercise): void {
 export function handleExpire(event: Expire): void {
   let referrenceID = `${event.params.id}${event.address}`
   let userOptionData = UserOptionData.load(referrenceID)
-  _storePnl(event.block.timestamp, event.params.premium, false)
   if (userOptionData != null) {
+    let pnl = event.params.premium.div(BigInt.fromI64(1000000000000000000))
+    let amount = userOptionData.amount.div(BigInt.fromI64(1000000000000000000))
+    if (userOptionData.depositToken == "USDC") {
+      pnl = event.params.premium.div(BigInt.fromI64(1000000))
+      amount = userOptionData.amount.div(BigInt.fromI64(1000000))
+    }
+    _storePnl(event.block.timestamp, pnl, false)
     let user = userOptionData.user
     userOptionData.state = State.expired
     userOptionData.expirationPrice = event.params.priceAtExpiration
     userOptionData.save()  
     if (userOptionData.isAbove) {
-      _updateOpenInterest(event.block.timestamp, false, true, userOptionData.amount)
+      _updateOpenInterest(event.block.timestamp, false, true, amount)
     } else {
-      _updateOpenInterest(event.block.timestamp, false, false, userOptionData.amount)
+      _updateOpenInterest(event.block.timestamp, false, false, amount)
     }
     let userObject = User.load(user)
     if (userObject != null) {

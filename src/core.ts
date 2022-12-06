@@ -1,7 +1,7 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt, Address } from "@graphprotocol/graph-ts"
 import { Create, Expire, Exercise, BufferBinaryOptions, UpdateReferral } from '../generated/BufferBinaryOptions/BufferBinaryOptions'
-import { UserOptionData, User, OptionContract, OptionStat, TradingStat} from '../generated/schema'
-import { timestampToDay } from './helpers'
+import { UserOptionData, User, OptionContract, OptionStat, TradingStat, UserStat, FeeStat, VolumeStat} from '../generated/schema'
+import { timestampToDay, _getDayId } from './helpers'
 let ZERO = BigInt.fromI32(0)
 
 export function _handleCreate(event: Create, tokenReferrenceID: string): void {
@@ -39,12 +39,20 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   userOptionData.settlementFee = event.params.settlementFee
   userOptionData.depositToken = tokenReferrenceID
   userOptionData.save()
+  let amount = optionData.value2.div(BigInt.fromI64(1000000000000000000))
+  let totalFee = event.params.totalFee.div(BigInt.fromI64(1000000000000000000))
+  if (tokenReferrenceID == "USDC") {
+    amount = optionData.value2.div(BigInt.fromI64(1000000))
+    totalFee = event.params.totalFee.div(BigInt.fromI64(1000000))
+  }
+  _storeVolume(event.block.timestamp,amount)
 
   if (optionData.value1) {
-    _updateOpenInterest(event.block.timestamp, true, true, optionData.value2)
+    _updateOpenInterest(event.block.timestamp, true, true, amount)
   } else {
-    _updateOpenInterest(event.block.timestamp, true, false, optionData.value2)
+    _updateOpenInterest(event.block.timestamp, true, false, amount)
   }
+  _storeFees(event.block.timestamp, totalFee)
 
   let optionStats = OptionStat.load(tokenReferrenceID)
   if (optionStats == null) {
@@ -95,8 +103,8 @@ export function _storePnl(timestamp: BigInt, pnl: BigInt, isProfit: boolean): vo
     totalEntity.profit = totalEntity.profit.plus(pnl)
     totalEntity.profitCumulative = totalEntity.profitCumulative.plus(pnl)
   } else {
-    totalEntity.loss = totalEntity.loss.minus(pnl)
-    totalEntity.lossCumulative = totalEntity.lossCumulative.minus(pnl)
+    totalEntity.loss = totalEntity.loss.plus(pnl)
+    totalEntity.lossCumulative = totalEntity.lossCumulative.plus(pnl)
   }
   totalEntity.timestamp = dayTimestamp.toI32()
   totalEntity.save()
@@ -107,7 +115,7 @@ export function _storePnl(timestamp: BigInt, pnl: BigInt, isProfit: boolean): vo
   if (isProfit) {
     entity.profit = entity.profit.plus(pnl)
   } else {
-    entity.loss = entity.loss.minus(pnl)
+    entity.loss = entity.loss.plus(pnl)
   }
   entity.profitCumulative = totalEntity.profitCumulative
   entity.lossCumulative = totalEntity.lossCumulative
@@ -122,7 +130,7 @@ export function _updateOpenInterest(timestamp: BigInt, increase: boolean, isLong
   if (isLong) {
     totalEntity.longOpenInterest = increase ? totalEntity.longOpenInterest.plus(delta) : totalEntity.longOpenInterest.minus(delta)
   } else {
-    totalEntity.shortOpenInterest = increase ? totalEntity.shortOpenInterest.plus(delta) : totalEntity.shortOpenInterest.minus(delta)
+    totalEntity.shortOpenInterest = totalEntity.shortOpenInterest.plus(delta)
   }
   totalEntity.save()
 
@@ -134,3 +142,78 @@ export function _updateOpenInterest(timestamp: BigInt, increase: boolean, isLong
   entity.save()
 }
 
+
+export function _storeUser(
+  timestamp: BigInt,
+  account: Address,
+  period: string,
+): void {
+  let timestampId = timestampToDay(timestamp)
+  let user = User.load(account)
+  let statId = period == "total" ? "total" : timestampId.toString()
+
+  let userStat = UserStat.load(statId)
+  if (userStat == null) {
+    userStat = new UserStat(statId)
+    userStat.period = period
+    userStat.timestamp = statId
+    userStat.uniqueCount = 0
+    userStat.uniqueCountCumulative = 0
+  }
+
+  if (user == null) {
+    if (period != "total") {
+      userStat.uniqueCount += 1      
+    } else {
+      userStat.uniqueCountCumulative +=  1
+    }
+  }
+  userStat.save()
+}
+
+function _getOrCreateFeeStat(id: string, period: string, timestamp: BigInt): FeeStat {
+  let entity = FeeStat.load(id)
+  if (entity === null) {
+    entity = new FeeStat(id)
+    entity.period = period
+    entity.timestamp = timestamp
+    entity.fee = ZERO
+    entity.save()
+  }
+  return entity as FeeStat
+}
+
+export function _storeFees(timestamp: BigInt, fees: BigInt): void {
+  let id = _getDayId(timestamp)
+  let entity = _getOrCreateFeeStat(id, "daily", timestamp)
+  entity.fee = entity.fee.plus(fees)
+  entity.save()
+
+  let totalEntity = _getOrCreateFeeStat("total", "total", timestamp)
+  totalEntity.fee = totalEntity.fee.plus(fees)
+  totalEntity.save()
+}
+
+
+function _getOrCreateVolumeStat(id: string, period: string, timestamp: BigInt): VolumeStat {
+  let entity = VolumeStat.load(id)
+  if (entity === null) {
+    entity = new VolumeStat(id)
+    entity.period = period
+    entity.timestamp = timestamp
+    entity.amount = ZERO
+    entity.save()
+  }
+  return entity as VolumeStat
+}
+
+export function _storeVolume(timestamp: BigInt, amount: BigInt): void {
+  let id = _getDayId(timestamp)
+  let entity = _getOrCreateVolumeStat(id, "daily", timestamp)
+  entity.amount = entity.amount.plus(amount)
+  entity.save()
+
+  let totalEntity = _getOrCreateVolumeStat("total", "total", timestamp)
+  totalEntity.amount = totalEntity.amount.plus(amount)
+  totalEntity.save()
+}
