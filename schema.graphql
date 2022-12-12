@@ -97,7 +97,7 @@ type UserStat @entity {
   uniqueCount: Int!
   uniqueCountCumulative: Int!
   period: Period!
-  timestamp: String
+  timestamp: BigInt
 }
 
 

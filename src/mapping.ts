@@ -1,7 +1,7 @@
-import { Create, Expire, Exercise, BufferBinaryOptions, UpdateReferral } from '../generated/BufferBinaryOptions/BufferBinaryOptions'
+import { Create, Expire, Exercise, UpdateReferral } from '../generated/BufferBinaryOptions/BufferBinaryOptions'
 import { InitiateTrade, CancelTrade, BufferRouter, OpenTrade } from '../generated/BufferRouter/BufferRouter'
 import { State } from './config'
-import { UserOptionData, User, OptionContract, QueuedOptionData, ReferralData, OptionStat} from '../generated/schema'
+import { UserOptionData, User, OptionContract, QueuedOptionData, ReferralData} from '../generated/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
 import { _handleCreate, _storePnl, _updateOpenInterest, _storeUser, _storeFees } from './core'
 
@@ -10,8 +10,7 @@ export function handleInitiateTrade(event: InitiateTrade): void {
   let queueID = event.params.queueId
   let queuedTradeData = routerContract.queuedTrades(queueID)
   let contractAddress = queuedTradeData.value6
-  _storeUser(event.block.timestamp, event.params.account, "daily")
-  _storeUser(event.block.timestamp, event.params.account, "total")
+  _storeUser(event.block.timestamp, event.params.account)
   let user = User.load(event.params.account)
   if (user == null) {
     let user = new User(event.params.account)
@@ -103,23 +102,21 @@ export function handleExercise(event: Exercise): void {
   referrenceID = `${event.params.id}${event.address}`
   let userOptionData = UserOptionData.load(referrenceID)
   if (userOptionData != null) {
-    let pnl = event.params.profit.div(BigInt.fromI64(1000000000000000000))
-    let amount = userOptionData.amount.div(BigInt.fromI64(1000000000000000000))
     if (userOptionData.depositToken == "USDC") {
-      pnl = event.params.profit.div(BigInt.fromI64(1000000))
-      amount = userOptionData.amount.div(BigInt.fromI64(1000000))
+      let pnl = event.params.profit.div(BigInt.fromI64(1000000))
+      let amount = userOptionData.amount.div(BigInt.fromI64(1000000))
+      if (userOptionData.isAbove) {
+        _updateOpenInterest(event.block.timestamp, false, true, amount)
+      } else {
+        _updateOpenInterest(event.block.timestamp, false, false, amount)
+      }
+      _storePnl(event.block.timestamp, pnl, true)
     }
-    _storePnl(event.block.timestamp, pnl, true)
     let user = userOptionData.user
     userOptionData.state = State.exercised
     userOptionData.payout = event.params.profit
     userOptionData.expirationPrice = event.params.priceAtExpiration
     userOptionData.save()  
-    if (userOptionData.isAbove) {
-      _updateOpenInterest(event.block.timestamp, false, true, amount)
-    } else {
-      _updateOpenInterest(event.block.timestamp, false, false, amount)
-    }
     let userObject = User.load(user)
     if (userObject != null) {
       userObject.allExercisedTrades = userObject.allExercisedTrades + 1
@@ -136,22 +133,20 @@ export function handleExpire(event: Expire): void {
   let referrenceID = `${event.params.id}${event.address}`
   let userOptionData = UserOptionData.load(referrenceID)
   if (userOptionData != null) {
-    let pnl = event.params.premium.div(BigInt.fromI64(1000000000000000000))
-    let amount = userOptionData.amount.div(BigInt.fromI64(1000000000000000000))
     if (userOptionData.depositToken == "USDC") {
-      pnl = event.params.premium.div(BigInt.fromI64(1000000))
-      amount = userOptionData.amount.div(BigInt.fromI64(1000000))
+      let pnl = event.params.premium.div(BigInt.fromI64(1000000))
+      let amount = userOptionData.amount.div(BigInt.fromI64(1000000))
+      if (userOptionData.isAbove) {
+        _updateOpenInterest(event.block.timestamp, false, true, amount)
+      } else {
+        _updateOpenInterest(event.block.timestamp, false, false, amount)
+      }
+      _storePnl(event.block.timestamp, pnl, true)
     }
-    _storePnl(event.block.timestamp, pnl, false)
     let user = userOptionData.user
     userOptionData.state = State.expired
     userOptionData.expirationPrice = event.params.priceAtExpiration
     userOptionData.save()  
-    if (userOptionData.isAbove) {
-      _updateOpenInterest(event.block.timestamp, false, true, amount)
-    } else {
-      _updateOpenInterest(event.block.timestamp, false, false, amount)
-    }
     let userObject = User.load(user)
     if (userObject != null) {
       userObject.allExpiredTrades = userObject.allExpiredTrades + 1

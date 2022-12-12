@@ -39,20 +39,18 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   userOptionData.settlementFee = event.params.settlementFee
   userOptionData.depositToken = tokenReferrenceID
   userOptionData.save()
-  let amount = optionData.value2.div(BigInt.fromI64(1000000000000000000))
-  let totalFee = event.params.totalFee.div(BigInt.fromI64(1000000000000000000))
   if (tokenReferrenceID == "USDC") {
-    amount = optionData.value2.div(BigInt.fromI64(1000000))
-    totalFee = event.params.totalFee.div(BigInt.fromI64(1000000))
+    let amount = optionData.value2.div(BigInt.fromI64(1000000))
+    let totalFee = event.params.totalFee.div(BigInt.fromI64(1000000))
+    let settlementFee = event.params.settlementFee.div(BigInt.fromI64(1000000))
+    _storeVolume(event.block.timestamp,totalFee)
+    if (optionData.value1) {
+      _updateOpenInterest(event.block.timestamp, true, true, amount)
+    } else {
+      _updateOpenInterest(event.block.timestamp, true, false, amount)
+    }
+    _storeFees(event.block.timestamp, settlementFee)
   }
-  _storeVolume(event.block.timestamp,amount)
-
-  if (optionData.value1) {
-    _updateOpenInterest(event.block.timestamp, true, true, amount)
-  } else {
-    _updateOpenInterest(event.block.timestamp, true, false, amount)
-  }
-  _storeFees(event.block.timestamp, totalFee)
 
   let optionStats = OptionStat.load(tokenReferrenceID)
   if (optionStats == null) {
@@ -142,33 +140,33 @@ export function _updateOpenInterest(timestamp: BigInt, increase: boolean, isLong
   entity.save()
 }
 
-
-export function _storeUser(
-  timestamp: BigInt,
-  account: Address,
-  period: string,
-): void {
-  let timestampId = timestampToDay(timestamp)
-  let user = User.load(account)
-  let statId = period == "total" ? "total" : timestampId.toString()
-
-  let userStat = UserStat.load(statId)
+function _getOrCreateUserStat(id: string, period: string, timestamp: BigInt): UserStat {
+  let userStat = UserStat.load(id)
   if (userStat == null) {
-    userStat = new UserStat(statId)
+    userStat = new UserStat(id)
     userStat.period = period
-    userStat.timestamp = statId
+    userStat.timestamp = timestamp
     userStat.uniqueCount = 0
     userStat.uniqueCountCumulative = 0
   }
+  return userStat as UserStat
+}
 
+export function _storeUser(
+  timestamp: BigInt,
+  account: Address
+): void {
+  let user = User.load(account)
   if (user == null) {
-    if (period != "total") {
-      userStat.uniqueCount += 1      
-    } else {
-      userStat.uniqueCountCumulative +=  1
-    }
+    let id = _getDayId(timestamp)
+    let userStat = _getOrCreateUserStat(id, "daily", timestamp)
+    userStat.uniqueCount = userStat.uniqueCount + 1
+    userStat.save()
+  
+    let totalUserStat = _getOrCreateUserStat("total", "total", timestamp)
+    totalUserStat.uniqueCountCumulative = totalUserStat.uniqueCountCumulative + 1
+    totalUserStat.save()
   }
-  userStat.save()
 }
 
 function _getOrCreateFeeStat(id: string, period: string, timestamp: BigInt): FeeStat {
