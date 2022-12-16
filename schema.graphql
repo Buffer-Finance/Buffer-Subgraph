@@ -23,6 +23,16 @@ type User @entity {
   allExercisedTrades : Int
 }
 
+type Leaderboard @entity {
+  id: String! 
+  user: Bytes! 
+  netPnL: BigInt!
+  totalTrades : Int!
+  payout : BigInt!
+  volume : BigInt!
+  timestamp : String!
+}
+
 
 type QueuedOptionData @entity {
   id: String! 
@@ -44,7 +54,7 @@ type UserOptionData @entity {
   optionContract : OptionContract!
   optionID: BigInt
   strike: BigInt
-  totalFee: BigInt
+  totalFee: BigInt!
   user : User!
   creationTime : BigInt
   expirationPrice : BigInt

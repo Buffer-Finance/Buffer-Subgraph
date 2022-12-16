@@ -3,7 +3,8 @@ import { InitiateTrade, CancelTrade, BufferRouter, OpenTrade } from '../generate
 import { State } from './config'
 import { UserOptionData, User, OptionContract, QueuedOptionData, ReferralData} from '../generated/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
-import { _handleCreate, _storePnl, _updateOpenInterest, _storeUser, _storeFees } from './core'
+import { _handleCreate, _storePnl, _updateOpenInterest, _storeUser, _storeFees, _loadOrCreateLeaderboardEntity } from './core'
+import { timestampToDay, _getDayId } from './helpers'
 
 export function handleInitiateTrade(event: InitiateTrade): void {
   let routerContract = BufferRouter.bind(event.address)
@@ -68,7 +69,7 @@ export function handleOpenTrade(event: OpenTrade): void {
 }
 
 
-export function handleCreateForUSDC(event: Create): void {
+export function handleCreate(event: Create): void {
   _handleCreate(event, 'USDC')
 }
 
@@ -98,8 +99,7 @@ export function handleCancelTrade (event: CancelTrade): void {
 
 
 export function handleExercise(event: Exercise): void {
-  let
-  referrenceID = `${event.params.id}${event.address}`
+  let referrenceID = `${event.params.id}${event.address}`
   let userOptionData = UserOptionData.load(referrenceID)
   if (userOptionData != null) {
     if (userOptionData.depositToken == "USDC") {
@@ -112,6 +112,11 @@ export function handleExercise(event: Exercise): void {
       }
       _storePnl(event.block.timestamp, pnl, true)
     }
+    let dayId = _getDayId(event.block.timestamp)
+    let leaderboardEntity = _loadOrCreateLeaderboardEntity(event.params.account, dayId)
+    leaderboardEntity.payout = leaderboardEntity.payout.plus(event.params.profit) 
+    leaderboardEntity.netPnL = leaderboardEntity.netPnL.plus(event.params.profit.minus(userOptionData.totalFee))
+    leaderboardEntity.save()
     let user = userOptionData.user
     userOptionData.state = State.exercised
     userOptionData.payout = event.params.profit
@@ -147,6 +152,10 @@ export function handleExpire(event: Expire): void {
     userOptionData.state = State.expired
     userOptionData.expirationPrice = event.params.priceAtExpiration
     userOptionData.save()  
+    let dayId = _getDayId(event.block.timestamp)
+    let leaderboardEntity = _loadOrCreateLeaderboardEntity(user, dayId)
+    leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(userOptionData.totalFee)
+    leaderboardEntity.save()
     let userObject = User.load(user)
     if (userObject != null) {
       userObject.allExpiredTrades = userObject.allExpiredTrades + 1

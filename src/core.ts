@@ -1,6 +1,6 @@
-import { BigInt, Address } from "@graphprotocol/graph-ts"
+import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts"
 import { Create, Expire, Exercise, BufferBinaryOptions, UpdateReferral } from '../generated/BufferBinaryOptions/BufferBinaryOptions'
-import { UserOptionData, User, OptionContract, OptionStat, TradingStat, UserStat, FeeStat, VolumeStat} from '../generated/schema'
+import { UserOptionData, User, OptionContract, OptionStat, TradingStat, UserStat, FeeStat, VolumeStat, Leaderboard} from '../generated/schema'
 import { timestampToDay, _getDayId } from './helpers'
 let ZERO = BigInt.fromI32(0)
 
@@ -51,6 +51,13 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
     }
     _storeFees(event.block.timestamp, settlementFee)
   }
+
+  let dayId = _getDayId(event.block.timestamp)
+  let leaderboardEntity = _loadOrCreateLeaderboardEntity(event.params.account, dayId)
+  leaderboardEntity.volume = leaderboardEntity.volume.plus(event.params.totalFee)
+  leaderboardEntity.totalTrades = leaderboardEntity.totalTrades + 1
+  leaderboardEntity.save()
+
 
   let optionStats = OptionStat.load(tokenReferrenceID)
   if (optionStats == null) {
@@ -214,4 +221,21 @@ export function _storeVolume(timestamp: BigInt, amount: BigInt): void {
   let totalEntity = _getOrCreateVolumeStat("total", "total", timestamp)
   totalEntity.amount = totalEntity.amount.plus(amount)
   totalEntity.save()
+}
+
+
+export function _loadOrCreateLeaderboardEntity(account: Bytes, dayId:string): Leaderboard {
+  let referenceID = `${dayId}${account}`
+  let entity = Leaderboard.load(referenceID)
+  if (entity == null) {
+    entity = new Leaderboard(referenceID)
+    entity.user = account
+    entity.timestamp = dayId
+    entity.totalTrades = 0
+    entity.volume = ZERO
+    entity.netPnL = ZERO
+    entity.payout = ZERO
+    entity.save()
+  }
+  return entity as Leaderboard
 }

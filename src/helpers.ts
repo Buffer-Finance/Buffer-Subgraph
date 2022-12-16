@@ -6,6 +6,6 @@ export function timestampToDay(timestamp: BigInt): BigInt {
 
 
 export function _getDayId(timestamp: BigInt): string {
-  let dayTimestamp = timestamp.toI32() / 86400 * 86400
+  let dayTimestamp = timestamp.toI32() / 86400 
   return dayTimestamp.toString()
 }
