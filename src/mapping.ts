@@ -114,7 +114,6 @@ export function handleExercise(event: Exercise): void {
     }
     let dayId = _getDayId(event.block.timestamp)
     let leaderboardEntity = _loadOrCreateLeaderboardEntity(event.params.account, dayId)
-    leaderboardEntity.payout = leaderboardEntity.payout.plus(event.params.profit) 
     leaderboardEntity.netPnL = leaderboardEntity.netPnL.plus(event.params.profit.minus(userOptionData.totalFee))
     leaderboardEntity.save()
     let user = userOptionData.user

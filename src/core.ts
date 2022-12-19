@@ -4,6 +4,73 @@ import { UserOptionData, User, OptionContract, OptionStat, TradingStat, UserStat
 import { timestampToDay, _getDayId } from './helpers'
 let ZERO = BigInt.fromI32(0)
 
+function _loadOrCreateEntity(id: string, period: string, timestamp: BigInt): TradingStat {
+  let entity = TradingStat.load(id)
+  if (entity == null) {
+    entity = new TradingStat(id)
+    entity.period = period
+    entity.profit = ZERO
+    entity.loss = ZERO
+    entity.profitCumulative = ZERO
+    entity.lossCumulative = ZERO
+    entity.longOpenInterest = ZERO
+    entity.shortOpenInterest = ZERO
+  }
+  entity.timestamp = timestamp.toI32()
+  return entity as TradingStat
+}
+
+export function _loadOrCreateLeaderboardEntity(account: Bytes, dayId:string): Leaderboard {
+  let referenceID = `${dayId}${account}`
+  let entity = Leaderboard.load(referenceID)
+  if (entity == null) {
+    entity = new Leaderboard(referenceID)
+    entity.user = account
+    entity.timestamp = dayId
+    entity.totalTrades = 0
+    entity.volume = ZERO
+    entity.netPnL = ZERO
+    entity.save()
+  }
+  return entity as Leaderboard
+}
+
+function _loadOrCreateUserStat(id: string, period: string, timestamp: BigInt): UserStat {
+  let userStat = UserStat.load(id)
+  if (userStat == null) {
+    userStat = new UserStat(id)
+    userStat.period = period
+    userStat.timestamp = timestamp
+    userStat.uniqueCount = 0
+    userStat.uniqueCountCumulative = 0
+  }
+  return userStat as UserStat
+}
+
+function _loadOrCreateVolumeStat(id: string, period: string, timestamp: BigInt): VolumeStat {
+  let entity = VolumeStat.load(id)
+  if (entity === null) {
+    entity = new VolumeStat(id)
+    entity.period = period
+    entity.timestamp = timestamp
+    entity.amount = ZERO
+    entity.save()
+  }
+  return entity as VolumeStat
+}
+
+function _loadOrCreateFeeStat(id: string, period: string, timestamp: BigInt): FeeStat {
+  let entity = FeeStat.load(id)
+  if (entity === null) {
+    entity = new FeeStat(id)
+    entity.period = period
+    entity.timestamp = timestamp
+    entity.fee = ZERO
+    entity.save()
+  }
+  return entity as FeeStat
+}
+
 export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   let optionID = event.params.id
   let contractAddress = event.address
@@ -82,23 +149,6 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
 }
 
 
-function _loadOrCreateEntity(id: string, period: string, timestamp: BigInt): TradingStat {
-  let entity = TradingStat.load(id)
-  if (entity == null) {
-    entity = new TradingStat(id)
-    entity.period = period
-    entity.profit = ZERO
-    entity.loss = ZERO
-    entity.profitCumulative = ZERO
-    entity.lossCumulative = ZERO
-    entity.longOpenInterest = ZERO
-    entity.shortOpenInterest = ZERO
-  }
-  entity.timestamp = timestamp.toI32()
-  return entity as TradingStat
-}
-
-
 export function _storePnl(timestamp: BigInt, pnl: BigInt, isProfit: boolean): void {
   let dayTimestamp = timestampToDay(timestamp)
 
@@ -147,17 +197,6 @@ export function _updateOpenInterest(timestamp: BigInt, increase: boolean, isLong
   entity.save()
 }
 
-function _getOrCreateUserStat(id: string, period: string, timestamp: BigInt): UserStat {
-  let userStat = UserStat.load(id)
-  if (userStat == null) {
-    userStat = new UserStat(id)
-    userStat.period = period
-    userStat.timestamp = timestamp
-    userStat.uniqueCount = 0
-    userStat.uniqueCountCumulative = 0
-  }
-  return userStat as UserStat
-}
 
 export function _storeUser(
   timestamp: BigInt,
@@ -166,76 +205,39 @@ export function _storeUser(
   let user = User.load(account)
   if (user == null) {
     let id = _getDayId(timestamp)
-    let userStat = _getOrCreateUserStat(id, "daily", timestamp)
+    let userStat = _loadOrCreateUserStat(id, "daily", timestamp)
     userStat.uniqueCount = userStat.uniqueCount + 1
     userStat.save()
   
-    let totalUserStat = _getOrCreateUserStat("total", "total", timestamp)
+    let totalUserStat = _loadOrCreateUserStat("total", "total", timestamp)
     totalUserStat.uniqueCountCumulative = totalUserStat.uniqueCountCumulative + 1
     totalUserStat.save()
   }
 }
 
-function _getOrCreateFeeStat(id: string, period: string, timestamp: BigInt): FeeStat {
-  let entity = FeeStat.load(id)
-  if (entity === null) {
-    entity = new FeeStat(id)
-    entity.period = period
-    entity.timestamp = timestamp
-    entity.fee = ZERO
-    entity.save()
-  }
-  return entity as FeeStat
-}
 
 export function _storeFees(timestamp: BigInt, fees: BigInt): void {
   let id = _getDayId(timestamp)
-  let entity = _getOrCreateFeeStat(id, "daily", timestamp)
+  let entity = _loadOrCreateFeeStat(id, "daily", timestamp)
   entity.fee = entity.fee.plus(fees)
   entity.save()
 
-  let totalEntity = _getOrCreateFeeStat("total", "total", timestamp)
+  let totalEntity = _loadOrCreateFeeStat("total", "total", timestamp)
   totalEntity.fee = totalEntity.fee.plus(fees)
   totalEntity.save()
 }
 
 
-function _getOrCreateVolumeStat(id: string, period: string, timestamp: BigInt): VolumeStat {
-  let entity = VolumeStat.load(id)
-  if (entity === null) {
-    entity = new VolumeStat(id)
-    entity.period = period
-    entity.timestamp = timestamp
-    entity.amount = ZERO
-    entity.save()
-  }
-  return entity as VolumeStat
-}
 
 export function _storeVolume(timestamp: BigInt, amount: BigInt): void {
   let id = _getDayId(timestamp)
-  let entity = _getOrCreateVolumeStat(id, "daily", timestamp)
+  let entity = _loadOrCreateVolumeStat(id, "daily", timestamp)
   entity.amount = entity.amount.plus(amount)
   entity.save()
 
-  let totalEntity = _getOrCreateVolumeStat("total", "total", timestamp)
+  let totalEntity = _loadOrCreateVolumeStat("total", "total", timestamp)
   totalEntity.amount = totalEntity.amount.plus(amount)
   totalEntity.save()
 }
 
 
-export function _loadOrCreateLeaderboardEntity(account: Bytes, dayId:string): Leaderboard {
-  let referenceID = `${dayId}${account}`
-  let entity = Leaderboard.load(referenceID)
-  if (entity == null) {
-    entity = new Leaderboard(referenceID)
-    entity.user = account
-    entity.timestamp = dayId
-    entity.totalTrades = 0
-    entity.volume = ZERO
-    entity.netPnL = ZERO
-    entity.payout = ZERO
-    entity.save()
-  }
-  return entity as Leaderboard
-}

@@ -28,7 +28,6 @@ type Leaderboard @entity {
   user: Bytes! 
   netPnL: BigInt!
   totalTrades : Int!
-  payout : BigInt!
   volume : BigInt!
   timestamp : String!
 }
