@@ -556,236 +556,236 @@ dataSources:
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
           handler: handleExercise  
       file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: BufferBinaryOptionsLINKUSD
-  #   network: arbitrum-goerli
-  #   source:
-  #     address: '0xae40B8411972274bfc53fbE9Fa0fd3d56749BA7C'
-  #     abi: BufferBinaryOptions
-  #     startBlock: 130000 
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - UserOptionData
-  #     abis:
-  #       - name: BufferBinaryOptions
-  #         file: ./abis/BufferBinaryOptions.json
-  #     eventHandlers:
-  #       - event: Create(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleCreateForBFR
-  #       - event: Expire(indexed uint256,uint256,uint256)
-  #         handler: handleExpire    
-  #       - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleExercise  
-  #       - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-  #         handler: handleUpdateReferral 
-  #     file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: BufferBinaryOptionsUNIUSD
-  #   network: arbitrum-goerli
-  #   source:
-  #     address: '0x8fa94A1fC8d8Ac4f124967d4de7Ba52Ea976C8dc'
-  #     abi: BufferBinaryOptions
-  #     startBlock: 130000 
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - UserOptionData
-  #     abis:
-  #       - name: BufferBinaryOptions
-  #         file: ./abis/BufferBinaryOptions.json
-  #     eventHandlers:
-  #       - event: Create(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleCreateForBFR
-  #       - event: Expire(indexed uint256,uint256,uint256)
-  #         handler: handleExpire    
-  #       - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleExercise  
-  #       - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-  #         handler: handleUpdateReferral 
-  #     file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: BufferBinaryOptionsAAVEUSD
-  #   network: arbitrum-goerli
-  #   source:
-  #     address: '0xb82ee30A91A5c321244574F50AD6a5f37EbE8676'
-  #     abi: BufferBinaryOptions
-  #     startBlock: 130000 
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - UserOptionData
-  #     abis:
-  #       - name: BufferBinaryOptions
-  #         file: ./abis/BufferBinaryOptions.json
-  #     eventHandlers:
-  #       - event: Create(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleCreateForBFR
-  #       - event: Expire(indexed uint256,uint256,uint256)
-  #         handler: handleExpire    
-  #       - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleExercise  
-  #       - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-  #         handler: handleUpdateReferral 
-  #     file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: BufferBinaryOptionsXRPUSD
-  #   network: arbitrum-goerli
-  #   source:
-  #     address: '0x5a996dC18AF17077fAECC2FAd884567B4aBF6922'
-  #     abi: BufferBinaryOptions
-  #     startBlock: 130000 
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - UserOptionData
-  #     abis:
-  #       - name: BufferBinaryOptions
-  #         file: ./abis/BufferBinaryOptions.json
-  #     eventHandlers:
-  #       - event: Create(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleCreateForBFR
-  #       - event: Expire(indexed uint256,uint256,uint256)
-  #         handler: handleExpire    
-  #       - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleExercise  
-  #       - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-  #         handler: handleUpdateReferral 
-  #     file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: BufferBinaryOptionsSOLUSD
-  #   network: arbitrum-goerli
-  #   source:
-  #     address: '0xAfE3Af4D104F9E73Ecd31DF4243FDFF8F1F5b214'
-  #     abi: BufferBinaryOptions
-  #     startBlock: 130000 
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - UserOptionData
-  #     abis:
-  #       - name: BufferBinaryOptions
-  #         file: ./abis/BufferBinaryOptions.json
-  #     eventHandlers:
-  #       - event: Create(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleCreateForBFR
-  #       - event: Expire(indexed uint256,uint256,uint256)
-  #         handler: handleExpire    
-  #       - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleExercise   
-  #     file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: BufferBinaryOptionsMATICUSD
-  #   network: arbitrum-goerli
-  #   source:
-  #     address: '0x783a96c0c3E26330aFA3d355ac482C1e11d56015'
-  #     abi: BufferBinaryOptions
-  #     startBlock: 130000 
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - UserOptionData
-  #     abis:
-  #       - name: BufferBinaryOptions
-  #         file: ./abis/BufferBinaryOptions.json
-  #     eventHandlers:
-  #       - event: Create(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleCreateForBFR
-  #       - event: Expire(indexed uint256,uint256,uint256)
-  #         handler: handleExpire    
-  #       - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleExercise  
-  #     file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: BufferBinaryOptionsAVAXUSD
-  #   network: arbitrum-goerli
-  #   source:
-  #     address: '0x7DB4C2Fc552BC597f8cFbeC2e1E26740dd969D49'
-  #     abi: BufferBinaryOptions
-  #     startBlock: 130000 
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - UserOptionData
-  #     abis:
-  #       - name: BufferBinaryOptions
-  #         file: ./abis/BufferBinaryOptions.json
-  #     eventHandlers:
-  #       - event: Create(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleCreateForBFR
-  #       - event: Expire(indexed uint256,uint256,uint256)
-  #         handler: handleExpire    
-  #       - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleExercise  
-  #       - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-  #         handler: handleUpdateReferral 
-  #     file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: BufferBinaryOptionsDOGEUSD
-  #   network: arbitrum-goerli
-  #   source:
-  #     address: '0x5848FB39FfC38244B839dc437341e98542fd40C2'
-  #     abi: BufferBinaryOptions
-  #     startBlock: 130000 
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - UserOptionData
-  #     abis:
-  #       - name: BufferBinaryOptions
-  #         file: ./abis/BufferBinaryOptions.json
-  #     eventHandlers:
-  #       - event: Create(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleCreateForBFR
-  #       - event: Expire(indexed uint256,uint256,uint256)
-  #         handler: handleExpire    
-  #       - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleExercise  
-  #       - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-  #         handler: handleUpdateReferral 
-  #     file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: BufferBinaryOptionsETH-BTC 
-  #   network: arbitrum-goerli
-  #   source:
-  #     address: '0x6b7982b1D927E0A05C652C363bD4c7fF174fA937'
-  #     abi: BufferBinaryOptions
-  #     startBlock: 130000 
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - UserOptionData
-  #     abis:
-  #       - name: BufferBinaryOptions
-  #         file: ./abis/BufferBinaryOptions.json
-  #     eventHandlers:
-  #       - event: Create(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleCreateForBFR
-  #       - event: Expire(indexed uint256,uint256,uint256)
-  #         handler: handleExpire    
-  #       - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-  #         handler: handleExercise  
-  #       - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-  #         handler: handleUpdateReferral 
-  #     file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: BufferBinaryOptionsLINKUSD
+    network: arbitrum-goerli
+    source:
+      address: '0xae40B8411972274bfc53fbE9Fa0fd3d56749BA7C'
+      abi: BufferBinaryOptions
+      startBlock: 130000 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - UserOptionData
+      abis:
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
+      eventHandlers:
+        - event: Create(indexed address,indexed uint256,uint256,uint256)
+          handler: handleCreateForBFR
+        - event: Expire(indexed uint256,uint256,uint256)
+          handler: handleExpire    
+        - event: Exercise(indexed address,indexed uint256,uint256,uint256)
+          handler: handleExercise  
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral 
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: BufferBinaryOptionsUNIUSD
+    network: arbitrum-goerli
+    source:
+      address: '0x8fa94A1fC8d8Ac4f124967d4de7Ba52Ea976C8dc'
+      abi: BufferBinaryOptions
+      startBlock: 130000 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - UserOptionData
+      abis:
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
+      eventHandlers:
+        - event: Create(indexed address,indexed uint256,uint256,uint256)
+          handler: handleCreateForBFR
+        - event: Expire(indexed uint256,uint256,uint256)
+          handler: handleExpire    
+        - event: Exercise(indexed address,indexed uint256,uint256,uint256)
+          handler: handleExercise  
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral 
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: BufferBinaryOptionsAAVEUSD
+    network: arbitrum-goerli
+    source:
+      address: '0xb82ee30A91A5c321244574F50AD6a5f37EbE8676'
+      abi: BufferBinaryOptions
+      startBlock: 130000 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - UserOptionData
+      abis:
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
+      eventHandlers:
+        - event: Create(indexed address,indexed uint256,uint256,uint256)
+          handler: handleCreateForBFR
+        - event: Expire(indexed uint256,uint256,uint256)
+          handler: handleExpire    
+        - event: Exercise(indexed address,indexed uint256,uint256,uint256)
+          handler: handleExercise  
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral 
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: BufferBinaryOptionsXRPUSD
+    network: arbitrum-goerli
+    source:
+      address: '0x5a996dC18AF17077fAECC2FAd884567B4aBF6922'
+      abi: BufferBinaryOptions
+      startBlock: 130000 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - UserOptionData
+      abis:
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
+      eventHandlers:
+        - event: Create(indexed address,indexed uint256,uint256,uint256)
+          handler: handleCreateForBFR
+        - event: Expire(indexed uint256,uint256,uint256)
+          handler: handleExpire    
+        - event: Exercise(indexed address,indexed uint256,uint256,uint256)
+          handler: handleExercise  
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral 
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: BufferBinaryOptionsSOLUSD
+    network: arbitrum-goerli
+    source:
+      address: '0xAfE3Af4D104F9E73Ecd31DF4243FDFF8F1F5b214'
+      abi: BufferBinaryOptions
+      startBlock: 130000 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - UserOptionData
+      abis:
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
+      eventHandlers:
+        - event: Create(indexed address,indexed uint256,uint256,uint256)
+          handler: handleCreateForBFR
+        - event: Expire(indexed uint256,uint256,uint256)
+          handler: handleExpire    
+        - event: Exercise(indexed address,indexed uint256,uint256,uint256)
+          handler: handleExercise   
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: BufferBinaryOptionsMATICUSD
+    network: arbitrum-goerli
+    source:
+      address: '0x783a96c0c3E26330aFA3d355ac482C1e11d56015'
+      abi: BufferBinaryOptions
+      startBlock: 130000 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - UserOptionData
+      abis:
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
+      eventHandlers:
+        - event: Create(indexed address,indexed uint256,uint256,uint256)
+          handler: handleCreateForBFR
+        - event: Expire(indexed uint256,uint256,uint256)
+          handler: handleExpire    
+        - event: Exercise(indexed address,indexed uint256,uint256,uint256)
+          handler: handleExercise  
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: BufferBinaryOptionsAVAXUSD
+    network: arbitrum-goerli
+    source:
+      address: '0x7DB4C2Fc552BC597f8cFbeC2e1E26740dd969D49'
+      abi: BufferBinaryOptions
+      startBlock: 130000 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - UserOptionData
+      abis:
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
+      eventHandlers:
+        - event: Create(indexed address,indexed uint256,uint256,uint256)
+          handler: handleCreateForBFR
+        - event: Expire(indexed uint256,uint256,uint256)
+          handler: handleExpire    
+        - event: Exercise(indexed address,indexed uint256,uint256,uint256)
+          handler: handleExercise  
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral 
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: BufferBinaryOptionsDOGEUSD
+    network: arbitrum-goerli
+    source:
+      address: '0x5848FB39FfC38244B839dc437341e98542fd40C2'
+      abi: BufferBinaryOptions
+      startBlock: 130000 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - UserOptionData
+      abis:
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
+      eventHandlers:
+        - event: Create(indexed address,indexed uint256,uint256,uint256)
+          handler: handleCreateForBFR
+        - event: Expire(indexed uint256,uint256,uint256)
+          handler: handleExpire    
+        - event: Exercise(indexed address,indexed uint256,uint256,uint256)
+          handler: handleExercise  
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral 
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: BufferBinaryOptionsETH-BTC 
+    network: arbitrum-goerli
+    source:
+      address: '0x6b7982b1D927E0A05C652C363bD4c7fF174fA937'
+      abi: BufferBinaryOptions
+      startBlock: 130000 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - UserOptionData
+      abis:
+        - name: BufferBinaryOptions
+          file: ./abis/BufferBinaryOptions.json
+      eventHandlers:
+        - event: Create(indexed address,indexed uint256,uint256,uint256)
+          handler: handleCreateForBFR
+        - event: Expire(indexed uint256,uint256,uint256)
+          handler: handleExpire    
+        - event: Exercise(indexed address,indexed uint256,uint256,uint256)
+          handler: handleExercise  
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral 
+      file: ./src/mapping.ts
   # - kind: ethereum/contract
   #   name: BufferBinaryOptionsBTC-USD 
   #   network: arbitrum-goerli
