@@ -128,7 +128,9 @@ dataSources:
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise   
+          handler: handleExercise 
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral 
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptions6
@@ -152,7 +154,9 @@ dataSources:
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise  
+          handler: handleExercise 
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral 
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptions7
@@ -280,7 +284,9 @@ dataSources:
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise   
+          handler: handleExercise 
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral  
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptions12
@@ -304,7 +310,9 @@ dataSources:
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise  
+          handler: handleExercise 
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral  
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptions13
@@ -432,7 +440,9 @@ dataSources:
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise   
+          handler: handleExercise 
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral   
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptions18
@@ -456,7 +466,9 @@ dataSources:
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise  
+          handler: handleExercise 
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral  
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptions19
@@ -480,7 +492,7 @@ dataSources:
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise  
+          handler: handleExercise 
         - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
           handler: handleUpdateReferral 
       file: ./src/mapping.ts
@@ -506,7 +518,9 @@ dataSources:
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise   
+          handler: handleExercise 
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral   
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptions21
@@ -530,7 +544,9 @@ dataSources:
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise  
+          handler: handleExercise 
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral 
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptions22
@@ -554,7 +570,9 @@ dataSources:
         - event: Expire(indexed uint256,uint256,uint256)
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise  
+          handler: handleExercise 
+        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
+          handler: handleUpdateReferral  
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptionsLINKUSD
@@ -579,8 +597,6 @@ dataSources:
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
           handler: handleExercise  
-        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-          handler: handleUpdateReferral 
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptionsUNIUSD
@@ -605,8 +621,6 @@ dataSources:
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
           handler: handleExercise  
-        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-          handler: handleUpdateReferral 
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptionsAAVEUSD
@@ -631,8 +645,6 @@ dataSources:
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
           handler: handleExercise  
-        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-          handler: handleUpdateReferral 
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptionsXRPUSD
@@ -657,8 +669,6 @@ dataSources:
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
           handler: handleExercise  
-        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-          handler: handleUpdateReferral 
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptionsSOLUSD
@@ -731,8 +741,6 @@ dataSources:
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
           handler: handleExercise  
-        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-          handler: handleUpdateReferral 
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptionsDOGEUSD
@@ -757,8 +765,6 @@ dataSources:
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
           handler: handleExercise  
-        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-          handler: handleUpdateReferral 
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferBinaryOptionsETH-BTC 
@@ -783,8 +789,6 @@ dataSources:
           handler: handleExpire    
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
           handler: handleExercise  
-        - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-          handler: handleUpdateReferral 
       file: ./src/mapping.ts
   # - kind: ethereum/contract
   #   name: BufferBinaryOptionsBTC-USD 

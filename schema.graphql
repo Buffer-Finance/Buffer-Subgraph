@@ -5,101 +5,90 @@ enum Period {
   total
 }
 
-
 type OptionContract @entity {
-  id: Bytes! 
+  id: Bytes!
   address: Bytes
   asset: String
-  isPaused : Boolean
+  isPaused: Boolean
+  openUp: BigInt!
+  openDown: BigInt!
+  tradeCount: Int!
+  volume: BigInt!
 }
 
-
 type User @entity {
-  id: Bytes! 
+  id: Bytes!
   address: Bytes!
-  allTradesCount: Int
-  allActiveTrades : Int
-  allExpiredTrades : Int
-  allExercisedTrades : Int
 }
 
 type Leaderboard @entity {
-  id: String! 
-  user: Bytes! 
+  id: String!
+  user: Bytes!
   netPnL: BigInt!
-  totalTrades : Int!
-  volume : BigInt!
-  timestamp : String!
+  totalTrades: Int!
+  volume: BigInt!
+  timestamp: String!
 }
-
 
 type QueuedOptionData @entity {
-  id: String! 
-  optionContract : OptionContract!
+  id: String!
+  optionContract: OptionContract!
   strike: BigInt
   totalFee: BigInt
-  user : User
-  state : Int
-  isAbove : Boolean
-  queueID : BigInt
-  slippage : BigInt
-  depositToken : String
-  reason : String
+  user: User
+  state: Int
+  isAbove: Boolean
+  queueID: BigInt
+  slippage: BigInt
+  depositToken: String
+  reason: String
 }
 
-
 type UserOptionData @entity {
-  id: String! 
-  optionContract : OptionContract!
+  id: String!
+  optionContract: OptionContract!
   optionID: BigInt
   strike: BigInt
   totalFee: BigInt!
-  user : User!
-  creationTime : BigInt
-  expirationPrice : BigInt
-  payout : BigInt
-  state : Int
-  amount : BigInt!
-  expirationTime : BigInt
-  isAbove : Boolean
-  depositToken : String
-  queueID : BigInt
-  settlementFee : BigInt
+  user: User
+  creationTime: BigInt
+  expirationPrice: BigInt
+  payout: BigInt
+  state: Int
+  amount: BigInt!
+  expirationTime: BigInt
+  isAbove: Boolean
+  depositToken: String
+  queueID: BigInt
+  settlementFee: BigInt
 }
-
 
 type ReferralData @entity {
-  id: Bytes! 
-  user : User!
-  totalTradesReferred : Int!
-  totalVolumeOfReferredTrades : BigInt!
-  totalRebateEarned : BigInt!
-  totalTradingVolume : BigInt!
-  totalDiscountAvailed : BigInt!
+  id: Bytes!
+  user: User!
+  totalTradesReferred: Int!
+  totalVolumeOfReferredTrades: BigInt!
+  totalRebateEarned: BigInt!
+  totalTradingVolume: BigInt!
+  totalDiscountAvailed: BigInt!
 }
 
-
-type OptionStat @entity {
-  id: String! 
-  currentAbovePositions : BigInt!
-  currentBelowPositions : BigInt!
-  totalVolume : BigInt!
-  totalSettlementFees : BigInt!
+type DashboardStat @entity {
+  id: String!
+  totalVolume: BigInt!
+  totalSettlementFees: BigInt!
+  totalTrades: Int!
 }
 
-
-type TradingStat @entity {
-  id: ID!
-  profit: BigInt!
-  loss: BigInt!
-  profitCumulative: BigInt!
-  lossCumulative: BigInt!
-  longOpenInterest: BigInt!
-  shortOpenInterest: BigInt!
-  timestamp: Int!
+type VolumePerContract @entity {
+  id: String!
+  amount: BigInt!
   period: Period!
+  timestamp: BigInt!
+  depositToken: String!
+  optionContract: OptionContract!
+  settlementFee: BigInt!
 }
-
 
 type UserStat @entity {
   id: ID!
@@ -109,6 +98,17 @@ type UserStat @entity {
   timestamp: BigInt
 }
 
+type TradingStat @entity {
+  id: ID!
+  profit: BigInt!
+  loss: BigInt!
+  profitCumulative: BigInt!
+  lossCumulative: BigInt!
+  longOpenInterest: BigInt!
+  shortOpenInterest: BigInt!
+  timestamp: BigInt!
+  period: Period!
+}
 
 type FeeStat @entity {
   id: ID!
@@ -116,7 +116,6 @@ type FeeStat @entity {
   period: Period!
   timestamp: BigInt!
 }
-
 
 type VolumeStat @entity {
   id: ID!

@@ -1,11 +1,11 @@
-import { BigInt } from "@graphprotocol/graph-ts"
-
-export function timestampToDay(timestamp: BigInt): BigInt {
-  return timestamp.div(BigInt.fromI32(86400)) 
-}
-
+import { BigInt } from "@graphprotocol/graph-ts";
 
 export function _getDayId(timestamp: BigInt): string {
-  let dayTimestamp = timestamp.toI32() / 86400 
-  return dayTimestamp.toString()
+  let dayTimestamp = timestamp.toI32() / 86400;
+  return dayTimestamp.toString();
+}
+
+export function _getHourId(timestamp: BigInt): string {
+  let hourTimestamp = timestamp.toI32() / 3600;
+  return hourTimestamp.toString();
 }

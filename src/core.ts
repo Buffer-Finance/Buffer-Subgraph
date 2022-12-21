@@ -1,243 +1,212 @@
-import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts"
-import { Create, Expire, Exercise, BufferBinaryOptions, UpdateReferral } from '../generated/BufferBinaryOptions/BufferBinaryOptions'
-import { UserOptionData, User, OptionContract, OptionStat, TradingStat, UserStat, FeeStat, VolumeStat, Leaderboard} from '../generated/schema'
-import { timestampToDay, _getDayId } from './helpers'
-let ZERO = BigInt.fromI32(0)
+import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
+import {
+  Create,
+  BufferBinaryOptions,
+} from "../generated/BufferBinaryOptions/BufferBinaryOptions";
+import { User, VolumePerContract } from "../generated/schema";
+import { _getDayId, _getHourId } from "./helpers";
+import {
+  _loadOrCreateLeaderboardEntity,
+  _loadOrCreateOptionContractEntity,
+  _loadOrCreateOptionDataEntity,
+  _loadOrCreateQueuedOptionEntity,
+  _loadOrCreateVolumeStat,
+  _loadOrCreateTradingStatEntity,
+  _loadOrCreateFeeStat,
+  _loadOrCreateUserStat,
+  _loadOrCreateDashboardStat,
+} from "./initialize";
 
-function _loadOrCreateEntity(id: string, period: string, timestamp: BigInt): TradingStat {
-  let entity = TradingStat.load(id)
-  if (entity == null) {
-    entity = new TradingStat(id)
-    entity.period = period
-    entity.profit = ZERO
-    entity.loss = ZERO
-    entity.profitCumulative = ZERO
-    entity.lossCumulative = ZERO
-    entity.longOpenInterest = ZERO
-    entity.shortOpenInterest = ZERO
-  }
-  entity.timestamp = timestamp.toI32()
-  return entity as TradingStat
+function _logVolume(timestamp: BigInt, amount: BigInt): void {
+  let totalEntity = _loadOrCreateVolumeStat("total", "total", timestamp);
+  totalEntity.amount = totalEntity.amount.plus(amount);
+  totalEntity.save();
+
+  let id = _getDayId(timestamp);
+  let dailyEntity = _loadOrCreateVolumeStat(id, "daily", timestamp);
+  dailyEntity.amount = dailyEntity.amount.plus(amount);
+  dailyEntity.save();
+
+  let hourID = _getHourId(timestamp);
+  let hourlyEntity = _loadOrCreateVolumeStat(hourID, "hourly", timestamp);
+  hourlyEntity.amount = hourlyEntity.amount.plus(amount);
+  hourlyEntity.save();
 }
 
-export function _loadOrCreateLeaderboardEntity(account: Bytes, dayId:string): Leaderboard {
-  let referenceID = `${dayId}${account}`
-  let entity = Leaderboard.load(referenceID)
-  if (entity == null) {
-    entity = new Leaderboard(referenceID)
-    entity.user = account
-    entity.timestamp = dayId
-    entity.totalTrades = 0
-    entity.volume = ZERO
-    entity.netPnL = ZERO
-    entity.save()
-  }
-  return entity as Leaderboard
+function _storeFees(timestamp: BigInt, fees: BigInt): void {
+  let id = _getDayId(timestamp);
+  let entity = _loadOrCreateFeeStat(id, "daily", timestamp);
+  entity.fee = entity.fee.plus(fees);
+  entity.save();
+
+  let totalEntity = _loadOrCreateFeeStat("total", "total", timestamp);
+  totalEntity.fee = totalEntity.fee.plus(fees);
+  totalEntity.save();
 }
 
-function _loadOrCreateUserStat(id: string, period: string, timestamp: BigInt): UserStat {
-  let userStat = UserStat.load(id)
-  if (userStat == null) {
-    userStat = new UserStat(id)
-    userStat.period = period
-    userStat.timestamp = timestamp
-    userStat.uniqueCount = 0
-    userStat.uniqueCountCumulative = 0
-  }
-  return userStat as UserStat
-}
-
-function _loadOrCreateVolumeStat(id: string, period: string, timestamp: BigInt): VolumeStat {
-  let entity = VolumeStat.load(id)
+function _logVolumePerContract(
+  id: string,
+  period: string,
+  timestamp: BigInt,
+  contractAddress: Bytes,
+  depositToken: string,
+  totalFee: BigInt,
+  settlementFee: BigInt
+): void {
+  let referrenceID = `${id}${contractAddress}${depositToken}`;
+  let entity = VolumePerContract.load(referrenceID);
   if (entity === null) {
-    entity = new VolumeStat(id)
-    entity.period = period
-    entity.timestamp = timestamp
-    entity.amount = ZERO
-    entity.save()
+    entity = new VolumePerContract(referrenceID);
+    entity.period = period;
+    entity.timestamp = timestamp;
+    entity.amount = totalFee;
+    entity.optionContract = contractAddress;
+    entity.depositToken = depositToken;
+    entity.settlementFee = settlementFee;
+    entity.save();
+  } else {
+    entity.amount = entity.amount.plus(totalFee);
   }
-  return entity as VolumeStat
 }
 
-function _loadOrCreateFeeStat(id: string, period: string, timestamp: BigInt): FeeStat {
-  let entity = FeeStat.load(id)
-  if (entity === null) {
-    entity = new FeeStat(id)
-    entity.period = period
-    entity.timestamp = timestamp
-    entity.fee = ZERO
-    entity.save()
+export function logUser(timestamp: BigInt, account: Address): void {
+  let user = User.load(account);
+  if (user == null) {
+    let totalUserStat = _loadOrCreateUserStat("total", "total", timestamp);
+    totalUserStat.uniqueCountCumulative =
+      totalUserStat.uniqueCountCumulative + 1;
+    totalUserStat.save();
+
+    let id = _getDayId(timestamp);
+    let userStat = _loadOrCreateUserStat(id, "daily", timestamp);
+    userStat.uniqueCount = userStat.uniqueCount + 1;
+    userStat.save();
+
+    user = new User(account);
+    user.address = account;
+    user.save();
   }
-  return entity as FeeStat
+}
+
+export function storePnl(
+  timestamp: BigInt,
+  pnl: BigInt,
+  isProfit: boolean
+): void {
+  let totalEntity = _loadOrCreateTradingStatEntity("total", "total", timestamp);
+  let dayID = _getDayId(timestamp);
+  let dailyEntity = _loadOrCreateTradingStatEntity(dayID, "daily", timestamp);
+
+  if (isProfit) {
+    totalEntity.profitCumulative = totalEntity.profitCumulative.plus(pnl);
+    dailyEntity.profit = dailyEntity.profit.plus(pnl);
+  } else {
+    totalEntity.lossCumulative = totalEntity.lossCumulative.plus(pnl);
+    dailyEntity.loss = dailyEntity.loss.plus(pnl);
+  }
+  totalEntity.save();
+  dailyEntity.profitCumulative = totalEntity.profitCumulative;
+  dailyEntity.lossCumulative = totalEntity.lossCumulative;
+  dailyEntity.save();
+}
+
+export function updateOpenInterest(
+  timestamp: BigInt,
+  increase: boolean,
+  isAbove: boolean,
+  totalFee: BigInt,
+  contractAddress: Bytes
+): void {
+  let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
+  optionContractData.tradeCount += 1;
+  optionContractData.volume = optionContractData.volume.plus(totalFee);
+
+  let totalId = "total";
+  let totalEntity = _loadOrCreateTradingStatEntity(totalId, "total", timestamp);
+
+  if (isAbove) {
+    totalEntity.longOpenInterest = increase
+      ? totalEntity.longOpenInterest.plus(totalFee)
+      : totalEntity.longOpenInterest.minus(totalFee);
+    optionContractData.openUp = increase
+      ? optionContractData.openUp.plus(totalFee)
+      : optionContractData.openUp.minus(totalFee);
+  } else {
+    totalEntity.shortOpenInterest = increase
+      ? totalEntity.shortOpenInterest.plus(totalFee)
+      : totalEntity.shortOpenInterest.minus(totalFee);
+    optionContractData.openUp = increase
+      ? optionContractData.openDown.plus(totalFee)
+      : optionContractData.openDown.minus(totalFee);
+  }
+  totalEntity.save();
+  optionContractData.save();
+
+  let dayID = _getDayId(timestamp);
+  let dailyEntity = _loadOrCreateTradingStatEntity(dayID, "daily", timestamp);
+  dailyEntity.longOpenInterest = totalEntity.longOpenInterest;
+  dailyEntity.shortOpenInterest = totalEntity.shortOpenInterest;
+  dailyEntity.save();
 }
 
 export function _handleCreate(event: Create, tokenReferrenceID: string): void {
-  let optionID = event.params.id
-  let contractAddress = event.address
-  let contract = BufferBinaryOptions.bind(contractAddress)
-  let optionData = contract.options(optionID)
-  let referrenceID = `${event.params.id}${contractAddress}`
-  let userOptionData = new UserOptionData(referrenceID)
-  let user = User.load(event.params.account)
-  if (user != null) {
-    user.address = event.params.account
-    user.allActiveTrades = user.allActiveTrades + 1
-    user.allTradesCount = user.allTradesCount + 1
-    user.save()  
-  }
-  let optionContract = OptionContract.load(contractAddress)
-  if (optionContract != null) {
-    let optionContractInstance = BufferBinaryOptions.bind(event.address)
-    optionContract.asset = optionContractInstance.assetPair()
-    optionContract.isPaused = optionContractInstance.isPaused() ? true : false
-    optionContract.address = contractAddress
-    optionContract.save()  
-  } 
-  userOptionData.optionID = event.params.id
-  userOptionData.user = event.params.account
-  userOptionData.totalFee = event.params.totalFee
-  userOptionData.state = optionData.value0
-  userOptionData.strike = optionData.value1
-  userOptionData.amount = optionData.value2
-  userOptionData.expirationTime = optionData.value5
-  userOptionData.isAbove = optionData.value6 ? true : false
-  userOptionData.creationTime = optionData.value8
-  userOptionData.optionContract = contractAddress
-  userOptionData.settlementFee = event.params.settlementFee
-  userOptionData.depositToken = tokenReferrenceID
-  userOptionData.save()
+  let optionID = event.params.id;
+  let timestamp = event.block.timestamp;
+  let contractAddress = event.address;
+  let optionData = BufferBinaryOptions.bind(contractAddress).options(optionID);
+  let userOptionData = _loadOrCreateOptionDataEntity(optionID, contractAddress);
+  userOptionData.user = event.params.account;
+  userOptionData.totalFee = event.params.totalFee;
+  userOptionData.state = optionData.value0;
+  userOptionData.strike = optionData.value1;
+  userOptionData.amount = optionData.value2;
+  userOptionData.expirationTime = optionData.value5;
+  userOptionData.isAbove = optionData.value6 ? true : false;
+  userOptionData.creationTime = optionData.value8;
+  userOptionData.settlementFee = event.params.settlementFee;
+  userOptionData.depositToken = tokenReferrenceID;
+  userOptionData.save();
+
+  _logVolumePerContract(
+    _getHourId(timestamp),
+    "hourly",
+    timestamp,
+    contractAddress,
+    tokenReferrenceID,
+    event.params.totalFee,
+    event.params.settlementFee
+  );
+  let leaderboardEntity = _loadOrCreateLeaderboardEntity(
+    _getDayId(timestamp),
+    event.params.account
+  );
+  leaderboardEntity.volume = leaderboardEntity.volume.plus(
+    event.params.totalFee
+  );
+  leaderboardEntity.totalTrades = leaderboardEntity.totalTrades + 1;
+  leaderboardEntity.save();
+
   if (tokenReferrenceID == "USDC") {
-    let amount = optionData.value2.div(BigInt.fromI64(1000000))
-    let totalFee = event.params.totalFee.div(BigInt.fromI64(1000000))
-    let settlementFee = event.params.settlementFee.div(BigInt.fromI64(1000000))
-    _storeVolume(event.block.timestamp,totalFee)
-    if (optionData.value1) {
-      _updateOpenInterest(event.block.timestamp, true, true, amount)
-    } else {
-      _updateOpenInterest(event.block.timestamp, true, false, amount)
-    }
-    _storeFees(event.block.timestamp, settlementFee)
+    let amount = optionData.value2.div(BigInt.fromI64(1000000));
+    let totalFee = event.params.totalFee.div(BigInt.fromI64(1000000));
+    let settlementFee = event.params.settlementFee.div(BigInt.fromI64(1000000));
+    updateOpenInterest(
+      timestamp,
+      true,
+      userOptionData.isAbove,
+      amount,
+      contractAddress
+    );
+    _storeFees(timestamp, settlementFee);
+    _logVolume(timestamp, totalFee);
   }
-
-  let dayId = _getDayId(event.block.timestamp)
-  let leaderboardEntity = _loadOrCreateLeaderboardEntity(event.params.account, dayId)
-  leaderboardEntity.volume = leaderboardEntity.volume.plus(event.params.totalFee)
-  leaderboardEntity.totalTrades = leaderboardEntity.totalTrades + 1
-  leaderboardEntity.save()
-
-
-  let optionStats = OptionStat.load(tokenReferrenceID)
-  if (optionStats == null) {
-    let optionStats = new  OptionStat(tokenReferrenceID)
-    optionStats.currentAbovePositions = ZERO
-    optionStats.currentBelowPositions = ZERO
-    optionStats.totalSettlementFees = ZERO
-    optionStats.totalVolume = ZERO
-    optionStats.save()
-  } 
-  let optionStatsV1 = OptionStat.load(tokenReferrenceID)
-  if (optionStatsV1 != null) { 
-    if (optionData.value6) {
-      optionStatsV1.currentAbovePositions = optionStatsV1.currentAbovePositions.plus(event.params.totalFee)
-    } else {
-      optionStatsV1.currentBelowPositions = optionStatsV1.currentBelowPositions.plus(event.params.totalFee)
-    }
-    optionStatsV1.totalVolume = optionStatsV1.totalVolume.plus(event.params.totalFee)
-    optionStatsV1.totalSettlementFees = optionStatsV1.totalSettlementFees.plus(event.params.settlementFee)
-    optionStatsV1.save()
-  }
+  let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
+  dashboardStat.totalVolume = dashboardStat.totalVolume.plus(
+    event.params.totalFee
+  );
+  dashboardStat.totalSettlementFees = dashboardStat.totalSettlementFees.plus(
+    event.params.settlementFee
+  );
+  dashboardStat.totalTrades += 1;
+  dashboardStat.save();
 }
-
-
-export function _storePnl(timestamp: BigInt, pnl: BigInt, isProfit: boolean): void {
-  let dayTimestamp = timestampToDay(timestamp)
-
-  let totalId = "total"
-  let totalEntity = _loadOrCreateEntity(totalId, "total", dayTimestamp)
-  if (isProfit) {
-    totalEntity.profit = totalEntity.profit.plus(pnl)
-    totalEntity.profitCumulative = totalEntity.profitCumulative.plus(pnl)
-  } else {
-    totalEntity.loss = totalEntity.loss.plus(pnl)
-    totalEntity.lossCumulative = totalEntity.lossCumulative.plus(pnl)
-  }
-  totalEntity.timestamp = dayTimestamp.toI32()
-  totalEntity.save()
-
-  let id = dayTimestamp.toString()
-  let entity = _loadOrCreateEntity(id, "daily", dayTimestamp)
-
-  if (isProfit) {
-    entity.profit = entity.profit.plus(pnl)
-  } else {
-    entity.loss = entity.loss.plus(pnl)
-  }
-  entity.profitCumulative = totalEntity.profitCumulative
-  entity.lossCumulative = totalEntity.lossCumulative
-  entity.save()
-}
-
-export function _updateOpenInterest(timestamp: BigInt, increase: boolean, isLong: boolean, delta: BigInt): void {
-  let dayTimestamp = timestampToDay(timestamp)
-  let totalId = "total"
-  let totalEntity = _loadOrCreateEntity(totalId, "total", dayTimestamp)
-
-  if (isLong) {
-    totalEntity.longOpenInterest = increase ? totalEntity.longOpenInterest.plus(delta) : totalEntity.longOpenInterest.minus(delta)
-  } else {
-    totalEntity.shortOpenInterest = totalEntity.shortOpenInterest.plus(delta)
-  }
-  totalEntity.save()
-
-  let id = dayTimestamp.toString()
-  let entity = _loadOrCreateEntity(id, "daily", dayTimestamp)
-
-  entity.longOpenInterest = totalEntity.longOpenInterest
-  entity.shortOpenInterest = totalEntity.shortOpenInterest
-  entity.save()
-}
-
-
-export function _storeUser(
-  timestamp: BigInt,
-  account: Address
-): void {
-  let user = User.load(account)
-  if (user == null) {
-    let id = _getDayId(timestamp)
-    let userStat = _loadOrCreateUserStat(id, "daily", timestamp)
-    userStat.uniqueCount = userStat.uniqueCount + 1
-    userStat.save()
-  
-    let totalUserStat = _loadOrCreateUserStat("total", "total", timestamp)
-    totalUserStat.uniqueCountCumulative = totalUserStat.uniqueCountCumulative + 1
-    totalUserStat.save()
-  }
-}
-
-
-export function _storeFees(timestamp: BigInt, fees: BigInt): void {
-  let id = _getDayId(timestamp)
-  let entity = _loadOrCreateFeeStat(id, "daily", timestamp)
-  entity.fee = entity.fee.plus(fees)
-  entity.save()
-
-  let totalEntity = _loadOrCreateFeeStat("total", "total", timestamp)
-  totalEntity.fee = totalEntity.fee.plus(fees)
-  totalEntity.save()
-}
-
-
-
-export function _storeVolume(timestamp: BigInt, amount: BigInt): void {
-  let id = _getDayId(timestamp)
-  let entity = _loadOrCreateVolumeStat(id, "daily", timestamp)
-  entity.amount = entity.amount.plus(amount)
-  entity.save()
-
-  let totalEntity = _loadOrCreateVolumeStat("total", "total", timestamp)
-  totalEntity.amount = totalEntity.amount.plus(amount)
-  totalEntity.save()
-}
-
-
