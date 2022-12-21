@@ -3,6 +3,7 @@ import {
   Create,
   BufferBinaryOptions,
 } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
+import { BinaryPool } from "../generated/BinaryPool/BinaryPool";
 import { User, VolumePerContract } from "../generated/schema";
 import { _getDayId, _getHourId } from "./helpers";
 import {
@@ -44,7 +45,7 @@ function _storeFees(timestamp: BigInt, fees: BigInt): void {
   totalEntity.save();
 }
 
-function _logVolumePerContract(
+function _logVolumeAndSettlementFeePerContract(
   id: string,
   period: string,
   timestamp: BigInt,
@@ -66,6 +67,7 @@ function _logVolumePerContract(
     entity.save();
   } else {
     entity.amount = entity.amount.plus(totalFee);
+    entity.settlementFee = entity.amount.plus(settlementFee);
   }
 }
 
@@ -112,32 +114,29 @@ export function storePnl(
 
 export function updateOpenInterest(
   timestamp: BigInt,
-  increase: boolean,
+  increaseInOpenInterest: boolean,
   isAbove: boolean,
-  totalFee: BigInt,
+  amount: BigInt,
   contractAddress: Bytes
 ): void {
   let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
-  optionContractData.tradeCount += 1;
-  optionContractData.volume = optionContractData.volume.plus(totalFee);
-
   let totalId = "total";
   let totalEntity = _loadOrCreateTradingStatEntity(totalId, "total", timestamp);
 
   if (isAbove) {
-    totalEntity.longOpenInterest = increase
-      ? totalEntity.longOpenInterest.plus(totalFee)
-      : totalEntity.longOpenInterest.minus(totalFee);
-    optionContractData.openUp = increase
-      ? optionContractData.openUp.plus(totalFee)
-      : optionContractData.openUp.minus(totalFee);
+    totalEntity.longOpenInterest = increaseInOpenInterest
+      ? totalEntity.longOpenInterest.plus(amount)
+      : totalEntity.longOpenInterest.minus(amount);
+    optionContractData.openUp = increaseInOpenInterest
+      ? optionContractData.openUp.plus(amount)
+      : optionContractData.openUp.minus(amount);
   } else {
-    totalEntity.shortOpenInterest = increase
-      ? totalEntity.shortOpenInterest.plus(totalFee)
-      : totalEntity.shortOpenInterest.minus(totalFee);
-    optionContractData.openUp = increase
-      ? optionContractData.openDown.plus(totalFee)
-      : optionContractData.openDown.minus(totalFee);
+    totalEntity.shortOpenInterest = increaseInOpenInterest
+      ? totalEntity.shortOpenInterest.plus(amount)
+      : totalEntity.shortOpenInterest.minus(amount);
+    optionContractData.openDown = increaseInOpenInterest
+      ? optionContractData.openDown.plus(amount)
+      : optionContractData.openDown.minus(amount);
   }
   totalEntity.save();
   optionContractData.save();
@@ -149,11 +148,33 @@ export function updateOpenInterest(
   dailyEntity.save();
 }
 
+export function calculateCurrentUtilization(
+  optionContractInstance: BufferBinaryOptions
+): BigInt {
+  let poolAddress = optionContractInstance.pool();
+  let poolContractInstance = BinaryPool.bind(poolAddress);
+  let currentUtilization = optionContractInstance
+    .totalLockedAmount()
+    .times(new BigInt(100))
+    .div(poolContractInstance.totalTokenXBalance());
+  return currentUtilization;
+}
+
 export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   let optionID = event.params.id;
   let timestamp = event.block.timestamp;
   let contractAddress = event.address;
-  let optionData = BufferBinaryOptions.bind(contractAddress).options(optionID);
+  let optionContractInstance = BufferBinaryOptions.bind(contractAddress);
+  let optionData = optionContractInstance.options(optionID);
+  let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
+  optionContractData.tradeCount += 1;
+  optionContractData.volume = optionContractData.volume.plus(
+    event.params.totalFee
+  );
+  optionContractData.currentUtilization = calculateCurrentUtilization(
+    optionContractInstance
+  );
+  optionContractData.save();
   let userOptionData = _loadOrCreateOptionDataEntity(optionID, contractAddress);
   userOptionData.user = event.params.account;
   userOptionData.totalFee = event.params.totalFee;
@@ -167,7 +188,7 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   userOptionData.depositToken = tokenReferrenceID;
   userOptionData.save();
 
-  _logVolumePerContract(
+  _logVolumeAndSettlementFeePerContract(
     _getHourId(timestamp),
     "hourly",
     timestamp,

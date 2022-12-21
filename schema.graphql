@@ -14,6 +14,7 @@ type OptionContract @entity {
   openDown: BigInt!
   tradeCount: Int!
   volume: BigInt!
+  currentUtilization: BigInt!
 }
 
 type User @entity {

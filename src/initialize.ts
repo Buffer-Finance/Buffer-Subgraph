@@ -128,6 +128,7 @@ export function _loadOrCreateOptionContractEntity(
     optionContract.tradeCount = 0;
     optionContract.openDown = ZERO;
     optionContract.openUp = ZERO;
+    optionContract.currentUtilization = ZERO;
     optionContract.save();
   }
   return optionContract as OptionContract;
@@ -164,17 +165,14 @@ export function _loadOrCreateReferralData(user: Bytes): ReferralData {
   return userReferralData as ReferralData;
 }
 
-
 export function _loadOrCreateDashboardStat(id: string): DashboardStat {
   let dashboardStat = DashboardStat.load(id);
   if (dashboardStat == null) {
     dashboardStat = new DashboardStat(id);
     dashboardStat.totalSettlementFees = ZERO;
     dashboardStat.totalVolume = ZERO;
-    dashboardStat.totalTrades = 0
+    dashboardStat.totalTrades = 0;
     dashboardStat.save();
   }
   return dashboardStat as DashboardStat;
 }
-
-
