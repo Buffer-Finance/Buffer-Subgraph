@@ -187,18 +187,15 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   leaderboardEntity.save();
 
   if (tokenReferrenceID == "USDC") {
-    let amount = optionData.value2.div(BigInt.fromI64(1000000));
-    let totalFee = event.params.totalFee.div(BigInt.fromI64(1000000));
-    let settlementFee = event.params.settlementFee.div(BigInt.fromI64(1000000));
     updateOpenInterest(
       timestamp,
       true,
       userOptionData.isAbove,
-      amount,
+      optionData.value2,
       contractAddress
     );
-    _storeFees(timestamp, settlementFee);
-    _logVolume(timestamp, totalFee);
+    _storeFees(timestamp, event.params.settlementFee);
+    _logVolume(timestamp, event.params.totalFee);
   }
   let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
   dashboardStat.totalVolume = dashboardStat.totalVolume.plus(

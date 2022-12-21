@@ -97,16 +97,15 @@ export function handleExercise(event: Exercise): void {
   userOptionData.save();
 
   if (userOptionData.depositToken == "USDC") {
-    let pnl = event.params.profit.div(BigInt.fromI64(1000000));
-    let amount = userOptionData.amount.div(BigInt.fromI64(1000000));
     updateOpenInterest(
       timestamp,
       false,
       userOptionData.isAbove,
-      amount,
+      userOptionData.amount,
       event.address
     );
-    storePnl(timestamp, pnl, true);
+    let profit =  event.params.profit.minus(userOptionData.totalFee);
+    storePnl(timestamp, profit, true);
     // if (userOptionData.user != null) {
     //   let leaderboardEntity = _loadOrCreateLeaderboardEntity(_getDayId(event.block.timestamp), userOptionData.user)
     //   leaderboardEntity.netPnL = leaderboardEntity.netPnL.plus(event.params.profit.minus(userOptionData.totalFee))
@@ -126,16 +125,14 @@ export function handleExpire(event: Expire): void {
   userOptionData.save();
 
   if (userOptionData.depositToken == "USDC") {
-    let pnl = event.params.premium.div(BigInt.fromI64(1000000));
-    let amount = userOptionData.amount.div(BigInt.fromI64(1000000));
     updateOpenInterest(
       timestamp,
       false,
       userOptionData.isAbove,
-      amount,
+      userOptionData.amount,
       event.address
     );
-    storePnl(timestamp, pnl, true);
+    storePnl(timestamp, event.params.premium, false);
     // if (userOptionData.user != null) {
     //   let leaderboardEntity = _loadOrCreateLeaderboardEntity(_getDayId(event.block.timestamp), userOptionData.user)
     //   leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(userOptionData.totalFee)
