@@ -160,7 +160,7 @@ export function calculateCurrentUtilization(
   let poolContractInstance = BinaryPool.bind(poolAddress);
   let currentUtilization = optionContractInstance
     .totalLockedAmount()
-    .times(new BigInt(100))
+    .times(new BigInt(100000000))
     .div(poolContractInstance.totalTokenXBalance());
   return currentUtilization;
 }

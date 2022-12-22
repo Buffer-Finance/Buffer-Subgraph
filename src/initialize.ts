@@ -130,8 +130,8 @@ export function _loadOrCreateOptionContractEntity(
     optionContract.openUp = 0;
     optionContract.openInterest = ZERO;
     optionContract.currentUtilization = ZERO;
-    optionContract.payoutForDown = ZERO;
-    optionContract.payoutForUp = ZERO;
+    optionContract.payoutForDown = 0;
+    optionContract.payoutForUp = 0;
     optionContract.save();
   }
   return optionContract as OptionContract;
