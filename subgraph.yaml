@@ -395,7 +395,7 @@ dataSources:
           handler: handleUpdateReferral
       file: ./src/mapping.ts
   - kind: ethereum/contract
-    name: BufferBinaryOptions14
+    name: BufferBinaryOptions22
     network: arbitrum-goerli
     source:
       address: "0x9B3561ce0A0672Dca8d5fD06e059eB75714883a6"
