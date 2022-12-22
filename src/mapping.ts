@@ -100,13 +100,16 @@ export function handleExercise(event: Exercise): void {
       userOptionData.amount,
       event.address
     );
-    let profit =  event.params.profit.minus(userOptionData.totalFee);
+    let profit = event.params.profit.minus(userOptionData.totalFee);
     storePnl(timestamp, profit, true);
-    // if (userOptionData.user != null) {
-    //   let leaderboardEntity = _loadOrCreateLeaderboardEntity(_getDayId(event.block.timestamp), userOptionData.user)
-    //   leaderboardEntity.netPnL = leaderboardEntity.netPnL.plus(event.params.profit.minus(userOptionData.totalFee))
-    //   leaderboardEntity.save()
-    // }
+    let leaderboardEntity = _loadOrCreateLeaderboardEntity(
+      _getDayId(event.block.timestamp),
+      userOptionData.user
+    );
+    leaderboardEntity.netPnL = leaderboardEntity.netPnL.plus(
+      event.params.profit.minus(userOptionData.totalFee)
+    );
+    leaderboardEntity.save();
   }
 }
 
@@ -129,11 +132,14 @@ export function handleExpire(event: Expire): void {
       event.address
     );
     storePnl(timestamp, event.params.premium, false);
-    // if (userOptionData.user != null) {
-    //   let leaderboardEntity = _loadOrCreateLeaderboardEntity(_getDayId(event.block.timestamp), userOptionData.user)
-    //   leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(userOptionData.totalFee)
-    //   leaderboardEntity.save()
-    // }
+    let leaderboardEntity = _loadOrCreateLeaderboardEntity(
+      _getDayId(event.block.timestamp),
+      userOptionData.user
+    );
+    leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(
+      userOptionData.totalFee
+    );
+    leaderboardEntity.save();
   }
 }
 
