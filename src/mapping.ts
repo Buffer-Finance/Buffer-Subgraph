@@ -18,13 +18,9 @@ import {
   _loadOrCreateOptionContractEntity,
   _loadOrCreateOptionDataEntity,
   _loadOrCreateQueuedOptionEntity,
-  _loadOrCreateVolumeStat,
-  _loadOrCreateTradingStatEntity,
-  _loadOrCreateFeeStat,
-  _loadOrCreateUserStat,
   _loadOrCreateReferralData,
 } from "./initialize";
-import { _getDayId, _getHourId } from "./helpers";
+import { _getDayId } from "./helpers";
 
 export function handleInitiateTrade(event: InitiateTrade): void {
   let routerContract = BufferRouter.bind(event.address);
@@ -156,8 +152,7 @@ export function handleUpdateReferral(event: UpdateReferral): void {
   userReferralData.save();
 
   let referrerReferralData = _loadOrCreateReferralData(referrer);
-  referrerReferralData.totalTradesReferred =
-    referrerReferralData.totalTradesReferred + 1;
+  referrerReferralData.totalTradesReferred += 1;
   referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
     event.params.totalFee
   );

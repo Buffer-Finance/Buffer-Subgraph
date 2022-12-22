@@ -128,16 +128,20 @@ export function updateOpenInterest(
       ? totalEntity.longOpenInterest.plus(amount)
       : totalEntity.longOpenInterest.minus(amount);
     optionContractData.openUp = increaseInOpenInterest
-      ? optionContractData.openUp.plus(amount)
-      : optionContractData.openUp.minus(amount);
+      ? (optionContractData.openUp += 1)
+      : (optionContractData.openUp -= 1);
   } else {
     totalEntity.shortOpenInterest = increaseInOpenInterest
       ? totalEntity.shortOpenInterest.plus(amount)
       : totalEntity.shortOpenInterest.minus(amount);
     optionContractData.openDown = increaseInOpenInterest
-      ? optionContractData.openDown.plus(amount)
-      : optionContractData.openDown.minus(amount);
+      ? (optionContractData.openDown += 1)
+      : (optionContractData.openDown -= 1);
   }
+  optionContractData.openInterest = increaseInOpenInterest
+    ? optionContractData.openInterest.plus(amount)
+    : optionContractData.openInterest.minus(amount);
+
   totalEntity.save();
   optionContractData.save();
 
@@ -148,9 +152,10 @@ export function updateOpenInterest(
   dailyEntity.save();
 }
 
+//TODO: Type handling
 export function calculateCurrentUtilization(
   optionContractInstance: BufferBinaryOptions
-): BigInt {
+):  BigInt{
   let poolAddress = optionContractInstance.pool();
   let poolContractInstance = BinaryPool.bind(poolAddress);
   let currentUtilization = optionContractInstance
@@ -159,6 +164,16 @@ export function calculateCurrentUtilization(
     .div(poolContractInstance.totalTokenXBalance());
   return currentUtilization;
 }
+
+//TODO: Type handling
+//TODO: Scan Config for settlement fee update
+export function calculatePayout(
+  settlementFeePercent: number
+):  number{
+  let payout = 100 - (2 * settlementFeePercent);
+  return payout;
+}
+
 
 export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   let optionID = event.params.id;
@@ -174,6 +189,9 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   optionContractData.currentUtilization = calculateCurrentUtilization(
     optionContractInstance
   );
+  optionContractData.token = tokenReferrenceID;
+  // optionContractData.payoutForDown = calculatePayout(optionContractInstance.baseSettlementFeePercentageForBelow.toString());
+  // optionContractData.payoutForUp = calculatePayout(optionContractInstance.baseSettlementFeePercentageForAbove.toString());
   optionContractData.save();
   let userOptionData = _loadOrCreateOptionDataEntity(optionID, contractAddress);
   userOptionData.user = event.params.account;

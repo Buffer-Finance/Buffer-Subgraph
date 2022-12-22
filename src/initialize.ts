@@ -126,9 +126,12 @@ export function _loadOrCreateOptionContractEntity(
     optionContract.address = contractAddress;
     optionContract.volume = ZERO;
     optionContract.tradeCount = 0;
-    optionContract.openDown = ZERO;
-    optionContract.openUp = ZERO;
+    optionContract.openDown = 0;
+    optionContract.openUp = 0;
+    optionContract.openInterest = ZERO;
     optionContract.currentUtilization = ZERO;
+    optionContract.payoutForDown = ZERO;
+    optionContract.payoutForUp = ZERO;
     optionContract.save();
   }
   return optionContract as OptionContract;

@@ -10,11 +10,15 @@ type OptionContract @entity {
   address: Bytes
   asset: String
   isPaused: Boolean
-  openUp: BigInt!
-  openDown: BigInt!
+  openUp: Int
+  openDown: Int
+  openInterest: BigInt!
   tradeCount: Int!
   volume: BigInt!
   currentUtilization: BigInt!
+  token: String
+  payoutForUp: Int
+  payoutForDown: Int
 }
 
 type User @entity {
