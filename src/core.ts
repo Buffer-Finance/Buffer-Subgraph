@@ -164,10 +164,11 @@ export function calculateCurrentUtilization(
   return currentUtilization;
 }
 
-//TODO: Type handling
 //TODO: Scan Config for settlement fee update
-export function calculatePayout(settlementFeePercent: number): number {
-  let payout = 100 - 2 * settlementFeePercent;
+export function calculatePayout(settlementFeePercent: BigInt): BigInt {
+  let payout = BigInt.fromI64(1000000000000000000).minus(
+    settlementFeePercent.times(BigInt.fromI64(200000000000000))
+  );
   return payout;
 }
 
@@ -181,9 +182,17 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   optionContractData.currentUtilization = calculateCurrentUtilization(
     optionContractInstance
   );
+  optionContractData.tradeCount += 1;
+  optionContractData.volume = optionContractData.volume.plus(
+    event.params.totalFee
+  );
   optionContractData.token = tokenReferrenceID;
-  // optionContractData.payoutForDown = calculatePayout(optionContractInstance.baseSettlementFeePercentageForBelow.toString());
-  // optionContractData.payoutForUp = calculatePayout(optionContractInstance.baseSettlementFeePercentageForAbove.toString());
+  optionContractData.payoutForDown = calculatePayout(
+    BigInt.fromI32(optionContractInstance.baseSettlementFeePercentageForBelow())
+  );
+  optionContractData.payoutForUp = calculatePayout(
+    BigInt.fromI32(optionContractInstance.baseSettlementFeePercentageForAbove())
+  );
   optionContractData.save();
   let userOptionData = _loadOrCreateOptionDataEntity(optionID, contractAddress);
   userOptionData.user = event.params.account;

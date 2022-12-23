@@ -17,8 +17,8 @@ type OptionContract @entity {
   volume: BigInt!
   currentUtilization: BigInt
   token: String
-  payoutForUp: Int
-  payoutForDown: Int
+  payoutForUp: BigInt
+  payoutForDown: BigInt
 }
 
 type User @entity {
