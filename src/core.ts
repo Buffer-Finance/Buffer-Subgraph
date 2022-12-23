@@ -152,28 +152,24 @@ export function updateOpenInterest(
   dailyEntity.save();
 }
 
-//TODO: Type handling
 export function calculateCurrentUtilization(
   optionContractInstance: BufferBinaryOptions
-):  BigInt{
+): BigInt {
   let poolAddress = optionContractInstance.pool();
   let poolContractInstance = BinaryPool.bind(poolAddress);
   let currentUtilization = optionContractInstance
     .totalLockedAmount()
-    .times(new BigInt(100000000))
+    .times(BigInt.fromI64(1000000000000000000))
     .div(poolContractInstance.totalTokenXBalance());
   return currentUtilization;
 }
 
 //TODO: Type handling
 //TODO: Scan Config for settlement fee update
-export function calculatePayout(
-  settlementFeePercent: number
-):  number{
-  let payout = 100 - (2 * settlementFeePercent);
+export function calculatePayout(settlementFeePercent: number): number {
+  let payout = 100 - 2 * settlementFeePercent;
   return payout;
 }
-
 
 export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   let optionID = event.params.id;
@@ -182,10 +178,6 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   let optionContractInstance = BufferBinaryOptions.bind(contractAddress);
   let optionData = optionContractInstance.options(optionID);
   let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
-  optionContractData.tradeCount += 1;
-  optionContractData.volume = optionContractData.volume.plus(
-    event.params.totalFee
-  );
   optionContractData.currentUtilization = calculateCurrentUtilization(
     optionContractInstance
   );

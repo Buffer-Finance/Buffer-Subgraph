@@ -3,6 +3,7 @@ import {
   Expire,
   Exercise,
   UpdateReferral,
+  BufferBinaryOptions,
 } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import {
   InitiateTrade,
@@ -12,7 +13,13 @@ import {
 } from "../generated/BufferRouter/BufferRouter";
 import { State } from "./config";
 import { BigInt } from "@graphprotocol/graph-ts";
-import { _handleCreate, storePnl, updateOpenInterest, logUser } from "./core";
+import {
+  _handleCreate,
+  storePnl,
+  updateOpenInterest,
+  logUser,
+  calculateCurrentUtilization,
+} from "./core";
 import {
   _loadOrCreateLeaderboardEntity,
   _loadOrCreateOptionContractEntity,
@@ -91,7 +98,12 @@ export function handleExercise(event: Exercise): void {
   userOptionData.payout = event.params.profit;
   userOptionData.expirationPrice = event.params.priceAtExpiration;
   userOptionData.save();
-
+  let optionContractInstance = BufferBinaryOptions.bind(event.address);
+  let optionContractData = _loadOrCreateOptionContractEntity(event.address);
+  optionContractData.currentUtilization = calculateCurrentUtilization(
+    optionContractInstance
+  );
+  optionContractData.save();
   if (userOptionData.depositToken == "USDC") {
     updateOpenInterest(
       timestamp,
@@ -122,7 +134,12 @@ export function handleExpire(event: Expire): void {
   userOptionData.state = State.expired;
   userOptionData.expirationPrice = event.params.priceAtExpiration;
   userOptionData.save();
-
+  let optionContractInstance = BufferBinaryOptions.bind(event.address);
+  let optionContractData = _loadOrCreateOptionContractEntity(event.address);
+  optionContractData.currentUtilization = calculateCurrentUtilization(
+    optionContractInstance
+  );
+  optionContractData.save();
   if (userOptionData.depositToken == "USDC") {
     updateOpenInterest(
       timestamp,
