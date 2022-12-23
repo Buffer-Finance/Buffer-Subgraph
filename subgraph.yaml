@@ -594,7 +594,7 @@ dataSources:
   #   name: BufferBinaryOptionsLINKUSD
   #   network: arbitrum-goerli
   #   source:
-  #     address: "0xae40B8411972274bfc53fbE9Fa0fd3d56749BA7C"
+  #     address: "0x4591200ca366Bc3DCAF1e4936F4A9288baf0EE61"
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -620,7 +620,7 @@ dataSources:
   #   name: BufferBinaryOptionsUNIUSD
   #   network: arbitrum-goerli
   #   source:
-  #     address: "0x8fa94A1fC8d8Ac4f124967d4de7Ba52Ea976C8dc"
+  #     address: "0x50697FE8b4cd12e2e7d264d84c191Ea94F7d8C84"
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -646,7 +646,7 @@ dataSources:
   #   name: BufferBinaryOptionsAAVEUSD
   #   network: arbitrum-goerli
   #   source:
-  #     address: "0xb82ee30A91A5c321244574F50AD6a5f37EbE8676"
+  #     address: "0x8DA18250E31257fC435274E60A33ddAA0da296e4"
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -672,7 +672,7 @@ dataSources:
   #   name: BufferBinaryOptionsXRPUSD
   #   network: arbitrum-goerli
   #   source:
-  #     address: "0x5a996dC18AF17077fAECC2FAd884567B4aBF6922"
+  #     address: "0x9B7a4aC17CF133b7f9C17333Ff624Ab9A91346Cc"
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -698,7 +698,7 @@ dataSources:
   #   name: BufferBinaryOptionsSOLUSD
   #   network: arbitrum-goerli
   #   source:
-  #     address: "0xAfE3Af4D104F9E73Ecd31DF4243FDFF8F1F5b214"
+  #     address: "0xce935ED294ce5B66E590d5Ae56A359Bc205190Fe"
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -724,7 +724,7 @@ dataSources:
   #   name: BufferBinaryOptionsMATICUSD
   #   network: arbitrum-goerli
   #   source:
-  #     address: "0x783a96c0c3E26330aFA3d355ac482C1e11d56015"
+  #     address: "0xa85eA9ca702A0644C08fc271289ED1d7625c7FAa"
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -750,7 +750,7 @@ dataSources:
   #   name: BufferBinaryOptionsAVAXUSD
   #   network: arbitrum-goerli
   #   source:
-  #     address: "0x7DB4C2Fc552BC597f8cFbeC2e1E26740dd969D49"
+  #     address: "0x767A5A211Ef07420cA3E3A4C789db2Db8b66841E"
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -776,7 +776,7 @@ dataSources:
   #   name: BufferBinaryOptionsDOGEUSD
   #   network: arbitrum-goerli
   #   source:
-  #     address: "0x5848FB39FfC38244B839dc437341e98542fd40C2"
+  #     address: "0x9398A5e7681A9AeC6b0Db99e4e9719F30Ee1AE5C"
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -802,7 +802,7 @@ dataSources:
   #   name: BufferBinaryOptionsETH-BTC
   #   network: arbitrum-goerli
   #   source:
-  #     address: "0x6b7982b1D927E0A05C652C363bD4c7fF174fA937"
+  #     address: "0x0D4a07EBDc29A8d3024cbBFe2B28b0311284e26b"
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -828,7 +828,7 @@ dataSources:
   #   name: BufferBinaryOptionsBTC-USD
   #   network: arbitrum-goerli
   #   source:
-  #     address: '0x13b0a898F286f3cAd8437dBe32118034EC58974C'
+  #     address: '0x33c815893b48Ddcf930160E0383590068262700f'
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -840,6 +840,8 @@ dataSources:
   #     abis:
   #       - name: BufferBinaryOptions
   #         file: ./abis/BufferBinaryOptions.json
+  #       - name: BinaryPool
+  #         file: ./abis/BinaryPool.json
   #     eventHandlers:
   #       - event: Create(indexed address,indexed uint256,uint256,uint256)
   #         handler: handleCreateForBFR
@@ -854,7 +856,7 @@ dataSources:
   #   name: BufferBinaryOptionsETH-USD
   #   network: arbitrum-goerli
   #   source:
-  #     address: '0x9b391f1F63e4F17A4eAB2f167d2425Aa543F3cc4'
+  #     address: '0x76a042704F1A31c4A9e9579E51b91D11841D2eA0'
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -866,6 +868,8 @@ dataSources:
   #     abis:
   #       - name: BufferBinaryOptions
   #         file: ./abis/BufferBinaryOptions.json
+  #       - name: BinaryPool
+  #         file: ./abis/BinaryPool.json
   #     eventHandlers:
   #       - event: Create(indexed address,indexed uint256,uint256,uint256)
   #         handler: handleCreateForBFR
@@ -878,7 +882,7 @@ dataSources:
   #   name: BufferBinaryOptionsUSDJPY
   #   network: arbitrum-goerli
   #   source:
-  #     address: '0x094F9D73BB6D1cd70Ba3145Fcf5EbA5F0B8e8354'
+  #     address: '0x6cBDE8dF84acf55474511B05779e5D1fff05329A'
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -890,6 +894,8 @@ dataSources:
   #     abis:
   #       - name: BufferBinaryOptions
   #         file: ./abis/BufferBinaryOptions.json
+  #       - name: BinaryPool
+  #         file: ./abis/BinaryPool.json
   #     eventHandlers:
   #       - event: Create(indexed address,indexed uint256,uint256,uint256)
   #         handler: handleCreateForBFR
@@ -902,7 +908,7 @@ dataSources:
   #   name: BufferBinaryOptionsUSDCHF
   #   network: arbitrum-goerli
   #   source:
-  #     address: '0x055239C9B6Be03e325357b01C2d2697654427e08'
+  #     address: '0x657AEd69Fd049BA5Ef67774212767b86871c1a40'
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -914,6 +920,8 @@ dataSources:
   #     abis:
   #       - name: BufferBinaryOptions
   #         file: ./abis/BufferBinaryOptions.json
+  #       - name: BinaryPool
+  #         file: ./abis/BinaryPool.json
   #     eventHandlers:
   #       - event: Create(indexed address,indexed uint256,uint256,uint256)
   #         handler: handleCreateForBFR
@@ -928,7 +936,7 @@ dataSources:
   #   name: BufferBinaryOptionsGBPUSD
   #   network: arbitrum-goerli
   #   source:
-  #     address: '0x56Af8c7A2821074cB96588FB754503f29405c2f5'
+  #     address: '0x05cCeF061369D38cd6b0aE134C10Eeefe1826367'
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -940,6 +948,8 @@ dataSources:
   #     abis:
   #       - name: BufferBinaryOptions
   #         file: ./abis/BufferBinaryOptions.json
+  #       - name: BinaryPool
+  #         file: ./abis/BinaryPool.json
   #     eventHandlers:
   #       - event: Create(indexed address,indexed uint256,uint256,uint256)
   #         handler: handleCreateForBFR
@@ -954,7 +964,7 @@ dataSources:
   #   name: BufferBinaryOptionsEURGBP
   #   network: arbitrum-goerli
   #   source:
-  #     address: '0x151291635210eD07926C9fCF42cebaC81df30966'
+  #     address: '0x095211fFf591106A824ccFD941B53d287BA44255'
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -966,6 +976,8 @@ dataSources:
   #     abis:
   #       - name: BufferBinaryOptions
   #         file: ./abis/BufferBinaryOptions.json
+  #       - name: BinaryPool
+  #         file: ./abis/BinaryPool.json
   #     eventHandlers:
   #       - event: Create(indexed address,indexed uint256,uint256,uint256)
   #         handler: handleCreateForBFR
@@ -980,7 +992,7 @@ dataSources:
   #   name: BufferBinaryOptionsEURJPY
   #   network: arbitrum-goerli
   #   source:
-  #     address: '0xAAe8591b920c40B6DbA50AC2e69BF17305d59e06'
+  #     address: '0x0dc3d7b981b047C98a259f2658474D301B69f293'
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -992,6 +1004,8 @@ dataSources:
   #     abis:
   #       - name: BufferBinaryOptions
   #         file: ./abis/BufferBinaryOptions.json
+  #       - name: BinaryPool
+  #         file: ./abis/BinaryPool.json
   #     eventHandlers:
   #       - event: Create(indexed address,indexed uint256,uint256,uint256)
   #         handler: handleCreateForBFR
@@ -1006,7 +1020,7 @@ dataSources:
   #   name: BufferBinaryOptionsGBPJPY
   #   network: arbitrum-goerli
   #   source:
-  #     address: '0x22cDcf5E215FEc8670d28B60F3225B9052ea6F0a'
+  #     address: '0x451a2C51c6051E5a696fC36E95B24eD44ba5154B'
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -1018,6 +1032,8 @@ dataSources:
   #     abis:
   #       - name: BufferBinaryOptions
   #         file: ./abis/BufferBinaryOptions.json
+  #       - name: BinaryPool
+  #         file: ./abis/BinaryPool.json
   #     eventHandlers:
   #       - event: Create(indexed address,indexed uint256,uint256,uint256)
   #         handler: handleCreateForBFR
@@ -1030,7 +1046,7 @@ dataSources:
   #   name: BufferBinaryOptionsUSDCAD
   #   network: arbitrum-goerli
   #   source:
-  #     address: '0xba6a3dc73177fD74aEf35df2E6aA0d6B15f6a9af'
+  #     address: '0x57F77Ef85D2282BEE93A6EDCaA22eB5A2D2B9399'
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -1042,6 +1058,8 @@ dataSources:
   #     abis:
   #       - name: BufferBinaryOptions
   #         file: ./abis/BufferBinaryOptions.json
+  #       - name: BinaryPool
+  #         file: ./abis/BinaryPool.json
   #     eventHandlers:
   #       - event: Create(indexed address,indexed uint256,uint256,uint256)
   #         handler: handleCreateForBFR
@@ -1054,7 +1072,7 @@ dataSources:
   #   name: BufferBinaryOptionsAUDUSD
   #   network: arbitrum-goerli
   #   source:
-  #     address: '0xd980AE795167dd0eedd30fc75Bbc5F0E0f54256c'
+  #     address: '0xCEe0356184fe1d850674e0937DFB1b715B5eFeDE'
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -1066,6 +1084,8 @@ dataSources:
   #     abis:
   #       - name: BufferBinaryOptions
   #         file: ./abis/BufferBinaryOptions.json
+  #       - name: BinaryPool
+  #         file: ./abis/BinaryPool.json
   #     eventHandlers:
   #       - event: Create(indexed address,indexed uint256,uint256,uint256)
   #         handler: handleCreateForBFR
@@ -1080,7 +1100,7 @@ dataSources:
   #   name: BufferBinaryOptionsEURCHF
   #   network: arbitrum-goerli
   #   source:
-  #     address: '0x9F64F400f18eF20d55D78C4C35BF75c22763cD25'
+  #     address: '0x5470DC599bfD9529CEaaB4ED8bB0CABD20D9CE49'
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -1092,6 +1112,8 @@ dataSources:
   #     abis:
   #       - name: BufferBinaryOptions
   #         file: ./abis/BufferBinaryOptions.json
+  #       - name: BinaryPool
+  #         file: ./abis/BinaryPool.json
   #     eventHandlers:
   #       - event: Create(indexed address,indexed uint256,uint256,uint256)
   #         handler: handleCreateForBFR
@@ -1104,7 +1126,7 @@ dataSources:
   #   name: BufferBinaryOptionsEURUSD
   #   network: arbitrum-goerli
   #   source:
-  #     address: '0x15d386FF00447FcE8fC9177C5B467A87F125CAC5'
+  #     address: '0x3B2089c150E05959bb215d5342071310345f2c2c'
   #     abi: BufferBinaryOptions
   #     startBlock: 3332116 
   #   mapping:
@@ -1116,6 +1138,8 @@ dataSources:
   #     abis:
   #       - name: BufferBinaryOptions
   #         file: ./abis/BufferBinaryOptions.json
+  #       - name: BinaryPool
+  #         file: ./abis/BinaryPool.json
   #     eventHandlers:
   #       - event: Create(indexed address,indexed uint256,uint256,uint256)
   #         handler: handleCreateForBFR
