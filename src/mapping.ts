@@ -185,3 +185,29 @@ export function handleUpdateReferral(event: UpdateReferral): void {
   );
   referrerReferralData.save();
 }
+
+
+export function handleProvide(event: UpdateReferral): void {
+  let user = event.params.user;
+  let referrer = event.params.referrer;
+
+  let userReferralData = _loadOrCreateReferralData(user);
+  let discount = event.params.rebate.div(BigInt.fromI64(1000000));
+  userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
+    discount
+  );
+  userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
+    event.params.totalFee
+  );
+  userReferralData.save();
+
+  let referrerReferralData = _loadOrCreateReferralData(referrer);
+  referrerReferralData.totalTradesReferred += 1;
+  referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
+    event.params.totalFee
+  );
+  referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
+    event.params.referrerFee
+  );
+  referrerReferralData.save();
+}

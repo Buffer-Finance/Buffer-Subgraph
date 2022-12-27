@@ -5,7 +5,7 @@ import {
 } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import { BinaryPool } from "../generated/BinaryPool/BinaryPool";
 import { User, VolumePerContract } from "../generated/schema";
-import { _getDayId, _getHourId } from "./helpers";
+import { _getDayId, _getHourId, _checkIfUserInArray } from "./helpers";
 import {
   _loadOrCreateLeaderboardEntity,
   _loadOrCreateOptionContractEntity,
@@ -17,6 +17,32 @@ import {
   _loadOrCreateUserStat,
   _loadOrCreateDashboardStat,
 } from "./initialize";
+
+function _logVolumeAndSettlementFeePerContract(
+  id: string,
+  period: string,
+  timestamp: BigInt,
+  contractAddress: Bytes,
+  depositToken: string,
+  totalFee: BigInt,
+  settlementFee: BigInt
+): void {
+  let referrenceID = `${id}${contractAddress}${depositToken}`;
+  let entity = VolumePerContract.load(referrenceID);
+  if (entity === null) {
+    entity = new VolumePerContract(referrenceID);
+    entity.period = period;
+    entity.timestamp = timestamp;
+    entity.amount = totalFee;
+    entity.optionContract = contractAddress;
+    entity.depositToken = depositToken;
+    entity.settlementFee = settlementFee;
+    entity.save();
+  } else {
+    entity.amount = entity.amount.plus(totalFee);
+    entity.settlementFee = entity.amount.plus(settlementFee);
+  }
+}
 
 function _logVolume(timestamp: BigInt, amount: BigInt): void {
   let totalEntity = _loadOrCreateVolumeStat("total", "total", timestamp);
@@ -45,48 +71,29 @@ function _storeFees(timestamp: BigInt, fees: BigInt): void {
   totalEntity.save();
 }
 
-function _logVolumeAndSettlementFeePerContract(
-  id: string,
-  period: string,
-  timestamp: BigInt,
-  contractAddress: Bytes,
-  depositToken: string,
-  totalFee: BigInt,
-  settlementFee: BigInt
-): void {
-  let referrenceID = `${id}${contractAddress}${depositToken}`;
-  let entity = VolumePerContract.load(referrenceID);
-  if (entity === null) {
-    entity = new VolumePerContract(referrenceID);
-    entity.period = period;
-    entity.timestamp = timestamp;
-    entity.amount = totalFee;
-    entity.optionContract = contractAddress;
-    entity.depositToken = depositToken;
-    entity.settlementFee = settlementFee;
-    entity.save();
-  } else {
-    entity.amount = entity.amount.plus(totalFee);
-    entity.settlementFee = entity.amount.plus(settlementFee);
-  }
-}
-
 export function logUser(timestamp: BigInt, account: Address): void {
   let user = User.load(account);
+  let id = _getDayId(timestamp);
+  let userStat = _loadOrCreateUserStat(id, "daily", timestamp);
   if (user == null) {
     let totalUserStat = _loadOrCreateUserStat("total", "total", timestamp);
     totalUserStat.uniqueCountCumulative =
       totalUserStat.uniqueCountCumulative + 1;
     totalUserStat.save();
 
-    let id = _getDayId(timestamp);
-    let userStat = _loadOrCreateUserStat(id, "daily", timestamp);
     userStat.uniqueCount = userStat.uniqueCount + 1;
+    userStat.users = userStat.users.concat([account]);
     userStat.save();
 
     user = new User(account);
     user.address = account;
     user.save();
+  } else {
+    if (_checkIfUserInArray(account, userStat.users) == false) {
+      let userStat = _loadOrCreateUserStat(id, "daily", timestamp);
+      userStat.existingCount += 1;
+      userStat.save();
+    }
   }
 }
 
@@ -207,6 +214,7 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   userOptionData.depositToken = tokenReferrenceID;
   userOptionData.save();
 
+  // Dashboard
   _logVolumeAndSettlementFeePerContract(
     _getHourId(timestamp),
     "hourly",
@@ -216,6 +224,8 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
     event.params.totalFee,
     event.params.settlementFee
   );
+
+  // Leaderboard
   let leaderboardEntity = _loadOrCreateLeaderboardEntity(
     _getDayId(timestamp),
     event.params.account
@@ -226,6 +236,7 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
   leaderboardEntity.totalTrades = leaderboardEntity.totalTrades + 1;
   leaderboardEntity.save();
 
+  // Stats
   if (tokenReferrenceID == "USDC") {
     updateOpenInterest(
       timestamp,

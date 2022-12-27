@@ -101,6 +101,8 @@ type UserStat @entity {
   uniqueCountCumulative: Int!
   period: Period!
   timestamp: BigInt
+  existingCount: Int!
+  users: [User!]!
 }
 
 type TradingStat @entity {

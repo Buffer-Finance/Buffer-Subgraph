@@ -97,6 +97,7 @@ export function _loadOrCreateUserStat(
     userStat.timestamp = timestamp;
     userStat.uniqueCount = 0;
     userStat.uniqueCountCumulative = 0;
+    userStat.users = [];
   }
   return userStat as UserStat;
 }
