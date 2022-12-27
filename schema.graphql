@@ -130,3 +130,11 @@ type VolumeStat @entity {
   period: Period!
   timestamp: BigInt!
 }
+
+type PoolStat @entity {
+  id: ID!
+  amount: BigInt!
+  period: Period!
+  timestamp: BigInt!
+  rate: BigInt!
+}

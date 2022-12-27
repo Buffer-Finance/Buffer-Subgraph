@@ -89,11 +89,12 @@ export function logUser(timestamp: BigInt, account: Address): void {
     user.address = account;
     user.save();
   } else {
-    if (_checkIfUserInArray(account, userStat.users) == false) {
+    //TODO: fix this
+    // if (_checkIfUserInArray(account, userStat.users) == false) {
       let userStat = _loadOrCreateUserStat(id, "daily", timestamp);
       userStat.existingCount += 1;
       userStat.save();
-    }
+    // }
   }
 }
 
@@ -238,15 +239,18 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
 
   // Stats
   if (tokenReferrenceID == "USDC") {
+    let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
+    let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
     updateOpenInterest(
       timestamp,
       true,
       userOptionData.isAbove,
-      optionData.value2,
+      amount,
       contractAddress
     );
-    _storeFees(timestamp, event.params.settlementFee);
-    _logVolume(timestamp, event.params.totalFee);
+    let settlementFee = event.params.settlementFee.div(BigInt.fromI32(1000000));
+    _storeFees(timestamp, settlementFee);
+    _logVolume(timestamp, totalFee);
   }
   let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
   dashboardStat.totalVolume = dashboardStat.totalVolume.plus(

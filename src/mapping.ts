@@ -6,6 +6,11 @@ import {
   BufferBinaryOptions,
 } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import {
+  BinaryPool,
+  Provide,
+  Withdraw
+} from "../generated/BinaryPool/BinaryPool";
+import {
   InitiateTrade,
   CancelTrade,
   BufferRouter,
@@ -26,6 +31,7 @@ import {
   _loadOrCreateOptionDataEntity,
   _loadOrCreateQueuedOptionEntity,
   _loadOrCreateReferralData,
+  _loadOrCreatePoolStat
 } from "./initialize";
 import { _getDayId } from "./helpers";
 
@@ -106,21 +112,23 @@ export function handleExercise(event: Exercise): void {
   );
   optionContractData.save();
   if (userOptionData.depositToken == "USDC") {
+    let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
+    let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
     updateOpenInterest(
       timestamp,
       false,
       userOptionData.isAbove,
-      userOptionData.amount,
+      amount,
       event.address
     );
-    let profit = event.params.profit.minus(userOptionData.totalFee);
+    let profit = event.params.profit.minus(totalFee).div(BigInt.fromI32(1000000));
     storePnl(timestamp, profit, true);
     let leaderboardEntity = _loadOrCreateLeaderboardEntity(
       _getDayId(event.block.timestamp),
       userOptionData.user
     );
     leaderboardEntity.netPnL = leaderboardEntity.netPnL.plus(
-      event.params.profit.minus(userOptionData.totalFee)
+      event.params.profit.minus(totalFee)
     );
     leaderboardEntity.save();
   }
@@ -142,20 +150,22 @@ export function handleExpire(event: Expire): void {
   );
   optionContractData.save();
   if (userOptionData.depositToken == "USDC") {
+    let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
+    let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
     updateOpenInterest(
       timestamp,
       false,
       userOptionData.isAbove,
-      userOptionData.amount,
+      amount,
       event.address
     );
-    storePnl(timestamp, event.params.premium, false);
+    storePnl(timestamp, event.params.premium.div(BigInt.fromI32(1000000)), false);
     let leaderboardEntity = _loadOrCreateLeaderboardEntity(
       _getDayId(event.block.timestamp),
       userOptionData.user
     );
     leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(
-      userOptionData.totalFee
+      totalFee
     );
     leaderboardEntity.save();
   }
@@ -187,27 +197,35 @@ export function handleUpdateReferral(event: UpdateReferral): void {
 }
 
 
-export function handleProvide(event: UpdateReferral): void {
-  let user = event.params.user;
-  let referrer = event.params.referrer;
+export function handleProvide(event: Provide): void {
+  let poolContractInstance = BinaryPool.bind(event.address);
+  let rate = poolContractInstance.totalTokenXBalance().div(poolContractInstance.totalSupply());
 
-  let userReferralData = _loadOrCreateReferralData(user);
-  let discount = event.params.rebate.div(BigInt.fromI64(1000000));
-  userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
-    discount
-  );
-  userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
-    event.params.totalFee
-  );
-  userReferralData.save();
+  let poolStat = _loadOrCreatePoolStat(_getDayId(event.block.timestamp), "daily");
+  poolStat.amount = poolStat.amount.plus(event.params.amount).div(BigInt.fromI64(1000000));
+  poolStat.timestamp = event.block.timestamp;
+  poolStat.rate = rate;
+  poolStat.save();
 
-  let referrerReferralData = _loadOrCreateReferralData(referrer);
-  referrerReferralData.totalTradesReferred += 1;
-  referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
-    event.params.totalFee
-  );
-  referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
-    event.params.referrerFee
-  );
-  referrerReferralData.save();
+  let totalPoolStat = _loadOrCreatePoolStat("total", "total");
+  totalPoolStat.amount = totalPoolStat.amount.plus(event.params.amount).div(BigInt.fromI64(1000000));
+  totalPoolStat.timestamp = event.block.timestamp;
+  totalPoolStat.save();
+}
+
+
+export function handleWithdraw(event: Withdraw): void {
+  let poolContractInstance = BinaryPool.bind(event.address);
+  let rate = poolContractInstance.totalTokenXBalance().div(poolContractInstance.totalSupply());
+
+  let poolStat = _loadOrCreatePoolStat(_getDayId(event.block.timestamp), "daily");
+  poolStat.amount = poolStat.amount.minus(event.params.amount).div(BigInt.fromI64(1000000));
+  poolStat.timestamp = event.block.timestamp;
+  poolStat.rate = rate;
+  poolStat.save();
+
+  let totalPoolStat = _loadOrCreatePoolStat("total", "total");
+  totalPoolStat.amount = totalPoolStat.amount.minus(event.params.amount).div(BigInt.fromI64(1000000));
+  poolStat.timestamp = event.block.timestamp;
+  totalPoolStat.save();
 }

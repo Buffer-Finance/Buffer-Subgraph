@@ -12,6 +12,7 @@ import {
   Leaderboard,
   QueuedOptionData,
   VolumePerContract,
+  PoolStat,
 } from "../generated/schema";
 import { _getDayId, _getHourId } from "./helpers";
 let ZERO = BigInt.fromI32(0);
@@ -98,6 +99,7 @@ export function _loadOrCreateUserStat(
     userStat.uniqueCount = 0;
     userStat.uniqueCountCumulative = 0;
     userStat.users = [];
+    userStat.existingCount = 0;
   }
   return userStat as UserStat;
 }
@@ -179,4 +181,15 @@ export function _loadOrCreateDashboardStat(id: string): DashboardStat {
     dashboardStat.save();
   }
   return dashboardStat as DashboardStat;
+}
+
+export function _loadOrCreatePoolStat(id: string, period:string): PoolStat {
+  let poolStat = PoolStat.load(id);
+  if (poolStat == null) {
+    poolStat = new PoolStat(id);
+    poolStat.amount = ZERO;
+    poolStat.period = period;
+    poolStat.rate = ZERO;
+  }
+  return poolStat as PoolStat;
 }
