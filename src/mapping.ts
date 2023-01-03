@@ -66,13 +66,12 @@ export function handleOpenTrade(event: OpenTrade): void {
   );
   userQueuedData.state = State.opened;
   userQueuedData.save();
-  // TODO : Add a option ID to qeueue ID mapping
-  // let userOptionData = _loadOrCreateOptionDataEntity(
-  //   event.params.optionId,
-  //   contractAddress
-  // );
-  // userOptionData.queueID = queueID;
-  // userOptionData.save();
+  let userOptionData = _loadOrCreateOptionDataEntity(
+    event.params.optionId,
+    contractAddress
+  );
+  userOptionData.queueID = queueID;
+  userOptionData.save();
 }
 
 export function handleCreate(event: Create): void {
