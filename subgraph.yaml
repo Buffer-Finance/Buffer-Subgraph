@@ -24,8 +24,8 @@ dataSources:
       eventHandlers:
         - event: Create(indexed address,indexed uint256,uint256,uint256)
           handler: handleCreate
-        # - event: Expire(indexed uint256,uint256,uint256)
-        #   handler: handleExpire
+        - event: Expire(indexed uint256,uint256,uint256)
+          handler: handleExpire
         - event: Exercise(indexed address,indexed uint256,uint256,uint256)
           handler: handleExercise
         - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)

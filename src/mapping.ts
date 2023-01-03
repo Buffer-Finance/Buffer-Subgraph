@@ -8,7 +8,7 @@ import {
 import {
   BinaryPool,
   Provide,
-  Withdraw
+  Withdraw,
 } from "../generated/BinaryPool/BinaryPool";
 import {
   InitiateTrade,
@@ -17,7 +17,7 @@ import {
   OpenTrade,
 } from "../generated/BufferRouter/BufferRouter";
 import { State, RouterAddress, BFR, USDC } from "./config";
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, log } from "@graphprotocol/graph-ts";
 import {
   _handleCreate,
   storePnl,
@@ -31,9 +31,10 @@ import {
   _loadOrCreateOptionDataEntity,
   _loadOrCreateQueuedOptionEntity,
   _loadOrCreateReferralData,
-  _loadOrCreatePoolStat
+  _loadOrCreatePoolStat,
 } from "./initialize";
 import { _getDayId } from "./helpers";
+import { UserOptionData } from "../generated/schema";
 
 export function handleInitiateTrade(event: InitiateTrade): void {
   let routerContract = BufferRouter.bind(event.address);
@@ -123,7 +124,9 @@ export function handleExercise(event: Exercise): void {
         amount,
         event.address
       );
-      let profit = event.params.profit.minus(totalFee).div(BigInt.fromI32(1000000));
+      let profit = event.params.profit
+        .minus(totalFee)
+        .div(BigInt.fromI32(1000000));
       storePnl(timestamp, profit, true);
       let leaderboardEntity = _loadOrCreateLeaderboardEntity(
         _getDayId(event.block.timestamp),
@@ -141,38 +144,46 @@ export function handleExpire(event: Expire): void {
   let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
   if (routerContract.contractRegistry(event.address) == true) {
     let timestamp = event.block.timestamp;
-    let userOptionData = _loadOrCreateOptionDataEntity(
-      event.params.id,
-      event.address
-    );
-    userOptionData.state = State.expired;
-    userOptionData.expirationPrice = event.params.priceAtExpiration;
-    userOptionData.save();
-    let optionContractInstance = BufferBinaryOptions.bind(event.address);
-    let optionContractData = _loadOrCreateOptionContractEntity(event.address);
-    optionContractData.currentUtilization = calculateCurrentUtilization(
-      optionContractInstance
-    );
-    optionContractData.save();
-    if (userOptionData.depositToken == "USDC") {
-      let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
-      let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
-      updateOpenInterest(
-        timestamp,
-        false,
-        userOptionData.isAbove,
-        amount,
-        event.address
+    let referrenceID = `${event.params.id}${event.address}`;
+    let userOptionData = UserOptionData.load(referrenceID);
+    if (userOptionData != null) {
+      userOptionData.state = State.expired;
+      userOptionData.expirationPrice = event.params.priceAtExpiration;
+      userOptionData.save();
+
+      let optionContractInstance = BufferBinaryOptions.bind(event.address);
+      let optionContractData = _loadOrCreateOptionContractEntity(event.address);
+      optionContractData.currentUtilization = calculateCurrentUtilization(
+        optionContractInstance
       );
-      storePnl(timestamp, event.params.premium.div(BigInt.fromI32(1000000)), false);
-      let leaderboardEntity = _loadOrCreateLeaderboardEntity(
-        _getDayId(event.block.timestamp),
-        userOptionData.user
+      optionContractData.save();
+      if (userOptionData.depositToken == "USDC") {
+        let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
+        let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
+        updateOpenInterest(
+          timestamp,
+          false,
+          userOptionData.isAbove,
+          amount,
+          event.address
+        );
+        storePnl(
+          timestamp,
+          event.params.premium.div(BigInt.fromI32(1000000)),
+          false
+        );
+        let leaderboardEntity = _loadOrCreateLeaderboardEntity(
+          _getDayId(event.block.timestamp),
+          userOptionData.user
+        );
+        leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(totalFee);
+        leaderboardEntity.save();
+      }
+    } else {
+      throw console.error(
+        "User option data not found for id {} and contract {}",
+        [event.params.id.toString(), event.address.toHexString()]
       );
-      leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(
-        totalFee
-      );
-      leaderboardEntity.save();
     }
   }
 }
@@ -208,36 +219,52 @@ export function handleUpdateReferral(event: UpdateReferral): void {
   }
 }
 
-
 export function handleProvide(event: Provide): void {
   let poolContractInstance = BinaryPool.bind(event.address);
-  let rate = poolContractInstance.totalTokenXBalance().div(poolContractInstance.totalSupply());
+  let rate = poolContractInstance
+    .totalTokenXBalance()
+    .div(poolContractInstance.totalSupply());
 
-  let poolStat = _loadOrCreatePoolStat(_getDayId(event.block.timestamp), "daily");
-  poolStat.amount = poolStat.amount.plus(event.params.amount).div(BigInt.fromI64(1000000));
+  let poolStat = _loadOrCreatePoolStat(
+    _getDayId(event.block.timestamp),
+    "daily"
+  );
+  poolStat.amount = poolStat.amount
+    .plus(event.params.amount)
+    .div(BigInt.fromI64(1000000));
   poolStat.timestamp = event.block.timestamp;
   poolStat.rate = rate;
   poolStat.save();
 
   let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-  totalPoolStat.amount = totalPoolStat.amount.plus(event.params.amount).div(BigInt.fromI64(1000000));
+  totalPoolStat.amount = totalPoolStat.amount
+    .plus(event.params.amount)
+    .div(BigInt.fromI64(1000000));
   totalPoolStat.timestamp = event.block.timestamp;
   totalPoolStat.save();
 }
 
-
 export function handleWithdraw(event: Withdraw): void {
   let poolContractInstance = BinaryPool.bind(event.address);
-  let rate = poolContractInstance.totalTokenXBalance().div(poolContractInstance.totalSupply());
+  let rate = poolContractInstance
+    .totalTokenXBalance()
+    .div(poolContractInstance.totalSupply());
 
-  let poolStat = _loadOrCreatePoolStat(_getDayId(event.block.timestamp), "daily");
-  poolStat.amount = poolStat.amount.minus(event.params.amount).div(BigInt.fromI64(1000000));
+  let poolStat = _loadOrCreatePoolStat(
+    _getDayId(event.block.timestamp),
+    "daily"
+  );
+  poolStat.amount = poolStat.amount
+    .minus(event.params.amount)
+    .div(BigInt.fromI64(1000000));
   poolStat.timestamp = event.block.timestamp;
   poolStat.rate = rate;
   poolStat.save();
 
   let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-  totalPoolStat.amount = totalPoolStat.amount.minus(event.params.amount).div(BigInt.fromI64(1000000));
+  totalPoolStat.amount = totalPoolStat.amount
+    .minus(event.params.amount)
+    .div(BigInt.fromI64(1000000));
   poolStat.timestamp = event.block.timestamp;
   totalPoolStat.save();
 }
