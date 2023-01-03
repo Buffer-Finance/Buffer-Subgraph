@@ -16,8 +16,8 @@ import {
   BufferRouter,
   OpenTrade,
 } from "../generated/BufferRouter/BufferRouter";
-import { State } from "./config";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { State, RouterAddress, BFR, USDC } from "./config";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import {
   _handleCreate,
   storePnl,
@@ -96,104 +96,116 @@ export function handleCancelTrade(event: CancelTrade): void {
 }
 
 export function handleExercise(event: Exercise): void {
-  let timestamp = event.block.timestamp;
-  let userOptionData = _loadOrCreateOptionDataEntity(
-    event.params.id,
-    event.address
-  );
-  userOptionData.state = State.exercised;
-  userOptionData.payout = event.params.profit;
-  userOptionData.expirationPrice = event.params.priceAtExpiration;
-  userOptionData.save();
-  let optionContractInstance = BufferBinaryOptions.bind(event.address);
-  let optionContractData = _loadOrCreateOptionContractEntity(event.address);
-  optionContractData.currentUtilization = calculateCurrentUtilization(
-    optionContractInstance
-  );
-  optionContractData.save();
-  if (userOptionData.depositToken == "USDC") {
-    let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
-    let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
-    updateOpenInterest(
-      timestamp,
-      false,
-      userOptionData.isAbove,
-      amount,
+  let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
+  if (routerContract.contractRegistry(event.address) == true) {
+    let timestamp = event.block.timestamp;
+    let userOptionData = _loadOrCreateOptionDataEntity(
+      event.params.id,
       event.address
     );
-    let profit = event.params.profit.minus(totalFee).div(BigInt.fromI32(1000000));
-    storePnl(timestamp, profit, true);
-    let leaderboardEntity = _loadOrCreateLeaderboardEntity(
-      _getDayId(event.block.timestamp),
-      userOptionData.user
+    userOptionData.state = State.exercised;
+    userOptionData.payout = event.params.profit;
+    userOptionData.expirationPrice = event.params.priceAtExpiration;
+    userOptionData.save();
+    let optionContractInstance = BufferBinaryOptions.bind(event.address);
+    let optionContractData = _loadOrCreateOptionContractEntity(event.address);
+    optionContractData.currentUtilization = calculateCurrentUtilization(
+      optionContractInstance
     );
-    leaderboardEntity.netPnL = leaderboardEntity.netPnL.plus(
-      event.params.profit.minus(totalFee)
-    );
-    leaderboardEntity.save();
+    optionContractData.save();
+    if (userOptionData.depositToken == "USDC") {
+      let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
+      let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
+      updateOpenInterest(
+        timestamp,
+        false,
+        userOptionData.isAbove,
+        amount,
+        event.address
+      );
+      let profit = event.params.profit.minus(totalFee).div(BigInt.fromI32(1000000));
+      storePnl(timestamp, profit, true);
+      let leaderboardEntity = _loadOrCreateLeaderboardEntity(
+        _getDayId(event.block.timestamp),
+        userOptionData.user
+      );
+      leaderboardEntity.netPnL = leaderboardEntity.netPnL.plus(
+        event.params.profit.minus(totalFee)
+      );
+      leaderboardEntity.save();
+    }
   }
 }
 
 export function handleExpire(event: Expire): void {
-  let timestamp = event.block.timestamp;
-  let userOptionData = _loadOrCreateOptionDataEntity(
-    event.params.id,
-    event.address
-  );
-  userOptionData.state = State.expired;
-  userOptionData.expirationPrice = event.params.priceAtExpiration;
-  userOptionData.save();
-  let optionContractInstance = BufferBinaryOptions.bind(event.address);
-  let optionContractData = _loadOrCreateOptionContractEntity(event.address);
-  optionContractData.currentUtilization = calculateCurrentUtilization(
-    optionContractInstance
-  );
-  optionContractData.save();
-  if (userOptionData.depositToken == "USDC") {
-    let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
-    let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
-    updateOpenInterest(
-      timestamp,
-      false,
-      userOptionData.isAbove,
-      amount,
+  let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
+  if (routerContract.contractRegistry(event.address) == true) {
+    let timestamp = event.block.timestamp;
+    let userOptionData = _loadOrCreateOptionDataEntity(
+      event.params.id,
       event.address
     );
-    storePnl(timestamp, event.params.premium.div(BigInt.fromI32(1000000)), false);
-    let leaderboardEntity = _loadOrCreateLeaderboardEntity(
-      _getDayId(event.block.timestamp),
-      userOptionData.user
+    userOptionData.state = State.expired;
+    userOptionData.expirationPrice = event.params.priceAtExpiration;
+    userOptionData.save();
+    let optionContractInstance = BufferBinaryOptions.bind(event.address);
+    let optionContractData = _loadOrCreateOptionContractEntity(event.address);
+    optionContractData.currentUtilization = calculateCurrentUtilization(
+      optionContractInstance
     );
-    leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(
-      totalFee
-    );
-    leaderboardEntity.save();
+    optionContractData.save();
+    if (userOptionData.depositToken == "USDC") {
+      let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
+      let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
+      updateOpenInterest(
+        timestamp,
+        false,
+        userOptionData.isAbove,
+        amount,
+        event.address
+      );
+      storePnl(timestamp, event.params.premium.div(BigInt.fromI32(1000000)), false);
+      let leaderboardEntity = _loadOrCreateLeaderboardEntity(
+        _getDayId(event.block.timestamp),
+        userOptionData.user
+      );
+      leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(
+        totalFee
+      );
+      leaderboardEntity.save();
+    }
   }
 }
 
 export function handleUpdateReferral(event: UpdateReferral): void {
-  let user = event.params.user;
-  let referrer = event.params.referrer;
+  let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
+  let optionContractInstance = BufferBinaryOptions.bind(event.address);
+  if (routerContract.contractRegistry(event.address) == true) {
+    if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
+      let user = event.params.user;
+      let referrer = event.params.referrer;
 
-  let userReferralData = _loadOrCreateReferralData(user);
-  let discount = event.params.rebate.div(BigInt.fromI64(1000000));
-  userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
-    discount
-  );
-  userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
-    event.params.totalFee
-  );
-  userReferralData.save();
+      let userReferralData = _loadOrCreateReferralData(user);
+      let discount = event.params.rebate.div(BigInt.fromI64(1000000));
+      userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
+        discount
+      );
+      userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
+        event.params.totalFee
+      );
+      userReferralData.save();
 
-  let referrerReferralData = _loadOrCreateReferralData(referrer);
-  referrerReferralData.totalTradesReferred += 1;
-  referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
-    event.params.totalFee
-  );
-  referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
-    event.params.referrerFee
-  );
-  referrerReferralData.save();
+      let referrerReferralData = _loadOrCreateReferralData(referrer);
+      referrerReferralData.totalTradesReferred += 1;
+      referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
+        event.params.totalFee
+      );
+      referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
+        event.params.referrerFee
+      );
+      referrerReferralData.save();
+    }
+  }
 }
 
 
