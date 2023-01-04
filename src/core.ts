@@ -207,7 +207,7 @@ export function _handleCreate(event: Create): void {
     optionContractData.payoutForUp = calculatePayout(
       BigInt.fromI32(optionContractInstance.baseSettlementFeePercentageForAbove())
     );
-    let tokenReferrenceID;
+    let tokenReferrenceID = "";
     if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
       tokenReferrenceID = "USDC";
     } else if (optionContractInstance.tokenX() == Address.fromString(BFR)) {

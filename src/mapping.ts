@@ -93,7 +93,6 @@ export function handleCancelTrade(event: CancelTrade): void {
 
 export function handleExercise(event: Exercise): void {
   let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
-  let optionContractInstance = BufferBinaryOptions.bind(event.address);
   if (routerContract.contractRegistry(event.address) == true) {
     let timestamp = event.block.timestamp;
     let userOptionData = _loadOrCreateOptionDataEntity(
