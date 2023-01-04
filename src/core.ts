@@ -21,7 +21,7 @@ import {
   BufferRouter
 } from "../generated/BufferRouter/BufferRouter";
 
-import { RouterAddress } from "./config";
+import { State, RouterAddress, BFR, USDC } from "./config";
 
 function _logVolumeAndSettlementFeePerContract(
   id: string,
@@ -185,7 +185,7 @@ export function calculatePayout(settlementFeePercent: BigInt): BigInt {
   return payout;
 }
 
-export function _handleCreate(event: Create, tokenReferrenceID: string): void {
+export function _handleCreate(event: Create): void {
   let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
   if (routerContract.contractRegistry(event.address) == true) {
     let optionID = event.params.id;
@@ -201,13 +201,19 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
     optionContractData.volume = optionContractData.volume.plus(
       event.params.totalFee
     );
-    optionContractData.token = tokenReferrenceID;
     optionContractData.payoutForDown = calculatePayout(
       BigInt.fromI32(optionContractInstance.baseSettlementFeePercentageForBelow())
     );
     optionContractData.payoutForUp = calculatePayout(
       BigInt.fromI32(optionContractInstance.baseSettlementFeePercentageForAbove())
     );
+    let tokenReferrenceID;
+    if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
+      tokenReferrenceID = "USDC";
+    } else if (optionContractInstance.tokenX() == Address.fromString(BFR)) {
+      tokenReferrenceID = "BFR";
+    }
+    optionContractData.token = tokenReferrenceID;
     optionContractData.save();
     let userOptionData = _loadOrCreateOptionDataEntity(optionID, contractAddress);
     userOptionData.user = event.params.account;
@@ -245,7 +251,7 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
     leaderboardEntity.save();
 
     // Stats
-    if (tokenReferrenceID == "USDC") {
+    if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
       let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
       let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
       updateOpenInterest(
@@ -258,15 +264,15 @@ export function _handleCreate(event: Create, tokenReferrenceID: string): void {
       let settlementFee = event.params.settlementFee.div(BigInt.fromI32(1000000));
       _storeFees(timestamp, settlementFee);
       _logVolume(timestamp, totalFee);
+      let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
+      dashboardStat.totalVolume = dashboardStat.totalVolume.plus(
+        event.params.totalFee
+      );
+      dashboardStat.totalSettlementFees = dashboardStat.totalSettlementFees.plus(
+        event.params.settlementFee
+      );
+      dashboardStat.totalTrades += 1;
+      dashboardStat.save();
     }
-    let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
-    dashboardStat.totalVolume = dashboardStat.totalVolume.plus(
-      event.params.totalFee
-    );
-    dashboardStat.totalSettlementFees = dashboardStat.totalSettlementFees.plus(
-      event.params.settlementFee
-    );
-    dashboardStat.totalTrades += 1;
-    dashboardStat.save();
   }
 }

@@ -75,11 +75,7 @@ export function handleOpenTrade(event: OpenTrade): void {
 }
 
 export function handleCreate(event: Create): void {
-  _handleCreate(event, "USDC");
-}
-
-export function handleCreateForBFR(event: Create): void {
-  _handleCreate(event, "BFR");
+  _handleCreate(event);
 }
 
 export function handleCancelTrade(event: CancelTrade): void {
@@ -97,6 +93,7 @@ export function handleCancelTrade(event: CancelTrade): void {
 
 export function handleExercise(event: Exercise): void {
   let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
+  let optionContractInstance = BufferBinaryOptions.bind(event.address);
   if (routerContract.contractRegistry(event.address) == true) {
     let timestamp = event.block.timestamp;
     let userOptionData = _loadOrCreateOptionDataEntity(
@@ -113,7 +110,7 @@ export function handleExercise(event: Exercise): void {
       optionContractInstance
     );
     optionContractData.save();
-    if (userOptionData.depositToken == "USDC") {
+    if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
       let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
       let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
       updateOpenInterest(
@@ -156,7 +153,7 @@ export function handleExpire(event: Expire): void {
         optionContractInstance
       );
       optionContractData.save();
-      if (userOptionData.depositToken == "USDC") {
+      if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
         let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
         let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
         updateOpenInterest(
