@@ -3,7 +3,7 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: BufferBinaryOptions1
+    name: BufferBinaryOptions
     network: arbitrum-goerli
     source:
       abi: BufferBinaryOptions

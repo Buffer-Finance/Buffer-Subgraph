@@ -17,9 +17,7 @@ import {
   _loadOrCreateUserStat,
   _loadOrCreateDashboardStat,
 } from "./initialize";
-import {
-  BufferRouter
-} from "../generated/BufferRouter/BufferRouter";
+import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 
 import { State, RouterAddress, BFR, USDC } from "./config";
 
@@ -96,9 +94,9 @@ export function logUser(timestamp: BigInt, account: Address): void {
   } else {
     //TODO: fix this
     // if (_checkIfUserInArray(account, userStat.users) == false) {
-      let userStat = _loadOrCreateUserStat(id, "daily", timestamp);
-      userStat.existingCount += 1;
-      userStat.save();
+    let userStat = _loadOrCreateUserStat(id, "daily", timestamp);
+    userStat.existingCount += 1;
+    userStat.save();
     // }
   }
 }
@@ -202,10 +200,14 @@ export function _handleCreate(event: Create): void {
       event.params.totalFee
     );
     optionContractData.payoutForDown = calculatePayout(
-      BigInt.fromI32(optionContractInstance.baseSettlementFeePercentageForBelow())
+      BigInt.fromI32(
+        optionContractInstance.baseSettlementFeePercentageForBelow()
+      )
     );
     optionContractData.payoutForUp = calculatePayout(
-      BigInt.fromI32(optionContractInstance.baseSettlementFeePercentageForAbove())
+      BigInt.fromI32(
+        optionContractInstance.baseSettlementFeePercentageForAbove()
+      )
     );
     let tokenReferrenceID = "";
     if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
@@ -215,7 +217,10 @@ export function _handleCreate(event: Create): void {
     }
     optionContractData.token = tokenReferrenceID;
     optionContractData.save();
-    let userOptionData = _loadOrCreateOptionDataEntity(optionID, contractAddress);
+    let userOptionData = _loadOrCreateOptionDataEntity(
+      optionID,
+      contractAddress
+    );
     userOptionData.user = event.params.account;
     userOptionData.totalFee = event.params.totalFee;
     userOptionData.state = optionData.value0;
@@ -228,30 +233,8 @@ export function _handleCreate(event: Create): void {
     userOptionData.depositToken = tokenReferrenceID;
     userOptionData.save();
 
-    // Dashboard
-    _logVolumeAndSettlementFeePerContract(
-      _getHourId(timestamp),
-      "hourly",
-      timestamp,
-      contractAddress,
-      tokenReferrenceID,
-      event.params.totalFee,
-      event.params.settlementFee
-    );
-
-    // Leaderboard
-    let leaderboardEntity = _loadOrCreateLeaderboardEntity(
-      _getDayId(timestamp),
-      event.params.account
-    );
-    leaderboardEntity.volume = leaderboardEntity.volume.plus(
-      event.params.totalFee
-    );
-    leaderboardEntity.totalTrades = leaderboardEntity.totalTrades + 1;
-    leaderboardEntity.save();
-
-    // Stats
     if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
+      // Stats
       let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
       let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
       updateOpenInterest(
@@ -261,7 +244,9 @@ export function _handleCreate(event: Create): void {
         amount,
         contractAddress
       );
-      let settlementFee = event.params.settlementFee.div(BigInt.fromI32(1000000));
+      let settlementFee = event.params.settlementFee.div(
+        BigInt.fromI32(1000000)
+      );
       _storeFees(timestamp, settlementFee);
       _logVolume(timestamp, totalFee);
       let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
@@ -273,6 +258,17 @@ export function _handleCreate(event: Create): void {
       );
       dashboardStat.totalTrades += 1;
       dashboardStat.save();
+
+      // Dashboard
+      _logVolumeAndSettlementFeePerContract(
+        _getHourId(timestamp),
+        "hourly",
+        timestamp,
+        contractAddress,
+        tokenReferrenceID,
+        event.params.totalFee,
+        event.params.settlementFee
+      );
     }
   }
 }

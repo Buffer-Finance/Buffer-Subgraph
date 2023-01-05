@@ -35,6 +35,7 @@ import {
 } from "./initialize";
 import { _getDayId } from "./helpers";
 import { UserOptionData } from "../generated/schema";
+import { Leaderboard } from "../generated/schema";
 
 export function handleInitiateTrade(event: InitiateTrade): void {
   let routerContract = BufferRouter.bind(event.address);
@@ -123,10 +124,16 @@ export function handleExercise(event: Exercise): void {
         .minus(totalFee)
         .div(BigInt.fromI32(1000000));
       storePnl(timestamp, profit, true);
+
+      // Leaderboard
       let leaderboardEntity = _loadOrCreateLeaderboardEntity(
-        _getDayId(event.block.timestamp),
+        _getDayId(timestamp),
         userOptionData.user
       );
+      leaderboardEntity.volume = leaderboardEntity.volume.plus(
+        userOptionData.totalFee
+      );
+      leaderboardEntity.totalTrades = leaderboardEntity.totalTrades + 1;
       leaderboardEntity.netPnL = leaderboardEntity.netPnL.plus(
         event.params.profit.minus(totalFee)
       );
@@ -167,10 +174,16 @@ export function handleExpire(event: Expire): void {
           event.params.premium.div(BigInt.fromI32(1000000)),
           false
         );
+
+        // Leaderboard
         let leaderboardEntity = _loadOrCreateLeaderboardEntity(
-          _getDayId(event.block.timestamp),
+          _getDayId(timestamp),
           userOptionData.user
         );
+        leaderboardEntity.volume = leaderboardEntity.volume.plus(
+          userOptionData.totalFee
+        );
+        leaderboardEntity.totalTrades = leaderboardEntity.totalTrades + 1;
         leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(totalFee);
         leaderboardEntity.save();
       }
