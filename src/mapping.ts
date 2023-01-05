@@ -135,7 +135,7 @@ export function handleExercise(event: Exercise): void {
       );
       leaderboardEntity.totalTrades = leaderboardEntity.totalTrades + 1;
       leaderboardEntity.netPnL = leaderboardEntity.netPnL.plus(
-        event.params.profit.minus(totalFee)
+        event.params.profit.minus(userOptionData.totalFee)
       );
       leaderboardEntity.save();
     }
@@ -184,7 +184,9 @@ export function handleExpire(event: Expire): void {
           userOptionData.totalFee
         );
         leaderboardEntity.totalTrades = leaderboardEntity.totalTrades + 1;
-        leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(totalFee);
+        leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(
+          userOptionData.totalFee
+        );
         leaderboardEntity.save();
       }
     } else {

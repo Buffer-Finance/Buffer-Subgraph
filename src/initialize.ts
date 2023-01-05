@@ -81,7 +81,6 @@ export function _loadOrCreateLeaderboardEntity(
     entity.totalTrades = 0;
     entity.volume = ZERO;
     entity.netPnL = ZERO;
-    entity.save();
   }
   return entity as Leaderboard;
 }

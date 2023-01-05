@@ -7,7 +7,6 @@ import { BinaryPool } from "../generated/BinaryPool/BinaryPool";
 import { User, VolumePerContract } from "../generated/schema";
 import { _getDayId, _getHourId, _checkIfUserInArray } from "./helpers";
 import {
-  _loadOrCreateLeaderboardEntity,
   _loadOrCreateOptionContractEntity,
   _loadOrCreateOptionDataEntity,
   _loadOrCreateQueuedOptionEntity,
