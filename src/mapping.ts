@@ -204,9 +204,8 @@ export function handleUpdateReferral(event: UpdateReferral): void {
       let referrer = event.params.referrer;
 
       let userReferralData = _loadOrCreateReferralData(user);
-      let discount = event.params.rebate.div(BigInt.fromI64(1000000));
       userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
-        discount
+        event.params.rebate
       );
       userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
         event.params.totalFee
