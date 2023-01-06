@@ -43,6 +43,7 @@ function _logVolumeAndSettlementFeePerContract(
   } else {
     entity.amount = entity.amount.plus(totalFee);
     entity.settlementFee = entity.amount.plus(settlementFee);
+    entity.save();
   }
 }
 
