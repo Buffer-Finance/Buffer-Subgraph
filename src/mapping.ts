@@ -111,13 +111,12 @@ export function handleExercise(event: Exercise): void {
     );
     optionContractData.save();
     if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
-      let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
       let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
       updateOpenInterest(
         timestamp,
         false,
         userOptionData.isAbove,
-        amount,
+        userOptionData.amount,
         event.address
       );
       let profit = event.params.profit
@@ -160,13 +159,11 @@ export function handleExpire(event: Expire): void {
       );
       optionContractData.save();
       if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
-        let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
-        let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
         updateOpenInterest(
           timestamp,
           false,
           userOptionData.isAbove,
-          amount,
+          userOptionData.amount,
           event.address
         );
         storePnl(

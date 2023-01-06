@@ -234,13 +234,12 @@ export function _handleCreate(event: Create): void {
 
     if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
       // Stats
-      let amount = userOptionData.amount.div(BigInt.fromI32(1000000));
-      let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
+      let totalFee = userOptionData.totalFee.div(BigInt.fromI32(1000000));
       updateOpenInterest(
         timestamp,
         true,
         userOptionData.isAbove,
-        amount,
+        userOptionData.amount,
         contractAddress
       );
       let settlementFee = event.params.settlementFee.div(
