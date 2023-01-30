@@ -35,7 +35,6 @@ import {
 } from "./initialize";
 import { _getDayId, _getDayIdForLeaderboard } from "./helpers";
 import { UserOptionData } from "../generated/schema";
-import { Leaderboard } from "../generated/schema";
 
 export function handleInitiateTrade(event: InitiateTrade): void {
     let routerContract = BufferRouter.bind(event.address);
