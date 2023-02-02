@@ -54,6 +54,7 @@ export function handleInitiateTrade(event: InitiateTrade): void {
     queuedOptionData.totalFee = queuedTradeData.value3;
     queuedOptionData.slippage = queuedTradeData.value8;
     queuedOptionData.isAbove = queuedTradeData.value5 ? true : false;
+    queuedOptionData.queuedTimestamp = event.block.timestamp;
     queuedOptionData.save();
 }
 
@@ -65,6 +66,8 @@ export function handleOpenTrade(event: OpenTrade): void {
         queueID,
         contractAddress
     );
+    userQueuedData.lag = event.block.timestamp - userQueuedData.queuedTimestamp;
+    userQueuedData.processTime = event.block.timestamp;
     userQueuedData.state = State.opened;
     userQueuedData.save();
     let userOptionData = _loadOrCreateOptionDataEntity(
@@ -72,6 +75,8 @@ export function handleOpenTrade(event: OpenTrade): void {
         contractAddress
     );
     userOptionData.queueID = queueID;
+    UserOptionData.queuedTimestamp = userQueuedData.queuedTimestamp;
+    UserOptionData.lag = event.block.timestamp - userQueuedData.queuedTimestamp;
     userOptionData.save();
 }
 
