@@ -66,7 +66,9 @@ export function handleOpenTrade(event: OpenTrade): void {
         queueID,
         contractAddress
     );
-    userQueuedData.lag = event.block.timestamp - userQueuedData.queuedTimestamp;
+    userQueuedData.lag = event.block.timestamp.minus(
+        userQueuedData.queuedTimestamp
+    );
     userQueuedData.processTime = event.block.timestamp;
     userQueuedData.state = State.opened;
     userQueuedData.save();
@@ -75,8 +77,10 @@ export function handleOpenTrade(event: OpenTrade): void {
         contractAddress
     );
     userOptionData.queueID = queueID;
-    UserOptionData.queuedTimestamp = userQueuedData.queuedTimestamp;
-    UserOptionData.lag = event.block.timestamp - userQueuedData.queuedTimestamp;
+    userOptionData.queuedTimestamp = userQueuedData.queuedTimestamp;
+    userOptionData.lag = event.block.timestamp.minus(
+        userQueuedData.queuedTimestamp
+    );
     userOptionData.save();
 }
 
