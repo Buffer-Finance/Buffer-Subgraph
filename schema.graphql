@@ -47,9 +47,9 @@ type QueuedOptionData @entity {
   slippage: BigInt
   depositToken: String
   reason: String
-  queuedTimestamp: BigInt
-  lag: BigInt
-  processTime: BigInt
+  queuedTimestamp: BigInt!
+  lag: BigInt!
+  processTime: BigInt!
 }
 
 type UserOptionData @entity {
@@ -60,7 +60,7 @@ type UserOptionData @entity {
   totalFee: BigInt!
   user: User!
   creationTime: BigInt
-  queuedTimestamp: BigInt
+  queuedTimestamp: BigInt!
   expirationPrice: BigInt
   payout: BigInt
   state: Int
@@ -70,7 +70,7 @@ type UserOptionData @entity {
   depositToken: String
   queueID: BigInt
   settlementFee: BigInt
-  lag: BigInt
+  lag: BigInt!
 }
 
 type ReferralData @entity {

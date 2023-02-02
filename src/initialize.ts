@@ -47,6 +47,9 @@ export function _loadOrCreateQueuedOptionEntity(
     entity = new QueuedOptionData(referenceID);
     entity.queueID = queueID;
     entity.optionContract = contractAddress;
+    entity.queuedTimestamp = ZERO;
+    entity.lag = ZERO;
+    entity.processTime = ZERO
     entity.save();
   }
   return entity as QueuedOptionData;
@@ -64,6 +67,8 @@ export function _loadOrCreateOptionDataEntity(
     entity.optionContract = contractAddress;
     entity.amount = ZERO;
     entity.totalFee = ZERO;
+    entity.queuedTimestamp = ZERO;
+    entity.lag = ZERO;
   }
   return entity as UserOptionData;
 }
