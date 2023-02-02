@@ -241,17 +241,15 @@ export function handleProvide(event: Provide): void {
         _getDayId(event.block.timestamp),
         "daily"
     );
-    poolStat.amount = poolStat.amount
-        .plus(event.params.amount)
-        .div(BigInt.fromI64(1000000));
+    poolStat.amount = poolStat.amount.plus(event.params.amount);
+
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
 
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    totalPoolStat.amount = totalPoolStat.amount
-        .plus(event.params.amount)
-        .div(BigInt.fromI64(1000000));
+    totalPoolStat.amount = totalPoolStat.amount.plus(event.params.amount);
+
     totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
 }
@@ -266,17 +264,15 @@ export function handleWithdraw(event: Withdraw): void {
         _getDayId(event.block.timestamp),
         "daily"
     );
-    poolStat.amount = poolStat.amount
-        .minus(event.params.amount)
-        .div(BigInt.fromI64(1000000));
+    poolStat.amount = poolStat.amount.minus(event.params.amount);
+
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
 
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    totalPoolStat.amount = totalPoolStat.amount
-        .minus(event.params.amount)
-        .div(BigInt.fromI64(1000000));
+    totalPoolStat.amount = totalPoolStat.amount.minus(event.params.amount);
+
     poolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
 }
