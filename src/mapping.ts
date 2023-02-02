@@ -35,7 +35,6 @@ import {
 } from "./initialize";
 import { _getDayId, _getDayIdForLeaderboard } from "./helpers";
 import { UserOptionData } from "../generated/schema";
-import { Leaderboard } from "../generated/schema";
 
 export function handleInitiateTrade(event: InitiateTrade): void {
     let routerContract = BufferRouter.bind(event.address);
@@ -252,16 +251,14 @@ export function handleProvide(event: Provide): void {
         "daily"
     );
     poolStat.amount = poolStat.amount
-        .plus(event.params.amount)
-        .div(BigInt.fromI64(1000000));
+        .plus(event.params.amount);
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
 
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
     totalPoolStat.amount = totalPoolStat.amount
-        .plus(event.params.amount)
-        .div(BigInt.fromI64(1000000));
+        .plus(event.params.amount);
     totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
 }
@@ -277,16 +274,14 @@ export function handleWithdraw(event: Withdraw): void {
         "daily"
     );
     poolStat.amount = poolStat.amount
-        .minus(event.params.amount)
-        .div(BigInt.fromI64(1000000));
+        .minus(event.params.amount);
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
 
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
     totalPoolStat.amount = totalPoolStat.amount
-        .minus(event.params.amount)
-        .div(BigInt.fromI64(1000000));
+        .minus(event.params.amount);
     poolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
 }
