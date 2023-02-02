@@ -118,7 +118,7 @@ export function handleExercise(event: Exercise): void {
                 timestamp,
                 false,
                 userOptionData.isAbove,
-                userOptionData.amount,
+                userOptionData.totalFee,
                 event.address
             );
             let profit = event.params.profit
@@ -169,7 +169,7 @@ export function handleExpire(event: Expire): void {
                     timestamp,
                     false,
                     userOptionData.isAbove,
-                    userOptionData.amount,
+                    userOptionData.totalFee,
                     event.address
                 );
                 storePnl(

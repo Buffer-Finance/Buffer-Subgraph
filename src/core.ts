@@ -240,7 +240,7 @@ export function _handleCreate(event: Create): void {
         timestamp,
         true,
         userOptionData.isAbove,
-        userOptionData.amount,
+        userOptionData.totalFee,
         contractAddress
       );
       let settlementFee = event.params.settlementFee.div(
