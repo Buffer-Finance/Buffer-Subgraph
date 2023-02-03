@@ -8,7 +8,9 @@ import {
 import {
     BinaryPool,
     Provide,
-    Withdraw
+    Withdraw,
+    Profit,
+    Loss
 } from "../generated/BinaryPool/BinaryPool";
 import {
     InitiateTrade,
@@ -274,7 +276,6 @@ export function handleWithdraw(event: Withdraw): void {
         "daily"
     );
     poolStat.amount = poolStat.amount.minus(event.params.amount);
-
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
@@ -282,6 +283,52 @@ export function handleWithdraw(event: Withdraw): void {
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
     totalPoolStat.amount = totalPoolStat.amount.minus(event.params.amount);
 
+    totalPoolStat.timestamp = event.block.timestamp;
+    totalPoolStat.save();
+}
+
+
+export function handleProfit(event: Profit): void {
+    let poolContractInstance = BinaryPool.bind(event.address);
+    let rate = poolContractInstance
+        .totalTokenXBalance()
+        .div(poolContractInstance.totalSupply());
+
+    let poolStat = _loadOrCreatePoolStat(
+        _getDayId(event.block.timestamp),
+        "daily"
+    );
+    poolStat.amount = poolStat.amount.plus(event.params.amount);
+
     poolStat.timestamp = event.block.timestamp;
+    poolStat.rate = rate;
+    poolStat.save();
+
+    let totalPoolStat = _loadOrCreatePoolStat("total", "total");
+    totalPoolStat.amount = totalPoolStat.amount.plus(event.params.amount);
+
+    totalPoolStat.timestamp = event.block.timestamp;
+    totalPoolStat.save();
+}
+
+export function handleLoss(event: Loss): void {
+    let poolContractInstance = BinaryPool.bind(event.address);
+    let rate = poolContractInstance
+        .totalTokenXBalance()
+        .div(poolContractInstance.totalSupply());
+
+    let poolStat = _loadOrCreatePoolStat(
+        _getDayId(event.block.timestamp),
+        "daily"
+    );
+    poolStat.amount = poolStat.amount.minus(event.params.amount);
+    poolStat.timestamp = event.block.timestamp;
+    poolStat.rate = rate;
+    poolStat.save();
+
+    let totalPoolStat = _loadOrCreatePoolStat("total", "total");
+    totalPoolStat.amount = totalPoolStat.amount.minus(event.params.amount);
+
+    totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
 }
