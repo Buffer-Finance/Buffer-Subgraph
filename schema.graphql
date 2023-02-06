@@ -110,6 +110,10 @@ type UserStat @entity {
   users: [User!]!
 }
 
+type DailyUserStat @entity {
+  id: String!
+}
+
 type TradingStat @entity {
   id: ID!
   profit: BigInt!
