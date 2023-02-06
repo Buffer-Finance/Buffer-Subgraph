@@ -1,6 +1,6 @@
-# Buffer Subgreaph
+# Buffer Subgraph
 
-## Subgraph Endpoints:
+## Subgraph Endpoints
 
 
 Mainnet Synced At : [https://thegraph.com/hosted-service/subgraph/bufferfinance/buffer-mainnet](https://thegraph.com/hosted-service/subgraph/bufferfinance/buffer-mainnet)
