@@ -1,3 +1,7 @@
 node_modules/*
 build/*
 generated/*
+package.json
+package-lock.json
+*.lock
+*.json
