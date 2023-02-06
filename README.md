@@ -1,5 +1,7 @@
 # Buffer Subgraph
-[Buffer](https://app.buffer.finance/) is a non-custodial, exotic options trading platform built to trade short-term price volatility and hedge risk of high-leverage positions. This Subgraph ingests the options contracts and the pool contract of the protocol.
+[Buffer](https://app.buffer.finance/) is a non-custodial, exotic options trading platform built to trade short-term price volatility and hedge risk of high-leverage positions. 
+
+This Subgraph indexes the events for the options contracts and the pool contract of the protocol.
 
 ## Git Branches
 Branch with testnet contracts : testnet <br>
