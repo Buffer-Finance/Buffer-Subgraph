@@ -17,7 +17,9 @@ import {
   _loadOrCreateDashboardStat,
 } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
-
+import {
+  DailyUserStat
+} from "../generated/schema";
 import { State, RouterAddress, BFR, USDC } from "./config";
 
 function _logVolumeAndSettlementFeePerContract(
@@ -76,7 +78,8 @@ function _storeFees(timestamp: BigInt, fees: BigInt): void {
 
 export function logUser(timestamp: BigInt, account: Address): void {
   let user = User.load(account);
-  let id = _getDayId(timestamp);
+  let id =   _getDayId(timestamp);
+  let dailyUserStatid =  `${id}-${account.toString()}`;
   let userStat = _loadOrCreateUserStat(id, "daily", timestamp);
   if (user == null) {
     let totalUserStat = _loadOrCreateUserStat("total", "total", timestamp);
@@ -85,19 +88,24 @@ export function logUser(timestamp: BigInt, account: Address): void {
     totalUserStat.save();
 
     userStat.uniqueCount = userStat.uniqueCount + 1;
+    userStat.existingCount += 1;
     userStat.users = userStat.users.concat([account]);
     userStat.save();
 
     user = new User(account);
     user.address = account;
     user.save();
+
+    let dailyUserStat = new DailyUserStat(dailyUserStatid);
+    dailyUserStat.save();
   } else {
-    //TODO: fix this
-    // if (_checkIfUserInArray(account, userStat.users) == false) {
-    let userStat = _loadOrCreateUserStat(id, "daily", timestamp);
-    userStat.existingCount += 1;
-    userStat.save();
-    // }
+      let entity = DailyUserStat.load(dailyUserStatid);
+      if (entity == null) {
+        userStat.existingCount += 1;
+        userStat.save();
+        entity = new DailyUserStat(dailyUserStatid);
+        entity.save();
+    }
   }
 }
 

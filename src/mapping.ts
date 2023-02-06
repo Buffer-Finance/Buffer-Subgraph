@@ -131,9 +131,7 @@ export function handleExercise(event: Exercise): void {
                 userOptionData.totalFee,
                 event.address
             );
-            let profit = event.params.profit
-                .minus(totalFee)
-                .div(BigInt.fromI32(1000000));
+            let profit = event.params.profit;
             storePnl(timestamp, profit, true);
 
             // Leaderboard
@@ -184,7 +182,7 @@ export function handleExpire(event: Expire): void {
                 );
                 storePnl(
                     timestamp,
-                    event.params.premium.div(BigInt.fromI32(1000000)),
+                    event.params.premium,
                     false
                 );
 
