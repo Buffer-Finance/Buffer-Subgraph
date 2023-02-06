@@ -1,6 +1,8 @@
-# Buffer V1 Subgraph
+# Buffer Subgreaph
 
-## Subgraph Endpoint
+## Subgraph Endpoints:
 
 
-Synced At : [https://thegraph.com/hosted-service/subgraph/bufferfinance/buffer-subgraph-v1](https://thegraph.com/hosted-service/subgraph/bufferfinance/buffer-subgraph-v1)
+Mainnet Synced At : [https://thegraph.com/hosted-service/subgraph/bufferfinance/buffer-mainnet](https://thegraph.com/hosted-service/subgraph/bufferfinance/buffer-mainnet)
+
+Testnet Synced At : [https://thegraph.com/hosted-service/subgraph/bufferfinance/buffer-testnet](https://thegraph.com/hosted-service/subgraph/bufferfinance/buffer-testnet)
