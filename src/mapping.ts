@@ -289,8 +289,8 @@ export function handleProfit(event: Profit): void {
     let poolContractInstance = BinaryPool.bind(event.address);
     let rate = poolContractInstance
         .totalTokenXBalance()
+        .times(BigInt.fromI64(100000000))
         .div(poolContractInstance.totalSupply());
-
     let poolStat = _loadOrCreatePoolStat(
         _getDayId(event.block.timestamp),
         "daily"
@@ -312,8 +312,8 @@ export function handleLoss(event: Loss): void {
     let poolContractInstance = BinaryPool.bind(event.address);
     let rate = poolContractInstance
         .totalTokenXBalance()
+        .times(BigInt.fromI64(100000000))
         .div(poolContractInstance.totalSupply());
-
     let poolStat = _loadOrCreatePoolStat(
         _getDayId(event.block.timestamp),
         "daily"
