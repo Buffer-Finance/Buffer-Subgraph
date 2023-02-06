@@ -123,7 +123,6 @@ export function handleExercise(event: Exercise): void {
         );
         optionContractData.save();
         if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
-            let totalFee = userOptionData.amount.div(BigInt.fromI32(1000000));
             updateOpenInterest(
                 timestamp,
                 false,
@@ -131,7 +130,7 @@ export function handleExercise(event: Exercise): void {
                 userOptionData.totalFee,
                 event.address
             );
-            let profit = event.params.profit;
+            let profit = event.params.profit.minus(userOptionData.totalFee);
             storePnl(timestamp, profit, true);
 
             // Leaderboard
@@ -182,7 +181,7 @@ export function handleExpire(event: Expire): void {
                 );
                 storePnl(
                     timestamp,
-                    event.params.premium,
+                    userOptionData.totalFee,
                     false
                 );
 
