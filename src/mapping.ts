@@ -130,7 +130,7 @@ export function handleExercise(event: Exercise): void {
                 userOptionData.totalFee,
                 event.address
             );
-            let profit = event.params.profit.minus(userOptionData.totalFee);
+            let profit = event.params.profit;
             storePnl(timestamp, profit, true);
 
             // Leaderboard
@@ -243,6 +243,7 @@ export function handleProvide(event: Provide): void {
     let poolContractInstance = BinaryPool.bind(event.address);
     let rate = poolContractInstance
         .totalTokenXBalance()
+        .times(BigInt.fromI64(100000000))
         .div(poolContractInstance.totalSupply());
 
     let poolStat = _loadOrCreatePoolStat(
@@ -266,6 +267,7 @@ export function handleWithdraw(event: Withdraw): void {
     let poolContractInstance = BinaryPool.bind(event.address);
     let rate = poolContractInstance
         .totalTokenXBalance()
+        .times(BigInt.fromI64(100000000))
         .div(poolContractInstance.totalSupply());
 
     let poolStat = _loadOrCreatePoolStat(
