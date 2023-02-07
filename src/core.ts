@@ -126,8 +126,9 @@ export function storePnl(
     dailyEntity.loss = dailyEntity.loss.plus(pnl);
   }
   totalEntity.save();
-  dailyEntity.profitCumulative = totalEntity.profitCumulative;
-  dailyEntity.lossCumulative = totalEntity.lossCumulative;
+  let totalEntityV2 = _loadOrCreateTradingStatEntity("total", "total", timestamp);
+  dailyEntity.profitCumulative = totalEntityV2.profitCumulative;
+  dailyEntity.lossCumulative = totalEntityV2.lossCumulative;
   dailyEntity.save();
 }
 
