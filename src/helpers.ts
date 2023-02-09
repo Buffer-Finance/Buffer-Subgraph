@@ -2,12 +2,12 @@ import { BigInt } from "@graphprotocol/graph-ts";
 import { Address } from "@graphprotocol/graph-ts";
 
 export function _getDayId(timestamp: BigInt): string {
-    let dayTimestamp = (timestamp.toI32() - 14 * 3600) / 86400;
+    let dayTimestamp = (timestamp.toI32() - 16 * 3600) / 86400;
     return dayTimestamp.toString();
 }
 
 export function _getHourId(timestamp: BigInt): string {
-    let hourTimestamp = (timestamp.toI32() - 14 * 3600) / 3600;
+    let hourTimestamp = (timestamp.toI32() - 16 * 3600) / 3600;
     return hourTimestamp.toString();
 }
 
@@ -24,6 +24,6 @@ export function _checkIfUserInArray(
 }
 
 export function _getDayIdForLeaderboard(timestamp: BigInt): string {
-    let dayTimestamp = (timestamp.toI32() - 14 * 3600) / 86400;
+    let dayTimestamp = (timestamp.toI32() - 16 * 3600) / 86400;
     return dayTimestamp.toString();
 }
