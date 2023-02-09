@@ -35,7 +35,7 @@ import {
     _loadOrCreateReferralData,
     _loadOrCreatePoolStat
 } from "./initialize";
-import { _getDayId, _getDayIdForLeaderboard } from "./helpers";
+import { _getDayId } from "./helpers";
 import { UserOptionData } from "../generated/schema";
 
 export function handleInitiateTrade(event: InitiateTrade): void {
@@ -135,7 +135,7 @@ export function handleExercise(event: Exercise): void {
 
             // Leaderboard
             let leaderboardEntity = _loadOrCreateLeaderboardEntity(
-                _getDayIdForLeaderboard(timestamp),
+                _getDayId(timestamp),
                 userOptionData.user
             );
             leaderboardEntity.volume = leaderboardEntity.volume.plus(
@@ -187,7 +187,7 @@ export function handleExpire(event: Expire): void {
 
                 // Leaderboard
                 let leaderboardEntity = _loadOrCreateLeaderboardEntity(
-                    _getDayIdForLeaderboard(timestamp),
+                    _getDayId(timestamp),
                     userOptionData.user
                 );
                 leaderboardEntity.volume = leaderboardEntity.volume.plus(

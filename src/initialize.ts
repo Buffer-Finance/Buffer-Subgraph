@@ -11,10 +11,10 @@ import {
   VolumeStat,
   Leaderboard,
   QueuedOptionData,
-  VolumePerContract,
+  DailyRevenueAndFee,
   PoolStat,
 } from "../generated/schema";
-import { _getDayId, _getHourId } from "./helpers";
+import { _getDayId } from "./helpers";
 let ZERO = BigInt.fromI32(0);
 
 export function _loadOrCreateTradingStatEntity(
@@ -196,4 +196,17 @@ export function _loadOrCreatePoolStat(id: string, period:string): PoolStat {
     poolStat.rate = ZERO;
   }
   return poolStat as PoolStat;
+}
+
+export function _loadOrCreateDailyRevenueAndFee(
+  id: string,
+): DailyRevenueAndFee {
+  let entity = DailyRevenueAndFee.load(id);
+  if (entity === null) {
+    entity = new DailyRevenueAndFee(id);
+    entity.totalFee = ZERO;
+    entity.settlementFee = ZERO;
+    entity.save();
+  }
+  return entity as DailyRevenueAndFee;
 }

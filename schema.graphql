@@ -147,3 +147,9 @@ type PoolStat @entity {
   timestamp: BigInt!
   rate: BigInt!
 }
+
+type DailyRevenueAndFee @entity {
+  id: String!
+  totalFee: BigInt!
+  settlementFee: BigInt!
+}

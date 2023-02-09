@@ -15,6 +15,7 @@ import {
   _loadOrCreateFeeStat,
   _loadOrCreateUserStat,
   _loadOrCreateDashboardStat,
+  _loadOrCreateDailyRevenueAndFee
 } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import {
@@ -277,6 +278,15 @@ export function _handleCreate(event: Create): void {
         event.params.totalFee,
         event.params.settlementFee
       );
+
+      let feeAndRevenueStat = _loadOrCreateDailyRevenueAndFee(_getDayId(timestamp));
+      feeAndRevenueStat.totalFee = feeAndRevenueStat.totalFee.plus(
+        event.params.totalFee
+      );
+      feeAndRevenueStat.settlementFee = feeAndRevenueStat.settlementFee.plus(
+        event.params.settlementFee
+      );
+      feeAndRevenueStat.save();
     }
   }
 }
