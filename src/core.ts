@@ -243,50 +243,48 @@ export function _handleCreate(event: Create): void {
     userOptionData.depositToken = tokenReferrenceID;
     userOptionData.save();
 
-    if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
-      // Stats
-      let totalFee = userOptionData.totalFee.div(BigInt.fromI32(1000000));
-      updateOpenInterest(
-        timestamp,
-        true,
-        userOptionData.isAbove,
-        userOptionData.totalFee,
-        contractAddress
-      );
-      let settlementFee = event.params.settlementFee.div(
-        BigInt.fromI32(1000000)
-      );
-      _storeFees(timestamp, settlementFee);
-      _logVolume(timestamp, totalFee);
-      let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
-      dashboardStat.totalVolume = dashboardStat.totalVolume.plus(
-        event.params.totalFee
-      );
-      dashboardStat.totalSettlementFees = dashboardStat.totalSettlementFees.plus(
-        event.params.settlementFee
-      );
-      dashboardStat.totalTrades += 1;
-      dashboardStat.save();
+    // Stats
+    let totalFee = event.params.totalFee.div(BigInt.fromI32(1000000));
+    updateOpenInterest(
+      timestamp,
+      true,
+      userOptionData.isAbove,
+      userOptionData.totalFee,
+      contractAddress
+    );
+    let settlementFee = event.params.settlementFee.div(
+      BigInt.fromI32(1000000)
+    );
+    _storeFees(timestamp, settlementFee);
+    _logVolume(timestamp, totalFee);
+    let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
+    dashboardStat.totalVolume = dashboardStat.totalVolume.plus(
+      event.params.totalFee
+    );
+    dashboardStat.totalSettlementFees = dashboardStat.totalSettlementFees.plus(
+      event.params.settlementFee
+    );
+    dashboardStat.totalTrades += 1;
+    dashboardStat.save();
 
-      // Dashboard
-      _logVolumeAndSettlementFeePerContract(
-        _getHourId(timestamp),
-        "hourly",
-        timestamp,
-        contractAddress,
-        tokenReferrenceID,
-        event.params.totalFee,
-        event.params.settlementFee
-      );
+    // Dashboard
+    _logVolumeAndSettlementFeePerContract(
+      _getHourId(timestamp),
+      "hourly",
+      timestamp,
+      contractAddress,
+      tokenReferrenceID,
+      event.params.totalFee,
+      event.params.settlementFee
+    );
 
-      let feeAndRevenueStat = _loadOrCreateDailyRevenueAndFee(_getDayId(timestamp));
-      feeAndRevenueStat.totalFee = feeAndRevenueStat.totalFee.plus(
-        event.params.totalFee
-      );
-      feeAndRevenueStat.settlementFee = feeAndRevenueStat.settlementFee.plus(
-        event.params.settlementFee
-      );
-      feeAndRevenueStat.save();
-    }
+    let feeAndRevenueStat = _loadOrCreateDailyRevenueAndFee(_getDayId(timestamp), timestamp);
+    feeAndRevenueStat.totalFee = feeAndRevenueStat.totalFee.plus(
+      event.params.totalFee
+    );
+    feeAndRevenueStat.settlementFee = feeAndRevenueStat.settlementFee.plus(
+      event.params.settlementFee
+    );
+    feeAndRevenueStat.save();
   }
 }

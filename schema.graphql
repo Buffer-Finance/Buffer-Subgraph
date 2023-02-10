@@ -59,7 +59,7 @@ type UserOptionData @entity {
   strike: BigInt
   totalFee: BigInt!
   user: User!
-  creationTime: BigInt
+  creationTime: BigInt!
   queuedTimestamp: BigInt!
   expirationPrice: BigInt
   payout: BigInt
@@ -69,7 +69,7 @@ type UserOptionData @entity {
   isAbove: Boolean
   depositToken: String
   queueID: BigInt
-  settlementFee: BigInt
+  settlementFee: BigInt!
   lag: BigInt!
 }
 
@@ -134,7 +134,7 @@ type FeeStat @entity {
 }
 
 type VolumeStat @entity {
-  id: ID!
+  id: String!
   amount: BigInt!
   period: Period!
   timestamp: BigInt!
@@ -152,4 +152,5 @@ type DailyRevenueAndFee @entity {
   id: String!
   totalFee: BigInt!
   settlementFee: BigInt!
+  timestamp: BigInt!
 }

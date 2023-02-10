@@ -105,7 +105,6 @@ export function handleCancelTrade(event: CancelTrade): void {
 export function handleExercise(event: Exercise): void {
     let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
     if (routerContract.contractRegistry(event.address) == true) {
-        let timestamp = event.block.timestamp;
         let userOptionData = _loadOrCreateOptionDataEntity(
             event.params.id,
             event.address
@@ -121,6 +120,7 @@ export function handleExercise(event: Exercise): void {
         optionContractData.currentUtilization = calculateCurrentUtilization(
             optionContractInstance
         );
+        let timestamp = userOptionData.creationTime;
         optionContractData.save();
         if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
             updateOpenInterest(
@@ -153,14 +153,13 @@ export function handleExercise(event: Exercise): void {
 export function handleExpire(event: Expire): void {
     let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
     if (routerContract.contractRegistry(event.address) == true) {
-        let timestamp = event.block.timestamp;
         let referrenceID = `${event.params.id}${event.address}`;
         let userOptionData = UserOptionData.load(referrenceID);
         if (userOptionData != null) {
             userOptionData.state = State.expired;
             userOptionData.expirationPrice = event.params.priceAtExpiration;
             userOptionData.save();
-
+            let timestamp = userOptionData.creationTime;
             let optionContractInstance = BufferBinaryOptions.bind(
                 event.address
             );

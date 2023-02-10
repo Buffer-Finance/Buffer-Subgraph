@@ -86,6 +86,7 @@ export function _loadOrCreateLeaderboardEntity(
     entity.totalTrades = 0;
     entity.volume = ZERO;
     entity.netPnL = ZERO;
+    entity.save()
   }
   return entity as Leaderboard;
 }
@@ -200,12 +201,14 @@ export function _loadOrCreatePoolStat(id: string, period:string): PoolStat {
 
 export function _loadOrCreateDailyRevenueAndFee(
   id: string,
+  timestamp: BigInt
 ): DailyRevenueAndFee {
   let entity = DailyRevenueAndFee.load(id);
   if (entity === null) {
     entity = new DailyRevenueAndFee(id);
     entity.totalFee = ZERO;
     entity.settlementFee = ZERO;
+    entity.timestamp = timestamp;
     entity.save();
   }
   return entity as DailyRevenueAndFee;
