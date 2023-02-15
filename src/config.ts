@@ -7,6 +7,6 @@ export enum State {
     opened = 6
 }
 
-export const RouterAddress = "0x0e0A1241C9cE6649d5D30134a194BA3E24130305";
-export const USDC = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
-export const BFR = "0x1A5B0aaF478bf1FDA7b934c76E7692D722982a6D";
+export const RouterAddress = "0x76c52E83d7dcCc70107a66BAd44D042D22D06be7";
+export const USDC = "0x658e6B62e7ab1d2B29a08F85f8442edEed562b48";
+export const BFR = "0x89fEF05446aEA764C53a2f09bB763876FB57ea8E";
