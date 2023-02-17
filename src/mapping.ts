@@ -1,42 +1,33 @@
 import {
     Create,
     Expire,
-    Exercise,
-    UpdateReferral,
-    BufferBinaryOptions
+    Exercise
 } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
-import {
-    BinaryPool,
-    Provide,
-    Withdraw,
-    Profit,
-    Loss
-} from "../generated/BinaryPool/BinaryPool";
 import {
     InitiateTrade,
     CancelTrade,
     BufferRouter,
     OpenTrade
 } from "../generated/BufferRouter/BufferRouter";
-import { State, RouterAddress, BFR, USDC } from "./config";
-import { Address, BigInt, log } from "@graphprotocol/graph-ts";
+import { State, RouterAddress } from "./config";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { _handleCreate, _updateNFTMetadata } from "./core";
 import {
-    _handleCreate,
-    storePnl,
-    updateOpenInterest,
-    logUser,
-    calculateCurrentUtilization
-} from "./core";
-import {
-    _loadOrCreateLeaderboardEntity,
+    _loadOrCreateNFT,
     _loadOrCreateOptionContractEntity,
     _loadOrCreateOptionDataEntity,
     _loadOrCreateQueuedOptionEntity,
-    _loadOrCreateReferralData,
-    _loadOrCreatePoolStat
+    _loadOrCreateUserEntity
 } from "./initialize";
-import { _getDayId } from "./helpers";
-import { UserOptionData } from "../generated/schema";
+import { NFTBatch, UserOptionData } from "../generated/schema";
+
+import {
+    TokensLazyMinted,
+    TokenURIRevealed,
+    TokensClaimed,
+    Transfer,
+    DropERC721
+} from "../generated/DropERC721/DropERC721";
 
 export function handleInitiateTrade(event: InitiateTrade): void {
     let routerContract = BufferRouter.bind(event.address);
@@ -44,18 +35,17 @@ export function handleInitiateTrade(event: InitiateTrade): void {
     let queuedTradeData = routerContract.queuedTrades(queueID);
     let contractAddress = queuedTradeData.value6;
     _loadOrCreateOptionContractEntity(contractAddress);
-    logUser(event.block.timestamp, event.params.account);
     let queuedOptionData = _loadOrCreateQueuedOptionEntity(
         queueID,
         contractAddress
     );
+    _loadOrCreateUserEntity(event.params.account);
     queuedOptionData.user = event.params.account;
     queuedOptionData.state = State.queued;
     queuedOptionData.strike = queuedTradeData.value7;
     queuedOptionData.totalFee = queuedTradeData.value3;
     queuedOptionData.slippage = queuedTradeData.value8;
     queuedOptionData.isAbove = queuedTradeData.value5 ? true : false;
-    queuedOptionData.queuedTimestamp = event.block.timestamp;
     queuedOptionData.save();
 }
 
@@ -67,10 +57,6 @@ export function handleOpenTrade(event: OpenTrade): void {
         queueID,
         contractAddress
     );
-    userQueuedData.lag = event.block.timestamp.minus(
-        userQueuedData.queuedTimestamp
-    );
-    userQueuedData.processTime = event.block.timestamp;
     userQueuedData.state = State.opened;
     userQueuedData.save();
     let userOptionData = _loadOrCreateOptionDataEntity(
@@ -78,10 +64,6 @@ export function handleOpenTrade(event: OpenTrade): void {
         contractAddress
     );
     userOptionData.queueID = queueID;
-    userOptionData.queuedTimestamp = userQueuedData.queuedTimestamp;
-    userOptionData.lag = event.block.timestamp.minus(
-        userQueuedData.queuedTimestamp
-    );
     userOptionData.save();
 }
 
@@ -113,40 +95,6 @@ export function handleExercise(event: Exercise): void {
         userOptionData.payout = event.params.profit;
         userOptionData.expirationPrice = event.params.priceAtExpiration;
         userOptionData.save();
-        let optionContractInstance = BufferBinaryOptions.bind(event.address);
-        let optionContractData = _loadOrCreateOptionContractEntity(
-            event.address
-        );
-        optionContractData.currentUtilization = calculateCurrentUtilization(
-            optionContractInstance
-        );
-        let timestamp = userOptionData.creationTime;
-        optionContractData.save();
-        if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
-            updateOpenInterest(
-                timestamp,
-                false,
-                userOptionData.isAbove,
-                userOptionData.totalFee,
-                event.address
-            );
-            let profit = event.params.profit.minus(userOptionData.totalFee);
-            storePnl(timestamp, profit, true);
-
-            // Leaderboard
-            let leaderboardEntity = _loadOrCreateLeaderboardEntity(
-                _getDayId(timestamp),
-                userOptionData.user
-            );
-            leaderboardEntity.volume = leaderboardEntity.volume.plus(
-                userOptionData.totalFee
-            );
-            leaderboardEntity.totalTrades = leaderboardEntity.totalTrades + 1;
-            leaderboardEntity.netPnL = leaderboardEntity.netPnL.plus(
-                event.params.profit.minus(userOptionData.totalFee)
-            );
-            leaderboardEntity.save();
-        }
     }
 }
 
@@ -159,46 +107,6 @@ export function handleExpire(event: Expire): void {
             userOptionData.state = State.expired;
             userOptionData.expirationPrice = event.params.priceAtExpiration;
             userOptionData.save();
-            let timestamp = userOptionData.creationTime;
-            let optionContractInstance = BufferBinaryOptions.bind(
-                event.address
-            );
-            let optionContractData = _loadOrCreateOptionContractEntity(
-                event.address
-            );
-            optionContractData.currentUtilization = calculateCurrentUtilization(
-                optionContractInstance
-            );
-            optionContractData.save();
-            if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
-                updateOpenInterest(
-                    timestamp,
-                    false,
-                    userOptionData.isAbove,
-                    userOptionData.totalFee,
-                    event.address
-                );
-                storePnl(
-                    timestamp,
-                    userOptionData.totalFee,
-                    false
-                );
-
-                // Leaderboard
-                let leaderboardEntity = _loadOrCreateLeaderboardEntity(
-                    _getDayId(timestamp),
-                    userOptionData.user
-                );
-                leaderboardEntity.volume = leaderboardEntity.volume.plus(
-                    userOptionData.totalFee
-                );
-                leaderboardEntity.totalTrades =
-                    leaderboardEntity.totalTrades + 1;
-                leaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(
-                    userOptionData.totalFee
-                );
-                leaderboardEntity.save();
-            }
         } else {
             throw console.error(
                 "User option data not found for id {} and contract {}",
@@ -208,125 +116,61 @@ export function handleExpire(event: Expire): void {
     }
 }
 
-export function handleUpdateReferral(event: UpdateReferral): void {
-    let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
-    let optionContractInstance = BufferBinaryOptions.bind(event.address);
-    if (routerContract.contractRegistry(event.address) == true) {
-        if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
-            let user = event.params.user;
-            let referrer = event.params.referrer;
+export function handleLazyMint(event: TokensLazyMinted): void {
+    let nftContract = DropERC721.bind(event.address);
+    let endTokenId = event.params.endTokenId;
+    let startTokenId = event.params.startTokenId;
+    let batchId = endTokenId.plus(BigInt.fromI32(1));
 
-            let userReferralData = _loadOrCreateReferralData(user);
-            userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
-                event.params.rebate
-            );
-            userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
-                event.params.totalFee
-            );
-            userReferralData.save();
+    let batch = new NFTBatch(batchId.toString());
+    let allTokenIds = new Array<BigInt>();
+    for (
+        let tokenId = startTokenId;
+        tokenId <= endTokenId;
+        tokenId = tokenId.plus(BigInt.fromI32(1))
+    ) {
+        let tokenUri = nftContract.tokenURI(tokenId);
+        let nft = _loadOrCreateNFT(tokenId);
+        _updateNFTMetadata(nft, tokenUri.toString());
+        nft.batchId = batchId;
+        nft.save();
+        allTokenIds.push(tokenId);
+    }
+    batch.tokenIds = allTokenIds;
+    batch.save();
+}
+export function handleReveal(event: TokenURIRevealed): void {
+    let nftContract = DropERC721.bind(event.address);
+    let batchId = nftContract.getBatchIdAtIndex(event.params.index);
+    let revealedURI = event.params.revealedURI;
 
-            let referrerReferralData = _loadOrCreateReferralData(referrer);
-            referrerReferralData.totalTradesReferred += 1;
-            referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
-                event.params.totalFee
-            );
-            referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
-                event.params.referrerFee
-            );
-            referrerReferralData.save();
+    let batch = NFTBatch.load(batchId.toString());
+    if (batch != null) {
+        let allTokenIds = batch.tokenIds;
+        for (let i = 0; i < allTokenIds.length; i++) {
+            let nft = _loadOrCreateNFT(allTokenIds[i]);
+            _updateNFTMetadata(nft, `${revealedURI}${allTokenIds[i]}`);
+            nft.hasRevealed = true;
+            nft.save();
         }
     }
 }
 
-export function handleProvide(event: Provide): void {
-    let poolContractInstance = BinaryPool.bind(event.address);
-    let rate = poolContractInstance
-        .totalTokenXBalance()
-        .times(BigInt.fromI64(100000000))
-        .div(poolContractInstance.totalSupply());
-
-    let poolStat = _loadOrCreatePoolStat(
-        _getDayId(event.block.timestamp),
-        "daily"
-    );
-    poolStat.amount = poolStat.amount.plus(event.params.amount);
-
-    poolStat.timestamp = event.block.timestamp;
-    poolStat.rate = rate;
-    poolStat.save();
-
-    let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    totalPoolStat.amount = totalPoolStat.amount.plus(event.params.amount);
-
-    totalPoolStat.timestamp = event.block.timestamp;
-    totalPoolStat.save();
+export function handleNftTransfer(event: Transfer): void {
+    let nft = _loadOrCreateNFT(event.params.tokenId);
+    nft.owner = event.params.to;
+    nft.save();
 }
 
-export function handleWithdraw(event: Withdraw): void {
-    let poolContractInstance = BinaryPool.bind(event.address);
-    let rate = poolContractInstance
-        .totalTokenXBalance()
-        .times(BigInt.fromI64(100000000))
-        .div(poolContractInstance.totalSupply());
-
-    let poolStat = _loadOrCreatePoolStat(
-        _getDayId(event.block.timestamp),
-        "daily"
-    );
-    poolStat.amount = poolStat.amount.minus(event.params.amount);
-    poolStat.timestamp = event.block.timestamp;
-    poolStat.rate = rate;
-    poolStat.save();
-
-    let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    totalPoolStat.amount = totalPoolStat.amount.minus(event.params.amount);
-
-    totalPoolStat.timestamp = event.block.timestamp;
-    totalPoolStat.save();
-}
-
-
-export function handleProfit(event: Profit): void {
-    let poolContractInstance = BinaryPool.bind(event.address);
-    let rate = poolContractInstance
-        .totalTokenXBalance()
-        .times(BigInt.fromI64(100000000))
-        .div(poolContractInstance.totalSupply());
-    let poolStat = _loadOrCreatePoolStat(
-        _getDayId(event.block.timestamp),
-        "daily"
-    );
-    poolStat.amount = poolStat.amount.plus(event.params.amount);
-
-    poolStat.timestamp = event.block.timestamp;
-    poolStat.rate = rate;
-    poolStat.save();
-
-    let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    totalPoolStat.amount = totalPoolStat.amount.plus(event.params.amount);
-
-    totalPoolStat.timestamp = event.block.timestamp;
-    totalPoolStat.save();
-}
-
-export function handleLoss(event: Loss): void {
-    let poolContractInstance = BinaryPool.bind(event.address);
-    let rate = poolContractInstance
-        .totalTokenXBalance()
-        .times(BigInt.fromI64(100000000))
-        .div(poolContractInstance.totalSupply());
-    let poolStat = _loadOrCreatePoolStat(
-        _getDayId(event.block.timestamp),
-        "daily"
-    );
-    poolStat.amount = poolStat.amount.minus(event.params.amount);
-    poolStat.timestamp = event.block.timestamp;
-    poolStat.rate = rate;
-    poolStat.save();
-
-    let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    totalPoolStat.amount = totalPoolStat.amount.minus(event.params.amount);
-
-    totalPoolStat.timestamp = event.block.timestamp;
-    totalPoolStat.save();
+export function handleTokenClaim(event: TokensClaimed): void {
+    for (
+        let tokenId = event.params.startTokenId;
+        tokenId < event.params.startTokenId.plus(event.params.quantityClaimed);
+        tokenId = tokenId.plus(BigInt.fromI32(1))
+    ) {
+        let nft = _loadOrCreateNFT(tokenId);
+        nft.claimTimestamp = event.block.timestamp;
+        nft.phaseId = event.params.claimConditionIndex;
+        nft.save();
+    }
 }

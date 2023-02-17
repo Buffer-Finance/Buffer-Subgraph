@@ -1,4 +1,6 @@
 specVersion: 0.0.4
+features:
+    - ipfsOnEthereumContracts
 schema:
     file: ./schema.graphql
 dataSources:
@@ -28,8 +30,6 @@ dataSources:
                 handler: handleExpire
               - event: Exercise(indexed address,indexed uint256,uint256,uint256)
                 handler: handleExercise
-              - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
-                handler: handleUpdateReferral
           file: ./src/mapping.ts
     - kind: ethereum/contract
       name: BufferRouter
@@ -37,7 +37,7 @@ dataSources:
       source:
           address: "0x0e0A1241C9cE6649d5D30134a194BA3E24130305"
           abi: BufferRouter
-          startBlock: 56585555 
+          startBlock: 56585555
       mapping:
           kind: ethereum/events
           apiVersion: 0.0.6
@@ -56,28 +56,28 @@ dataSources:
                 handler: handleOpenTrade
           file: ./src/mapping.ts
     - kind: ethereum/contract
-      name: BinaryPool
+      name: DropERC721
       network: arbitrum-one
       source:
-          address: "0x6Ec7B10bF7331794adAaf235cb47a2A292cD9c7e"
-          abi: BinaryPool
-          startBlock: 48022251
+          address: "0x53bD6b734F50AC058091077249A40f5351629d05"
+          abi: DropERC721
+          startBlock: 53878193
       mapping:
           kind: ethereum/events
           apiVersion: 0.0.6
           language: wasm/assemblyscript
           entities:
-              - UserOptionData
+              - NFT
           abis:
-              - name: BinaryPool
-                file: ./abis/BinaryPool.json
+              - name: DropERC721
+                file: ./abis/DropERC721.json
           eventHandlers:
-              - event: Provide(indexed address,uint256,uint256)
-                handler: handleProvide
-              - event: Withdraw(indexed address,uint256,uint256)
-                handler: handleWithdraw
-              - event: Profit(indexed uint256,uint256)
-                handler: handleProvide
-              - event: Loss(indexed uint256,uint256)
-                handler: handleWithdraw
+              - event: TokensLazyMinted(indexed uint256,uint256,string,bytes)
+                handler: handleLazyMint
+              - event: TokenURIRevealed(indexed uint256,string)
+                handler: handleReveal
+              - event: Transfer(indexed address,indexed address,indexed uint256)
+                handler: handleNftTransfer
+              - event: TokensClaimed(indexed uint256,indexed address,indexed address,uint256,uint256)
+                handler: handleTokenClaim
           file: ./src/mapping.ts
