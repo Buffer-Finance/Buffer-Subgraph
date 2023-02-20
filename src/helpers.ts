@@ -7,7 +7,7 @@ export function _getDayId(timestamp: BigInt): string {
 }
 
 export function _getWeekId(timestamp: BigInt): string {
-    let weekTimestamp = (timestamp.toI32() - 16 * 3600)  / (86400 * 7) ;
+    let weekTimestamp = (timestamp.toI32()  - (4 * 86400) - (16 * 3600)) / (86400 * 7) 
     return weekTimestamp.toString();
 }
 
