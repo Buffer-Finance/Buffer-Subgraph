@@ -13,6 +13,7 @@ import {
   WeeklyLeaderboard,
   QueuedOptionData,
   DailyRevenueAndFee,
+  WeeklyRevenueAndFee,
   PoolStat,
 } from "../generated/schema";
 import { _getDayId } from "./helpers";
@@ -231,4 +232,19 @@ export function _loadOrCreateDailyRevenueAndFee(
     entity.save();
   }
   return entity as DailyRevenueAndFee;
+}
+
+export function _loadOrCreateWeeklyRevenueAndFee(
+  id: string,
+  timestamp: BigInt
+): WeeklyRevenueAndFee {
+  let entity = WeeklyRevenueAndFee.load(id);
+  if (entity === null) {
+    entity = new WeeklyRevenueAndFee(id);
+    entity.totalFee = ZERO;
+    entity.settlementFee = ZERO;
+    entity.timestamp = timestamp;
+    entity.save();
+  }
+  return entity as WeeklyRevenueAndFee;
 }

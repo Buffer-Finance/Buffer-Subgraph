@@ -5,7 +5,7 @@ import {
 } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import { BinaryPool } from "../generated/BinaryPool/BinaryPool";
 import { User, VolumePerContract } from "../generated/schema";
-import { _getDayId, _getHourId, _checkIfUserInArray } from "./helpers";
+import { _getDayId, _getHourId, _checkIfUserInArray, _getWeekId } from "./helpers";
 import {
   _loadOrCreateOptionContractEntity,
   _loadOrCreateOptionDataEntity,
@@ -15,7 +15,8 @@ import {
   _loadOrCreateFeeStat,
   _loadOrCreateUserStat,
   _loadOrCreateDashboardStat,
-  _loadOrCreateDailyRevenueAndFee
+  _loadOrCreateDailyRevenueAndFee,
+  _loadOrCreateWeeklyRevenueAndFee
 } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import {
@@ -278,6 +279,7 @@ export function _handleCreate(event: Create): void {
       event.params.settlementFee
     );
 
+    // Daily
     let feeAndRevenueStat = _loadOrCreateDailyRevenueAndFee(_getDayId(timestamp), timestamp);
     feeAndRevenueStat.totalFee = feeAndRevenueStat.totalFee.plus(
       event.params.totalFee
@@ -286,5 +288,17 @@ export function _handleCreate(event: Create): void {
       event.params.settlementFee
     );
     feeAndRevenueStat.save();
+
+    // Weekly
+    let weeklyFeeAndRevenueStat = _loadOrCreateWeeklyRevenueAndFee(_getWeekId(timestamp), timestamp);
+    weeklyFeeAndRevenueStat.totalFee = weeklyFeeAndRevenueStat.totalFee.plus(
+      event.params.totalFee
+    );
+    weeklyFeeAndRevenueStat.settlementFee = weeklyFeeAndRevenueStat.settlementFee.plus(
+      event.params.settlementFee
+    );
+    weeklyFeeAndRevenueStat.save();
   }
+
+
 }

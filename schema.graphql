@@ -163,3 +163,10 @@ type DailyRevenueAndFee @entity {
   settlementFee: BigInt!
   timestamp: BigInt!
 }
+
+type WeeklyRevenueAndFee @entity {
+  id: String!
+  totalFee: BigInt!
+  settlementFee: BigInt!
+  timestamp: BigInt!
+}
