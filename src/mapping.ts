@@ -29,13 +29,14 @@ import {
 } from "./core";
 import {
     _loadOrCreateLeaderboardEntity,
+    _loadOrCreateWeeklyLeaderboardEntity,
     _loadOrCreateOptionContractEntity,
     _loadOrCreateOptionDataEntity,
     _loadOrCreateQueuedOptionEntity,
     _loadOrCreateReferralData,
     _loadOrCreatePoolStat
 } from "./initialize";
-import { _getDayId } from "./helpers";
+import { _getDayId, _getWeekId } from "./helpers";
 import { UserOptionData } from "../generated/schema";
 
 export function handleInitiateTrade(event: InitiateTrade): void {
@@ -146,6 +147,20 @@ export function handleExercise(event: Exercise): void {
                 event.params.profit.minus(userOptionData.totalFee)
             );
             leaderboardEntity.save();
+
+            // Weekly Leaderboard
+            let WeeklyLeaderboardEntity = _loadOrCreateWeeklyLeaderboardEntity(
+                _getWeekId(timestamp),
+                userOptionData.user
+            );
+            WeeklyLeaderboardEntity.volume = WeeklyLeaderboardEntity.volume.plus(
+                userOptionData.totalFee
+            );
+            WeeklyLeaderboardEntity.totalTrades = WeeklyLeaderboardEntity.totalTrades + 1;
+            WeeklyLeaderboardEntity.netPnL = WeeklyLeaderboardEntity.netPnL.plus(
+                event.params.profit.minus(userOptionData.totalFee)
+            );
+            WeeklyLeaderboardEntity.save();
         }
     }
 }

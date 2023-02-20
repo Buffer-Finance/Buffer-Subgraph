@@ -35,6 +35,15 @@ type Leaderboard @entity {
   timestamp: String!
 }
 
+type WeeklyLeaderboard @entity {
+  id: String!
+  user: Bytes!
+  netPnL: BigInt!
+  totalTrades: Int!
+  volume: BigInt!
+  timestamp: String!
+}
+
 type QueuedOptionData @entity {
   id: String!
   optionContract: OptionContract!

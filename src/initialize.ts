@@ -10,6 +10,7 @@ import {
   FeeStat,
   VolumeStat,
   Leaderboard,
+  WeeklyLeaderboard,
   QueuedOptionData,
   DailyRevenueAndFee,
   PoolStat,
@@ -89,6 +90,24 @@ export function _loadOrCreateLeaderboardEntity(
     entity.save()
   }
   return entity as Leaderboard;
+}
+
+export function _loadOrCreateWeeklyLeaderboardEntity(
+  weekId: string,
+  account: Bytes
+): WeeklyLeaderboard {
+  let referenceID = `${weekId}${account}`;
+  let entity = WeeklyLeaderboard.load(referenceID);
+  if (entity == null) {
+    entity = new WeeklyLeaderboard(referenceID);
+    entity.user = account;
+    entity.timestamp = weekId;
+    entity.totalTrades = 0;
+    entity.volume = ZERO;
+    entity.netPnL = ZERO;
+    entity.save()
+  }
+  return entity as WeeklyLeaderboard;
 }
 
 export function _loadOrCreateUserStat(
