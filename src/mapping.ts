@@ -213,6 +213,20 @@ export function handleExpire(event: Expire): void {
                     userOptionData.totalFee
                 );
                 leaderboardEntity.save();
+
+                // Weekly Leaderboard
+                let WeeklyLeaderboardEntity = _loadOrCreateWeeklyLeaderboardEntity(
+                    _getWeekId(timestamp),
+                    userOptionData.user
+                );
+                WeeklyLeaderboardEntity.volume = WeeklyLeaderboardEntity.volume.plus(
+                    userOptionData.totalFee
+                );
+                WeeklyLeaderboardEntity.totalTrades = WeeklyLeaderboardEntity.totalTrades + 1;
+                WeeklyLeaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(
+                    userOptionData.totalFee
+                );
+                WeeklyLeaderboardEntity.save();
             }
         } else {
             throw console.error(
