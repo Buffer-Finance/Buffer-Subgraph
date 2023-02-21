@@ -223,7 +223,7 @@ export function handleExpire(event: Expire): void {
                     userOptionData.totalFee
                 );
                 WeeklyLeaderboardEntity.totalTrades = WeeklyLeaderboardEntity.totalTrades + 1;
-                WeeklyLeaderboardEntity.netPnL = leaderboardEntity.netPnL.minus(
+                WeeklyLeaderboardEntity.netPnL = WeeklyLeaderboardEntity.netPnL.minus(
                     userOptionData.totalFee
                 );
                 WeeklyLeaderboardEntity.save();
