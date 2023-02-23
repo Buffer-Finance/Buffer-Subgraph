@@ -220,12 +220,12 @@ export function _handleCreate(event: Create): void {
         optionContractInstance.baseSettlementFeePercentageForAbove()
       )
     );
-    let tokenReferrenceID = "";
-    if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
-      tokenReferrenceID = "USDC";
-    } else if (optionContractInstance.tokenX() == Address.fromString(BFR)) {
-      tokenReferrenceID = "BFR";
-    }
+    let tokenReferrenceID = "USDC";
+    // if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
+    //   tokenReferrenceID = "USDC";
+    // } else if (optionContractInstance.tokenX() == Address.fromString(BFR)) {
+    //   tokenReferrenceID = "BFR";
+    // }
     optionContractData.token = tokenReferrenceID;
     optionContractData.save();
     let userOptionData = _loadOrCreateOptionDataEntity(
@@ -245,7 +245,7 @@ export function _handleCreate(event: Create): void {
     userOptionData.save();
 
     // Stats
-    let totalFee = event.params.totalFee.div(BigInt.fromI32(1000000));
+    let totalFee = event.params.totalFee;
     updateOpenInterest(
       timestamp,
       true,
@@ -253,9 +253,7 @@ export function _handleCreate(event: Create): void {
       userOptionData.totalFee,
       contractAddress
     );
-    let settlementFee = event.params.settlementFee.div(
-      BigInt.fromI32(1000000)
-    );
+    let settlementFee = event.params.settlementFee;
     _storeFees(timestamp, settlementFee);
     _logVolume(timestamp, totalFee);
     let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
