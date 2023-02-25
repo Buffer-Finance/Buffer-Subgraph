@@ -278,14 +278,14 @@ export function handleProvide(event: Provide): void {
         _getDayId(event.block.timestamp),
         "daily"
     );
-    poolStat.amount = poolStat.amount.plus(event.params.amount);
+    poolStat.amount = poolContractInstance.totalTokenXBalance();
 
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
 
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    totalPoolStat.amount = totalPoolStat.amount.plus(event.params.amount);
+    totalPoolStat.amount = poolContractInstance.totalTokenXBalance();
 
     totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
@@ -302,13 +302,13 @@ export function handleWithdraw(event: Withdraw): void {
         _getDayId(event.block.timestamp),
         "daily"
     );
-    poolStat.amount = poolStat.amount.minus(event.params.amount);
+    poolStat.amount = poolContractInstance.totalTokenXBalance();
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
 
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    totalPoolStat.amount = totalPoolStat.amount.minus(event.params.amount);
+    totalPoolStat.amount = poolContractInstance.totalTokenXBalance();
 
     totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
@@ -320,19 +320,19 @@ export function handleProfit(event: Profit): void {
     let rate = poolContractInstance
         .totalTokenXBalance()
         .times(BigInt.fromI64(100000000))
-        .div(poolContractInstance.totalSupply());
+        .div(poolContractInstance.totalSupply());   
     let poolStat = _loadOrCreatePoolStat(
         _getDayId(event.block.timestamp),
         "daily"
     );
-    poolStat.amount = poolStat.amount.plus(event.params.amount);
+    poolStat.amount = poolContractInstance.totalTokenXBalance();
 
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
 
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    totalPoolStat.amount = totalPoolStat.amount.plus(event.params.amount);
+    totalPoolStat.amount = poolContractInstance.totalTokenXBalance();
 
     totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
@@ -348,14 +348,13 @@ export function handleLoss(event: Loss): void {
         _getDayId(event.block.timestamp),
         "daily"
     );
-    poolStat.amount = poolStat.amount.minus(event.params.amount);
+    poolStat.amount = poolContractInstance.totalTokenXBalance();
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
 
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    totalPoolStat.amount = totalPoolStat.amount.minus(event.params.amount);
-
+    totalPoolStat.amount = poolContractInstance.totalTokenXBalance();
     totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
 }
