@@ -281,10 +281,6 @@ export function handleProvide(event: Provide): void {
         _getDayId(event.block.timestamp),
         "daily"
     );
-    let formerPoolStat = _loadOrCreatePoolStat(
-        _getDayId(event.block.timestamp.minus(new BigInt(86400))),
-        "daily"
-    );
     let usdcContractInstance = USDC.bind(Address.fromString(USDC_ADDRESS));
     poolStat.amount =  usdcContractInstance.balanceOf(event.address);
 
@@ -308,10 +304,6 @@ export function handleWithdraw(event: Withdraw): void {
 
     let poolStat = _loadOrCreatePoolStat(
         _getDayId(event.block.timestamp),
-        "daily"
-    );
-    let formerPoolStat = _loadOrCreatePoolStat(
-        _getDayId(event.block.timestamp.minus(new BigInt(86400))),
         "daily"
     );
     let usdcContractInstance = USDC.bind(Address.fromString(USDC_ADDRESS));
@@ -338,10 +330,6 @@ export function handleProfit(event: Profit): void {
         _getDayId(event.block.timestamp),
         "daily"
     );
-    let formerPoolStat = _loadOrCreatePoolStat(
-        _getDayId(event.block.timestamp.minus(new BigInt(86400))),
-        "daily"
-    );
     let usdcContractInstance = USDC.bind(Address.fromString(USDC_ADDRESS));
     poolStat.amount =  usdcContractInstance.balanceOf(event.address);
 
@@ -362,10 +350,6 @@ export function handleLoss(event: Loss): void {
         .totalTokenXBalance()
         .times(BigInt.fromI64(100000000))
         .div(poolContractInstance.totalSupply());
-    let formerPoolStat = _loadOrCreatePoolStat(
-        _getDayId(event.block.timestamp.minus(new BigInt(86400))),
-        "daily"
-    );
     let poolStat = _loadOrCreatePoolStat(
         _getDayId(event.block.timestamp),
         "daily"
