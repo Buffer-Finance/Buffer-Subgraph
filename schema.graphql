@@ -42,6 +42,8 @@ type WeeklyLeaderboard @entity {
   totalTrades: Int!
   volume: BigInt!
   timestamp: String!
+  tradesWon: Int!
+  winRate: Int!
 }
 
 type QueuedOptionData @entity {

@@ -106,6 +106,8 @@ export function _loadOrCreateWeeklyLeaderboardEntity(
     entity.totalTrades = 0;
     entity.volume = ZERO;
     entity.netPnL = ZERO;
+    entity.tradesWon = 0;
+    entity.winRate = 0;
     entity.save()
   }
   return entity as WeeklyLeaderboard;

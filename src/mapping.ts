@@ -163,6 +163,8 @@ export function handleExercise(event: Exercise): void {
             WeeklyLeaderboardEntity.netPnL = WeeklyLeaderboardEntity.netPnL.plus(
                 event.params.profit.minus(userOptionData.totalFee)
             );
+            WeeklyLeaderboardEntity.tradesWon = WeeklyLeaderboardEntity.tradesWon + 1;
+            WeeklyLeaderboardEntity.winRate = (WeeklyLeaderboardEntity.tradesWon * 100000) / WeeklyLeaderboardEntity.totalTrades;
             WeeklyLeaderboardEntity.save();
         }
     }
@@ -229,6 +231,7 @@ export function handleExpire(event: Expire): void {
                 WeeklyLeaderboardEntity.netPnL = WeeklyLeaderboardEntity.netPnL.minus(
                     userOptionData.totalFee
                 );
+                WeeklyLeaderboardEntity.winRate = (WeeklyLeaderboardEntity.tradesWon * 100000) / WeeklyLeaderboardEntity.totalTrades;
                 WeeklyLeaderboardEntity.save();
             }
         } else {
