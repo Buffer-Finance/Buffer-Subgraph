@@ -13,12 +13,15 @@ import {
     Loss
 } from "../generated/BinaryPool/BinaryPool";
 import {
+    USDC
+} from "../generated/USDC/USDC";
+import {
     InitiateTrade,
     CancelTrade,
     BufferRouter,
     OpenTrade
 } from "../generated/BufferRouter/BufferRouter";
-import { State, RouterAddress, BFR, USDC, ARBITRUM_SOLANA_ADDRESS } from "./config";
+import { State, RouterAddress, BFR, USDC_ADDRESS, ARBITRUM_SOLANA_ADDRESS } from "./config";
 import { Address, BigInt, log } from "@graphprotocol/graph-ts";
 import {
     _handleCreate,
@@ -123,7 +126,7 @@ export function handleExercise(event: Exercise): void {
         );
         let timestamp = userOptionData.creationTime;
         optionContractData.save();
-        if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
+        if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
             updateOpenInterest(
                 timestamp,
                 false,
@@ -185,7 +188,7 @@ export function handleExpire(event: Expire): void {
                 optionContractInstance
             );
             optionContractData.save();
-            if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
+            if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
                 updateOpenInterest(
                     timestamp,
                     false,
@@ -241,7 +244,7 @@ export function handleUpdateReferral(event: UpdateReferral): void {
     let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
     let optionContractInstance = BufferBinaryOptions.bind(event.address);
     if (routerContract.contractRegistry(event.address) == true) {
-        if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
+        if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
             let user = event.params.user;
             let referrer = event.params.referrer;
 
@@ -278,14 +281,19 @@ export function handleProvide(event: Provide): void {
         _getDayId(event.block.timestamp),
         "daily"
     );
-    poolStat.amount = poolStat.amount.plus(event.params.amount);
+    let formerPoolStat = _loadOrCreatePoolStat(
+        _getDayId(event.block.timestamp.minus(new BigInt(86400))),
+        "daily"
+    );
+    let usdcContractInstance = USDC.bind(Address.fromString(USDC_ADDRESS));
+    poolStat.amount =  usdcContractInstance.balanceOf(event.address);
 
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
 
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    poolStat.amount = poolStat.amount.plus(event.params.amount);
+    totalPoolStat.amount = usdcContractInstance.balanceOf(event.address);
 
     totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
@@ -302,13 +310,18 @@ export function handleWithdraw(event: Withdraw): void {
         _getDayId(event.block.timestamp),
         "daily"
     );
-    poolStat.amount = poolStat.amount.minus(event.params.amount);
+    let formerPoolStat = _loadOrCreatePoolStat(
+        _getDayId(event.block.timestamp.minus(new BigInt(86400))),
+        "daily"
+    );
+    let usdcContractInstance = USDC.bind(Address.fromString(USDC_ADDRESS));
+    poolStat.amount =  usdcContractInstance.balanceOf(event.address);
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
 
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    poolStat.amount = poolStat.amount.minus(event.params.amount);
+    totalPoolStat.amount = usdcContractInstance.balanceOf(event.address);
 
     totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
@@ -325,14 +338,19 @@ export function handleProfit(event: Profit): void {
         _getDayId(event.block.timestamp),
         "daily"
     );
-    poolStat.amount = poolStat.amount.plus(event.params.amount);
+    let formerPoolStat = _loadOrCreatePoolStat(
+        _getDayId(event.block.timestamp.minus(new BigInt(86400))),
+        "daily"
+    );
+    let usdcContractInstance = USDC.bind(Address.fromString(USDC_ADDRESS));
+    poolStat.amount =  usdcContractInstance.balanceOf(event.address);
 
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
 
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    poolStat.amount = poolStat.amount.plus(event.params.amount);
+    totalPoolStat.amount = usdcContractInstance.balanceOf(event.address);
 
     totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
@@ -344,17 +362,22 @@ export function handleLoss(event: Loss): void {
         .totalTokenXBalance()
         .times(BigInt.fromI64(100000000))
         .div(poolContractInstance.totalSupply());
+    let formerPoolStat = _loadOrCreatePoolStat(
+        _getDayId(event.block.timestamp.minus(new BigInt(86400))),
+        "daily"
+    );
     let poolStat = _loadOrCreatePoolStat(
         _getDayId(event.block.timestamp),
         "daily"
     );
-    poolStat.amount = poolStat.amount.minus(event.params.amount);
+    let usdcContractInstance = USDC.bind(Address.fromString(USDC_ADDRESS));
+    poolStat.amount =  usdcContractInstance.balanceOf(event.address);
     poolStat.timestamp = event.block.timestamp;
     poolStat.rate = rate;
     poolStat.save();
 
     let totalPoolStat = _loadOrCreatePoolStat("total", "total");
-    poolStat.amount = poolStat.amount.minus(event.params.amount);
+    totalPoolStat.amount = usdcContractInstance.balanceOf(event.address);
     totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
 }

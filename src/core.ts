@@ -22,7 +22,7 @@ import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import {
   DailyUserStat
 } from "../generated/schema";
-import { State, RouterAddress, BFR, USDC } from "./config";
+import { State, RouterAddress, BFR, USDC_ADDRESS } from "./config";
 
 function _logVolumeAndSettlementFeePerContract(
   id: string,

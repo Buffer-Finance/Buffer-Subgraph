@@ -71,6 +71,8 @@ dataSources:
           abis:
               - name: BinaryPool
                 file: ./abis/BinaryPool.json
+              - name: USDC
+                file: ./abis/USDC.json
           eventHandlers:
               - event: Provide(indexed address,uint256,uint256)
                 handler: handleProvide
@@ -80,4 +82,24 @@ dataSources:
                 handler: handleProvide
               - event: Loss(indexed uint256,uint256)
                 handler: handleWithdraw
+          file: ./src/mapping.ts
+    - kind: ethereum/contract
+      name: USDC
+      network: arbitrum-one
+      source:
+          address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
+          abi: USDC
+          startBlock: 48022251
+      mapping:
+          kind: ethereum/events
+          apiVersion: 0.0.6
+          language: wasm/assemblyscript
+          abis:
+              - name: USDC
+                file: ./abis/USDC.json
+          entities:
+              - UserOptionData
+          eventHandlers:
+              - event: Unpaused(address)
+                handler: handleProvide
           file: ./src/mapping.ts
