@@ -46,6 +46,7 @@ export function handleInitiateTrade(event: InitiateTrade): void {
     queuedOptionData.totalFee = queuedTradeData.value3;
     queuedOptionData.slippage = queuedTradeData.value8;
     queuedOptionData.isAbove = queuedTradeData.value5 ? true : false;
+    queuedOptionData.queueTimestamp = event.block.timestamp;
     queuedOptionData.save();
 }
 
@@ -81,6 +82,7 @@ export function handleCancelTrade(event: CancelTrade): void {
     );
     userQueuedData.state = State.cancelled;
     userQueuedData.reason = event.params.reason;
+    userQueuedData.cancelTimestamp = event.block.timestamp;
     userQueuedData.save();
 }
 
