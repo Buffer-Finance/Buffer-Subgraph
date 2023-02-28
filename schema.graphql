@@ -8,8 +8,8 @@ enum Period {
 type OptionContract @entity {
   id: Bytes!
   address: Bytes
-  asset: String
-  isPaused: Boolean
+  asset: String!
+  isPaused: Boolean!
   openUp: Int
   openDown: Int
   openInterest: BigInt!

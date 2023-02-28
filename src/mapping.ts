@@ -3,6 +3,7 @@ import {
     Expire,
     Exercise,
     UpdateReferral,
+    Pause,
     BufferBinaryOptions
 } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import {
@@ -367,4 +368,13 @@ export function handleLoss(event: Loss): void {
     totalPoolStat.amount = usdcContractInstance.balanceOf(event.address);
     totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
+}
+
+export function handlePause(event: Pause): void {
+
+    let isPaused = event.params.isPaused;
+    let optionContract = _loadOrCreateOptionContractEntity(event.address);
+    optionContract.isPaused = isPaused;
+    optionContract.save()
+
 }

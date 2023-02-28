@@ -1,4 +1,4 @@
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   UserOptionData,
   User,
@@ -17,6 +17,9 @@ import {
   PoolStat,
 } from "../generated/schema";
 import { _getDayId } from "./helpers";
+import {
+  BufferBinaryOptions
+} from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 let ZERO = BigInt.fromI32(0);
 
 export function _loadOrCreateTradingStatEntity(
@@ -152,8 +155,11 @@ export function _loadOrCreateOptionContractEntity(
 ): OptionContract {
   let optionContract = OptionContract.load(contractAddress);
   if (optionContract == null) {
+    let optionContractInstance = BufferBinaryOptions.bind(Address.fromBytes(contractAddress));
     optionContract = new OptionContract(contractAddress);
     optionContract.address = contractAddress;
+    optionContract.isPaused = optionContractInstance.isPaused();
+    optionContract.asset = optionContractInstance.assetPair();
     optionContract.volume = ZERO;
     optionContract.tradeCount = 0;
     optionContract.openDown = 0;
