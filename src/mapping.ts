@@ -370,11 +370,11 @@ export function handleLoss(event: Loss): void {
     totalPoolStat.save();
 }
 
-export function handlePause(event: Pause): void {
+// export function handlePause(event: Pause): void {
 
-    let isPaused = event.params.isPaused;
-    let optionContract = _loadOrCreateOptionContractEntity(event.address);
-    optionContract.isPaused = isPaused;
-    optionContract.save()
+//     let isPaused = event.params.isPaused;
+//     let optionContract = _loadOrCreateOptionContractEntity(event.address);
+//     optionContract.isPaused = isPaused;
+//     optionContract.save()
 
-}
+// }

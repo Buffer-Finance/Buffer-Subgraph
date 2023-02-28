@@ -30,6 +30,8 @@ dataSources:
                 handler: handleExercise
               - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
                 handler: handleUpdateReferral
+              # - event: Pause(bool)
+              #   handler: handlePause
           file: ./src/mapping.ts
     - kind: ethereum/contract
       name: BufferRouter
@@ -45,6 +47,8 @@ dataSources:
           entities:
               - UserOptionData
           abis:
+              - name: BufferBinaryOptions
+                file: ./abis/BufferBinaryOptions.json
               - name: BufferRouter
                 file: ./abis/BufferRouter.json
           eventHandlers:
