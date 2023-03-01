@@ -373,6 +373,6 @@ export function handleLoss(event: Loss): void {
 export function handlePause(event: Pause): void {
     let isPaused = event.params.isPaused;
     let optionContract = _loadOrCreateOptionContractEntity(event.address);
-    // optionContract.isPaused = isPaused;
+    optionContract.isPaused = isPaused;
     optionContract.save()
 }

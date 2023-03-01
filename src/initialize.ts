@@ -159,7 +159,6 @@ export function _loadOrCreateOptionContractEntity(
     optionContract = new OptionContract(contractAddress);
     optionContract.address = contractAddress;
     optionContract.isPaused = optionContractInstance.isPaused();
-    optionContract.asset = optionContractInstance.assetPair();
     optionContract.volume = ZERO;
     optionContract.tradeCount = 0;
     optionContract.openDown = 0;
