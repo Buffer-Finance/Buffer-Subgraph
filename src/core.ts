@@ -150,15 +150,15 @@ export function updateOpenInterest(
       ? totalEntity.longOpenInterest.plus(amount)
       : totalEntity.longOpenInterest.minus(amount);
     optionContractData.openUp = increaseInOpenInterest
-      ? (optionContractData.openUp += 1)
-      : (optionContractData.openUp -= 1);
+      ? (optionContractData.openUp.plus(amount))
+      : (optionContractData.openUp.plus(amount));
   } else {
     totalEntity.shortOpenInterest = increaseInOpenInterest
       ? totalEntity.shortOpenInterest.plus(amount)
       : totalEntity.shortOpenInterest.minus(amount);
     optionContractData.openDown = increaseInOpenInterest
-      ? (optionContractData.openDown += 1)
-      : (optionContractData.openDown -= 1);
+      ? (optionContractData.openDown.plus(amount))
+      : (optionContractData.openDown.plus(amount));
   }
   optionContractData.openInterest = increaseInOpenInterest
     ? optionContractData.openInterest.plus(amount)
