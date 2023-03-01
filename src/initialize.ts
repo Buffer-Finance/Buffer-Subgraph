@@ -19,6 +19,8 @@ export function _loadOrCreateQueuedOptionEntity(
         entity = new QueuedOptionData(referenceID);
         entity.queueID = queueID;
         entity.optionContract = contractAddress;
+        entity.queueTimestamp = ZERO;
+        entity.cancelTimestamp = ZERO;
         entity.save();
     }
     return entity as QueuedOptionData;
