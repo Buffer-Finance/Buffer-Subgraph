@@ -8,8 +8,7 @@ enum Period {
 type OptionContract @entity {
   id: Bytes!
   address: Bytes
-  asset: String
-  isPaused: Boolean
+  isPaused: Boolean!
   openUp: Int
   openDown: Int
   openInterest: BigInt!
@@ -42,6 +41,8 @@ type WeeklyLeaderboard @entity {
   totalTrades: Int!
   volume: BigInt!
   timestamp: String!
+  tradesWon: Int!
+  winRate: Int!
 }
 
 type QueuedOptionData @entity {

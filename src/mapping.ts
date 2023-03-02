@@ -3,6 +3,7 @@ import {
     Expire,
     Exercise,
     UpdateReferral,
+    Pause,
     BufferBinaryOptions
 } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import {
@@ -163,6 +164,8 @@ export function handleExercise(event: Exercise): void {
             WeeklyLeaderboardEntity.netPnL = WeeklyLeaderboardEntity.netPnL.plus(
                 event.params.profit.minus(userOptionData.totalFee)
             );
+            WeeklyLeaderboardEntity.tradesWon = WeeklyLeaderboardEntity.tradesWon + 1;
+            WeeklyLeaderboardEntity.winRate = (WeeklyLeaderboardEntity.tradesWon * 100000) / WeeklyLeaderboardEntity.totalTrades;
             WeeklyLeaderboardEntity.save();
         }
     }
@@ -229,6 +232,7 @@ export function handleExpire(event: Expire): void {
                 WeeklyLeaderboardEntity.netPnL = WeeklyLeaderboardEntity.netPnL.minus(
                     userOptionData.totalFee
                 );
+                WeeklyLeaderboardEntity.winRate = (WeeklyLeaderboardEntity.tradesWon * 100000) / WeeklyLeaderboardEntity.totalTrades;
                 WeeklyLeaderboardEntity.save();
             }
         } else {
@@ -364,4 +368,11 @@ export function handleLoss(event: Loss): void {
     totalPoolStat.amount = usdcContractInstance.balanceOf(event.address);
     totalPoolStat.timestamp = event.block.timestamp;
     totalPoolStat.save();
+}
+
+export function handlePause(event: Pause): void {
+    let isPaused = event.params.isPaused;
+    let optionContract = _loadOrCreateOptionContractEntity(event.address);
+    optionContract.isPaused = isPaused;
+    optionContract.save()
 }
