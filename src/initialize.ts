@@ -161,8 +161,8 @@ export function _loadOrCreateOptionContractEntity(
     optionContract.isPaused = optionContractInstance.isPaused();
     optionContract.volume = ZERO;
     optionContract.tradeCount = 0;
-    optionContract.openDown = 0;
-    optionContract.openUp = 0;
+    optionContract.openDown = ZERO;
+    optionContract.openUp = ZERO;
     optionContract.openInterest = ZERO;
     optionContract.currentUtilization = ZERO;
     optionContract.payoutForDown = ZERO;
