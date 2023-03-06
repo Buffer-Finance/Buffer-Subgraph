@@ -22,7 +22,7 @@ import {
     BufferRouter,
     OpenTrade
 } from "../generated/BufferRouter/BufferRouter";
-import { State, RouterAddress, BFR, USDC_ADDRESS, ARBITRUM_SOLANA_ADDRESS } from "./config";
+import { State, RouterAddress, BFR, USDC_ADDRESS } from "./config";
 import { Address, BigInt, log } from "@graphprotocol/graph-ts";
 import {
     _handleCreate,
@@ -109,7 +109,7 @@ export function handleCancelTrade(event: CancelTrade): void {
 
 export function handleExercise(event: Exercise): void {
     let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
-    if ((routerContract.contractRegistry(event.address) == true) || (event.address == Address.fromString(ARBITRUM_SOLANA_ADDRESS))) {
+    if (routerContract.contractRegistry(event.address) == true) {
         let userOptionData = _loadOrCreateOptionDataEntity(
             event.params.id,
             event.address
@@ -173,7 +173,7 @@ export function handleExercise(event: Exercise): void {
 
 export function handleExpire(event: Expire): void {
     let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
-    if ((routerContract.contractRegistry(event.address) == true) || (event.address == Address.fromString(ARBITRUM_SOLANA_ADDRESS))) {
+    if (routerContract.contractRegistry(event.address) == true) {
         let referrenceID = `${event.params.id}${event.address}`;
         let userOptionData = UserOptionData.load(referrenceID);
         if (userOptionData != null) {
