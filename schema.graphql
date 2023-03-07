@@ -171,3 +171,15 @@ type WeeklyRevenueAndFee @entity {
   settlementFee: BigInt!
   timestamp: BigInt!
 }
+
+type BFRHolderData @entity {
+  id: String!
+  holders: Int!
+  period: Period!
+  timestamp: BigInt!
+}
+
+type BFRHolder @entity {
+  id: String!
+  balance: BigInt!
+}
