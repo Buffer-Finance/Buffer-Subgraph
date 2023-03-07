@@ -18,6 +18,7 @@ type OptionContract @entity {
   token: String
   payoutForUp: BigInt
   payoutForDown: BigInt
+  asset: String
 }
 
 type User @entity {
