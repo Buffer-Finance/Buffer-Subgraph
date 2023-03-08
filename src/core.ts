@@ -12,6 +12,7 @@ import {
   _loadOrCreateQueuedOptionEntity,
   _loadOrCreateVolumeStat,
   _loadOrCreateTradingStatEntity,
+  _loadOrCreateAssetTradingStatEntity,
   _loadOrCreateFeeStat,
   _loadOrCreateUserStat,
   _loadOrCreateDashboardStat,
@@ -129,6 +130,32 @@ export function storePnl(
   }
   totalEntity.save();
   let totalEntityV2 = _loadOrCreateTradingStatEntity("total", "total", timestamp);
+  dailyEntity.profitCumulative = totalEntityV2.profitCumulative;
+  dailyEntity.lossCumulative = totalEntityV2.lossCumulative;
+  dailyEntity.save();
+}
+
+export function storePnlPerContract(
+  timestamp: BigInt,
+  pnl: BigInt,
+  isProfit: boolean,
+  contractAddress: Bytes
+): void {
+  let totalID = `total-${contractAddress}`;
+  let totalEntity = _loadOrCreateAssetTradingStatEntity(totalID, "total", timestamp, contractAddress, "total");
+  let dayID = _getDayId(timestamp);
+  let id = `${dayID}-${contractAddress}`;
+  let dailyEntity = _loadOrCreateAssetTradingStatEntity(id, "daily", timestamp, contractAddress, dayID);
+
+  if (isProfit) {
+    totalEntity.profitCumulative = totalEntity.profitCumulative.plus(pnl);
+    dailyEntity.profit = dailyEntity.profit.plus(pnl);
+  } else {
+    totalEntity.lossCumulative = totalEntity.lossCumulative.plus(pnl);
+    dailyEntity.loss = dailyEntity.loss.plus(pnl);
+  }
+  totalEntity.save();
+  let totalEntityV2 = _loadOrCreateAssetTradingStatEntity(totalID, "total", timestamp, contractAddress, "total");
   dailyEntity.profitCumulative = totalEntityV2.profitCumulative;
   dailyEntity.lossCumulative = totalEntityV2.lossCumulative;
   dailyEntity.save();

@@ -6,6 +6,7 @@ import {
   ReferralData,
   DashboardStat,
   TradingStat,
+  AssetTradingStat,
   UserStat,
   FeeStat,
   VolumeStat,
@@ -40,6 +41,28 @@ export function _loadOrCreateTradingStatEntity(
   }
   entity.timestamp = timestamp;
   return entity as TradingStat;
+}
+
+export function _loadOrCreateAssetTradingStatEntity(
+  id: string,
+  period: string,
+  timestamp: BigInt,
+  contractAddress: Bytes,
+  periodID: string
+): AssetTradingStat {
+  let entity = AssetTradingStat.load(id);
+  if (entity == null) {
+    entity = new AssetTradingStat(id);
+    entity.period = period;
+    entity.profit = ZERO;
+    entity.loss = ZERO;
+    entity.contractAddress = contractAddress;
+    entity.profitCumulative = ZERO;
+    entity.lossCumulative = ZERO;
+    entity.periodID = periodID;
+  }
+  entity.timestamp = timestamp;
+  return entity as AssetTradingStat;
 }
 
 export function _loadOrCreateQueuedOptionEntity(

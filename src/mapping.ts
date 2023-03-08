@@ -27,6 +27,7 @@ import { Address, BigInt, log } from "@graphprotocol/graph-ts";
 import {
     _handleCreate,
     storePnl,
+    storePnlPerContract,
     updateOpenInterest,
     logUser,
     calculateCurrentUtilization
@@ -137,6 +138,7 @@ export function handleExercise(event: Exercise): void {
             );
             let profit = userOptionData.totalFee.minus(userOptionData.settlementFee);
             storePnl(timestamp, profit, true);
+            storePnlPerContract(timestamp, profit, true, event.address);
 
             // Leaderboard
             let leaderboardEntity = _loadOrCreateLeaderboardEntity(
@@ -203,6 +205,12 @@ export function handleExpire(event: Expire): void {
                     timestamp,
                     userOptionData.totalFee.minus(userOptionData.settlementFee),
                     false
+                );
+                storePnlPerContract(
+                    timestamp,
+                    userOptionData.totalFee.minus(userOptionData.settlementFee),
+                    false,
+                    event.address
                 );
 
                 // Leaderboard

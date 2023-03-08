@@ -183,3 +183,15 @@ type BFRHolder @entity {
   id: String!
   balance: BigInt!
 }
+
+type AssetTradingStat @entity {
+  id: ID!
+  contractAddress: Bytes!
+  profit: BigInt!
+  periodID: String!
+  loss: BigInt!
+  profitCumulative: BigInt!
+  lossCumulative: BigInt!
+  timestamp: BigInt!
+  period: Period!
+}
