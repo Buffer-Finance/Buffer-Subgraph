@@ -17,7 +17,8 @@ import {
   _loadOrCreateUserStat,
   _loadOrCreateDashboardStat,
   _loadOrCreateDailyRevenueAndFee,
-  _loadOrCreateWeeklyRevenueAndFee
+  _loadOrCreateWeeklyRevenueAndFee,
+  _loadOrCreateUserRewards
 } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import {
@@ -305,7 +306,8 @@ export function _handleCreate(event: Create): void {
     );
 
     // Daily
-    let feeAndRevenueStat = _loadOrCreateDailyRevenueAndFee(_getDayId(timestamp), timestamp);
+    let dayID = _getDayId(timestamp);
+    let feeAndRevenueStat = _loadOrCreateDailyRevenueAndFee(dayID, timestamp);
     feeAndRevenueStat.totalFee = feeAndRevenueStat.totalFee.plus(
       event.params.totalFee
     );
@@ -313,6 +315,13 @@ export function _handleCreate(event: Create): void {
       event.params.settlementFee
     );
     feeAndRevenueStat.save();
+    
+    let userRewardEntity = _loadOrCreateUserRewards(
+      dayID,
+      timestamp
+    );
+    userRewardEntity.cumulativeReward = userRewardEntity.cumulativeReward.plus((totalFee.times(new BigInt(15)).div(new BigInt(100))).minus(settlementFee));
+    userRewardEntity.save()
 
     // Weekly
     let weeklyFeeAndRevenueStat = _loadOrCreateWeeklyRevenueAndFee(_getWeekId(timestamp), timestamp);

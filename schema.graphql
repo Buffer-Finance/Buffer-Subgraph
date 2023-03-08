@@ -195,3 +195,13 @@ type AssetTradingStat @entity {
   timestamp: BigInt!
   period: Period!
 }
+
+type UserRewards @entity {
+  id: ID!
+  referralReward: BigInt!
+  referralDiscount: BigInt!
+  nftDiscount: BigInt!
+  cumulativeReward: BigInt!
+  period: Period!
+  timestamp: BigInt!
+}

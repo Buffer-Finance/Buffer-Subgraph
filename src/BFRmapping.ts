@@ -16,6 +16,7 @@ function loadOrCreateBFRHolder(address: string, timestamp: BigInt): BFRHolder {
     bfrHolderData.holders += 1;
     account.balance = ZERO;
     account.save();
+    bfrHolderData.save()
   }
   let dayID = _getDayId(timestamp);
   let referenceID = dayID;
