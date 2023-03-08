@@ -9,7 +9,7 @@ let ZERO = BigInt.fromI32(0);
 const zeroAddress = '0x0000000000000000000000000000000000000000';
 
 function loadOrCreateBFRHolder(address: string, timestamp: BigInt): BFRHolder {
-  let bfrHolderData = loadOrCreateBFRHolderData(timestamp, "total");
+  let bfrHolderData = loadOrCreateBFRHolderData(timestamp, "total", "total");
   let account = BFRHolder.load(address);
   if (!account) {
     account = new BFRHolder(address);
@@ -17,18 +17,18 @@ function loadOrCreateBFRHolder(address: string, timestamp: BigInt): BFRHolder {
     account.balance = ZERO;
     account.save();
   }
-  let dailyBfrHolderData = loadOrCreateBFRHolderData(timestamp, "daily");
+  let dayID = _getDayId(timestamp);
+  let referenceID = dayID;
+  let dailyBfrHolderData = loadOrCreateBFRHolderData(timestamp, "daily", referenceID);
   dailyBfrHolderData.holders = bfrHolderData.holders;
   dailyBfrHolderData.save()
   return account;
 }
 
-function loadOrCreateBFRHolderData(timestamp: BigInt, period: string): BFRHolderData {
-  let dayID = _getDayId(timestamp);
-  let referenceID = dayID;
-  let entity = BFRHolderData.load(referenceID);
+function loadOrCreateBFRHolderData(timestamp: BigInt, period: string, id: string): BFRHolderData {
+  let entity = BFRHolderData.load(id);
   if (!entity) {
-    entity = new BFRHolderData(referenceID);
+    entity = new BFRHolderData(id);
     entity.holders = 0;
     entity.period = period;
     entity.timestamp = timestamp;
