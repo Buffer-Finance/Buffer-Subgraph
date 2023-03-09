@@ -320,7 +320,7 @@ export function _handleCreate(event: Create): void {
       dayID,
       timestamp
     );
-    userRewardEntity.cumulativeReward = userRewardEntity.cumulativeReward.plus((totalFee.times(new BigInt(15000000)).div(new BigInt(100000000))).minus(settlementFee));
+    // userRewardEntity.cumulativeReward = userRewardEntity.cumulativeReward.plus((totalFee.times(new BigInt(15000000)).div(new BigInt(100000000))).minus(settlementFee));
     userRewardEntity.save()
 
     // Weekly
