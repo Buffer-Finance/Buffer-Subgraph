@@ -107,24 +107,24 @@ dataSources:
               - event: Unpaused(address)
                 handler: handleProvide
           file: ./src/mapping.ts
-    - kind: ethereum/contract
-      name: ERC20
-      network: arbitrum-one
-      source:
-        address: "0x1A5B0aaF478bf1FDA7b934c76E7692D722982a6D"
-        abi: ERC20
-        startBlock: 25921235
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.6
-        language: wasm/assemblyscript
-        entities:
-          - BFRHolder
-          - BFRHolderBalance
-        abis:
-          - name: ERC20
-            file: ./abis/ERC20.json
-        eventHandlers:
-          - event: Transfer(indexed address,indexed address,uint256)
-            handler: handleTransfer
-        file: ./src/BFRmapping.ts
+    # - kind: ethereum/contract
+    #   name: ERC20
+    #   network: arbitrum-one
+    #   source:
+    #     address: "0x1A5B0aaF478bf1FDA7b934c76E7692D722982a6D"
+    #     abi: ERC20
+    #     startBlock: 25921235
+    #   mapping:
+    #     kind: ethereum/events
+    #     apiVersion: 0.0.6
+    #     language: wasm/assemblyscript
+    #     entities:
+    #       - BFRHolder
+    #       - BFRHolderBalance
+    #     abis:
+    #       - name: ERC20
+    #         file: ./abis/ERC20.json
+    #     eventHandlers:
+    #       - event: Transfer(indexed address,indexed address,uint256)
+    #         handler: handleTransfer
+    #     file: ./src/BFRmapping.ts

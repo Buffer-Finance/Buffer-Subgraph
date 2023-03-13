@@ -256,6 +256,7 @@ export function _handleCreate(event: Create): void {
     // }
     optionContractData.token = tokenReferrenceID;
     optionContractData.save();
+    let settlementFee = event.params.settlementFee.times(new BigInt(1000000)).div(new BigInt(2000000));
     let userOptionData = _loadOrCreateOptionDataEntity(
       optionID,
       contractAddress
@@ -268,7 +269,7 @@ export function _handleCreate(event: Create): void {
     userOptionData.expirationTime = optionData.value5;
     userOptionData.isAbove = optionData.value6 ? true : false;
     userOptionData.creationTime = optionData.value8;
-    userOptionData.settlementFee = event.params.settlementFee;
+    userOptionData.settlementFee = settlementFee;
     userOptionData.depositToken = tokenReferrenceID;
     userOptionData.save();
 
@@ -281,7 +282,6 @@ export function _handleCreate(event: Create): void {
       userOptionData.totalFee,
       contractAddress
     );
-    let settlementFee = event.params.settlementFee;
     _storeFees(timestamp, settlementFee);
     _logVolume(timestamp, totalFee);
     let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
@@ -289,7 +289,7 @@ export function _handleCreate(event: Create): void {
       event.params.totalFee
     );
     dashboardStat.totalSettlementFees = dashboardStat.totalSettlementFees.plus(
-      event.params.settlementFee
+      settlementFee
     );
     dashboardStat.totalTrades += 1;
     dashboardStat.save();
@@ -302,7 +302,7 @@ export function _handleCreate(event: Create): void {
       contractAddress,
       tokenReferrenceID,
       event.params.totalFee,
-      event.params.settlementFee
+      settlementFee
     );
 
     // Daily
@@ -312,7 +312,7 @@ export function _handleCreate(event: Create): void {
       event.params.totalFee
     );
     feeAndRevenueStat.settlementFee = feeAndRevenueStat.settlementFee.plus(
-      event.params.settlementFee
+      settlementFee
     );
     feeAndRevenueStat.save();
     
@@ -329,7 +329,7 @@ export function _handleCreate(event: Create): void {
       event.params.totalFee
     );
     weeklyFeeAndRevenueStat.settlementFee = weeklyFeeAndRevenueStat.settlementFee.plus(
-      event.params.settlementFee
+      settlementFee
     );
     weeklyFeeAndRevenueStat.save();
   }
