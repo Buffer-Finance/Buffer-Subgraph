@@ -256,7 +256,7 @@ export function _handleCreate(event: Create): void {
     // }
     optionContractData.token = tokenReferrenceID;
     optionContractData.save();
-    let settlementFee = event.params.settlementFee.times(new BigInt(1000000)).div(new BigInt(2000000));
+    let settlementFee = (event.params.settlementFee.times(BigInt.fromI32(100000000))).div(BigInt.fromI32(200000000));
     let userOptionData = _loadOrCreateOptionDataEntity(
       optionID,
       contractAddress
