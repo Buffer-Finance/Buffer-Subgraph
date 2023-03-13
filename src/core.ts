@@ -12,11 +12,13 @@ import {
   _loadOrCreateQueuedOptionEntity,
   _loadOrCreateVolumeStat,
   _loadOrCreateTradingStatEntity,
+  _loadOrCreateAssetTradingStatEntity,
   _loadOrCreateFeeStat,
   _loadOrCreateUserStat,
   _loadOrCreateDashboardStat,
   _loadOrCreateDailyRevenueAndFee,
-  _loadOrCreateWeeklyRevenueAndFee
+  _loadOrCreateWeeklyRevenueAndFee,
+  _loadOrCreateUserRewards
 } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import {
@@ -134,6 +136,32 @@ export function storePnl(
   dailyEntity.save();
 }
 
+export function storePnlPerContract(
+  timestamp: BigInt,
+  pnl: BigInt,
+  isProfit: boolean,
+  contractAddress: Bytes
+): void {
+  let totalID = `total-${contractAddress}`;
+  let totalEntity = _loadOrCreateAssetTradingStatEntity(totalID, "total", timestamp, contractAddress, "total");
+  let dayID = _getDayId(timestamp);
+  let id = `${dayID}-${contractAddress}`;
+  let dailyEntity = _loadOrCreateAssetTradingStatEntity(id, "daily", timestamp, contractAddress, dayID);
+
+  if (isProfit) {
+    totalEntity.profitCumulative = totalEntity.profitCumulative.plus(pnl);
+    dailyEntity.profit = dailyEntity.profit.plus(pnl);
+  } else {
+    totalEntity.lossCumulative = totalEntity.lossCumulative.plus(pnl);
+    dailyEntity.loss = dailyEntity.loss.plus(pnl);
+  }
+  totalEntity.save();
+  let totalEntityV2 = _loadOrCreateAssetTradingStatEntity(totalID, "total", timestamp, contractAddress, "total");
+  dailyEntity.profitCumulative = totalEntityV2.profitCumulative;
+  dailyEntity.lossCumulative = totalEntityV2.lossCumulative;
+  dailyEntity.save();
+}
+
 export function updateOpenInterest(
   timestamp: BigInt,
   increaseInOpenInterest: boolean,
@@ -150,15 +178,15 @@ export function updateOpenInterest(
       ? totalEntity.longOpenInterest.plus(amount)
       : totalEntity.longOpenInterest.minus(amount);
     optionContractData.openUp = increaseInOpenInterest
-      ? (optionContractData.openUp += 1)
-      : (optionContractData.openUp -= 1);
+      ? (optionContractData.openUp.plus(amount))
+      : (optionContractData.openUp.minus(amount));
   } else {
     totalEntity.shortOpenInterest = increaseInOpenInterest
       ? totalEntity.shortOpenInterest.plus(amount)
       : totalEntity.shortOpenInterest.minus(amount);
     optionContractData.openDown = increaseInOpenInterest
-      ? (optionContractData.openDown += 1)
-      : (optionContractData.openDown -= 1);
+      ? (optionContractData.openDown.plus(amount))
+      : (optionContractData.openDown.minus(amount));
   }
   optionContractData.openInterest = increaseInOpenInterest
     ? optionContractData.openInterest.plus(amount)
@@ -278,7 +306,8 @@ export function _handleCreate(event: Create): void {
     );
 
     // Daily
-    let feeAndRevenueStat = _loadOrCreateDailyRevenueAndFee(_getDayId(timestamp), timestamp);
+    let dayID = _getDayId(timestamp);
+    let feeAndRevenueStat = _loadOrCreateDailyRevenueAndFee(dayID, timestamp);
     feeAndRevenueStat.totalFee = feeAndRevenueStat.totalFee.plus(
       event.params.totalFee
     );
@@ -286,6 +315,13 @@ export function _handleCreate(event: Create): void {
       event.params.settlementFee
     );
     feeAndRevenueStat.save();
+    
+    let userRewardEntity = _loadOrCreateUserRewards(
+      dayID,
+      timestamp
+    );
+    // userRewardEntity.cumulativeReward = userRewardEntity.cumulativeReward.plus((totalFee.times(new BigInt(15000000)).div(new BigInt(100000000))).minus(settlementFee));
+    userRewardEntity.save()
 
     // Weekly
     let weeklyFeeAndRevenueStat = _loadOrCreateWeeklyRevenueAndFee(_getWeekId(timestamp), timestamp);

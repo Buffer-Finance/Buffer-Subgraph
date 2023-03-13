@@ -9,8 +9,8 @@ type OptionContract @entity {
   id: Bytes!
   address: Bytes
   isPaused: Boolean!
-  openUp: Int
-  openDown: Int
+  openUp: BigInt!
+  openDown: BigInt!
   openInterest: BigInt!
   tradeCount: Int!
   volume: BigInt!
@@ -170,5 +170,39 @@ type WeeklyRevenueAndFee @entity {
   id: String!
   totalFee: BigInt!
   settlementFee: BigInt!
+  timestamp: BigInt!
+}
+
+type BFRHolderData @entity {
+  id: String!
+  holders: Int!
+  period: Period!
+  timestamp: BigInt!
+}
+
+type BFRHolder @entity {
+  id: String!
+  balance: BigInt!
+}
+
+type AssetTradingStat @entity {
+  id: ID!
+  contractAddress: Bytes!
+  profit: BigInt!
+  periodID: String!
+  loss: BigInt!
+  profitCumulative: BigInt!
+  lossCumulative: BigInt!
+  timestamp: BigInt!
+  period: Period!
+}
+
+type UserRewards @entity {
+  id: ID!
+  referralReward: BigInt!
+  referralDiscount: BigInt!
+  nftDiscount: BigInt!
+  cumulativeReward: BigInt!
+  period: Period!
   timestamp: BigInt!
 }

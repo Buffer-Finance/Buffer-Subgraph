@@ -6,6 +6,7 @@ import {
   ReferralData,
   DashboardStat,
   TradingStat,
+  AssetTradingStat,
   UserStat,
   FeeStat,
   VolumeStat,
@@ -15,6 +16,7 @@ import {
   DailyRevenueAndFee,
   WeeklyRevenueAndFee,
   PoolStat,
+  UserRewards
 } from "../generated/schema";
 import { _getDayId } from "./helpers";
 import {
@@ -40,6 +42,28 @@ export function _loadOrCreateTradingStatEntity(
   }
   entity.timestamp = timestamp;
   return entity as TradingStat;
+}
+
+export function _loadOrCreateAssetTradingStatEntity(
+  id: string,
+  period: string,
+  timestamp: BigInt,
+  contractAddress: Bytes,
+  periodID: string
+): AssetTradingStat {
+  let entity = AssetTradingStat.load(id);
+  if (entity == null) {
+    entity = new AssetTradingStat(id);
+    entity.period = period;
+    entity.profit = ZERO;
+    entity.loss = ZERO;
+    entity.contractAddress = contractAddress;
+    entity.profitCumulative = ZERO;
+    entity.lossCumulative = ZERO;
+    entity.periodID = periodID;
+  }
+  entity.timestamp = timestamp;
+  return entity as AssetTradingStat;
 }
 
 export function _loadOrCreateQueuedOptionEntity(
@@ -161,8 +185,8 @@ export function _loadOrCreateOptionContractEntity(
     optionContract.isPaused = optionContractInstance.isPaused();
     optionContract.volume = ZERO;
     optionContract.tradeCount = 0;
-    optionContract.openDown = 0;
-    optionContract.openUp = 0;
+    optionContract.openDown = ZERO;
+    optionContract.openUp = ZERO;
     optionContract.openInterest = ZERO;
     optionContract.currentUtilization = ZERO;
     optionContract.payoutForDown = ZERO;
@@ -254,4 +278,22 @@ export function _loadOrCreateWeeklyRevenueAndFee(
     entity.save();
   }
   return entity as WeeklyRevenueAndFee;
+}
+
+export function _loadOrCreateUserRewards(
+  id: string,
+  timestamp: BigInt
+): UserRewards {
+  let entity = UserRewards.load(id);
+  if (entity === null) {
+    entity = new UserRewards(id);
+    entity.cumulativeReward = ZERO;
+    entity.referralReward = ZERO;
+    entity.nftDiscount = ZERO;
+    entity.referralDiscount = ZERO;
+    entity.period = "daily";
+    entity.timestamp = timestamp;
+    entity.save();
+  }
+  return entity as UserRewards;
 }
