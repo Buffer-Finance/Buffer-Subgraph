@@ -27,6 +27,7 @@ import { Address, BigInt, log } from "@graphprotocol/graph-ts";
 import {
     _handleCreate,
     storePnl,
+    storePnlPerContract,
     updateOpenInterest,
     logUser,
     calculateCurrentUtilization
@@ -38,7 +39,8 @@ import {
     _loadOrCreateOptionDataEntity,
     _loadOrCreateQueuedOptionEntity,
     _loadOrCreateReferralData,
-    _loadOrCreatePoolStat
+    _loadOrCreatePoolStat,
+    _loadOrCreateUserRewards
 } from "./initialize";
 import { _getDayId, _getWeekId } from "./helpers";
 import { UserOptionData } from "../generated/schema";
@@ -137,6 +139,7 @@ export function handleExercise(event: Exercise): void {
             );
             let profit = userOptionData.totalFee.minus(userOptionData.settlementFee);
             storePnl(timestamp, profit, true);
+            storePnlPerContract(timestamp, profit, true, event.address);
 
             // Leaderboard
             let leaderboardEntity = _loadOrCreateLeaderboardEntity(
@@ -204,6 +207,12 @@ export function handleExpire(event: Expire): void {
                     userOptionData.totalFee.minus(userOptionData.settlementFee),
                     false
                 );
+                storePnlPerContract(
+                    timestamp,
+                    userOptionData.totalFee.minus(userOptionData.settlementFee),
+                    false,
+                    event.address
+                );
 
                 // Leaderboard
                 let leaderboardEntity = _loadOrCreateLeaderboardEntity(
@@ -246,31 +255,38 @@ export function handleExpire(event: Expire): void {
 
 export function handleUpdateReferral(event: UpdateReferral): void {
     let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
-    let optionContractInstance = BufferBinaryOptions.bind(event.address);
     if (routerContract.contractRegistry(event.address) == true) {
-        if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
-            let user = event.params.user;
-            let referrer = event.params.referrer;
+        let user = event.params.user;
+        let referrer = event.params.referrer;
 
-            let userReferralData = _loadOrCreateReferralData(user);
-            userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
-                event.params.rebate
-            );
-            userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
-                event.params.totalFee
-            );
-            userReferralData.save();
+        let userReferralData = _loadOrCreateReferralData(user);
+        userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
+            event.params.rebate
+        );
+        userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
+            event.params.totalFee
+        );
+        userReferralData.save();
 
-            let referrerReferralData = _loadOrCreateReferralData(referrer);
-            referrerReferralData.totalTradesReferred += 1;
-            referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
-                event.params.totalFee
-            );
-            referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
-                event.params.referrerFee
-            );
-            referrerReferralData.save();
-        }
+        let referrerReferralData = _loadOrCreateReferralData(referrer);
+        referrerReferralData.totalTradesReferred += 1;
+        referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
+            event.params.totalFee
+        );
+        referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
+            event.params.referrerFee
+        );
+        referrerReferralData.save();
+
+        let dayID = _getDayId(event.block.timestamp);
+        let userRewardEntity = _loadOrCreateUserRewards(
+            dayID,
+            event.block.timestamp
+          );
+        userRewardEntity.referralDiscount = userRewardEntity.referralDiscount.plus(event.params.rebate);
+        userRewardEntity.referralReward = userRewardEntity.referralReward.plus(event.params.referrerFee);
+        userRewardEntity.nftDiscount = userRewardEntity.cumulativeReward.minus(event.params.rebate);
+        userRewardEntity.save()
     }
 }
 
