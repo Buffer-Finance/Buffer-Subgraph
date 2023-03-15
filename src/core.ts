@@ -18,7 +18,7 @@ import {
   _loadOrCreateDashboardStat,
   _loadOrCreateDailyRevenueAndFee,
   _loadOrCreateWeeklyRevenueAndFee,
-  _loadOrCreateUserRewards
+  _loadOrCreateUserReward
 } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import {
@@ -316,7 +316,7 @@ export function _handleCreate(event: Create): void {
     );
     feeAndRevenueStat.save();
     
-    let userRewardEntity = _loadOrCreateUserRewards(
+    let userRewardEntity = _loadOrCreateUserReward(
       dayID,
       timestamp
     );

@@ -16,7 +16,7 @@ import {
   DailyRevenueAndFee,
   WeeklyRevenueAndFee,
   PoolStat,
-  UserRewards
+  UserReward
 } from "../generated/schema";
 import { _getDayId } from "./helpers";
 import {
@@ -280,13 +280,13 @@ export function _loadOrCreateWeeklyRevenueAndFee(
   return entity as WeeklyRevenueAndFee;
 }
 
-export function _loadOrCreateUserRewards(
+export function _loadOrCreateUserReward(
   id: string,
   timestamp: BigInt
-): UserRewards {
-  let entity = UserRewards.load(id);
+): UserReward {
+  let entity = UserReward.load(id);
   if (entity === null) {
-    entity = new UserRewards(id);
+    entity = new UserReward(id);
     entity.cumulativeReward = ZERO;
     entity.referralReward = ZERO;
     entity.nftDiscount = ZERO;
@@ -295,5 +295,5 @@ export function _loadOrCreateUserRewards(
     entity.timestamp = timestamp;
     entity.save();
   }
-  return entity as UserRewards;
+  return entity as UserReward;
 }

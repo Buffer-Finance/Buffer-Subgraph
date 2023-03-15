@@ -196,7 +196,7 @@ type AssetTradingStat @entity {
   period: Period!
 }
 
-type UserRewards @entity {
+type UserReward @entity {
   id: ID!
   referralReward: BigInt!
   referralDiscount: BigInt!

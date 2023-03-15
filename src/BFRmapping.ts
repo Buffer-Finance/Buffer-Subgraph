@@ -45,10 +45,33 @@ export function handleTransfer(event: Transfer): void {
   let timestamp = event.block.timestamp;
   let fromAccount = loadOrCreateBFRHolder(from, timestamp);
   let toAccount = loadOrCreateBFRHolder(to, timestamp);
+  if (toAccount.id != zeroAddress) {
+    if (toAccount.balance == ZERO){
+      let bfrHolderData = loadOrCreateBFRHolderData(timestamp, "total", "total");
+      bfrHolderData.holders = bfrHolderData.holders + 1;
+      bfrHolderData.save()
+      let dayID = _getDayId(timestamp);
+      let referenceID = dayID;
+      let dailyBfrHolderData = loadOrCreateBFRHolderData(timestamp, "daily", referenceID);
+      bfrHolderData = loadOrCreateBFRHolderData(timestamp, "total", "total")
+      dailyBfrHolderData.holders = bfrHolderData.holders;
+      dailyBfrHolderData.save()
+    }
+  }
   if (fromAccount.id != zeroAddress) {
     fromAccount.balance = fromAccount.balance.minus(value);
     fromAccount.save();
-    fromAccount = loadOrCreateBFRHolder(from, timestamp);
+    if (fromAccount.balance == ZERO){
+      let bfrHolderData = loadOrCreateBFRHolderData(timestamp, "total", "total");
+      bfrHolderData.holders = bfrHolderData.holders - 1;
+      bfrHolderData.save()
+      let dayID = _getDayId(timestamp);
+      let referenceID = dayID;
+      let dailyBfrHolderData = loadOrCreateBFRHolderData(timestamp, "daily", referenceID);
+      bfrHolderData = loadOrCreateBFRHolderData(timestamp, "total", "total")
+      dailyBfrHolderData.holders = bfrHolderData.holders;
+      dailyBfrHolderData.save()
+    }
   }
   toAccount.balance = toAccount.balance.plus(value);
   toAccount.save();

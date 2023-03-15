@@ -40,7 +40,7 @@ import {
     _loadOrCreateQueuedOptionEntity,
     _loadOrCreateReferralData,
     _loadOrCreatePoolStat,
-    _loadOrCreateUserRewards
+    _loadOrCreateUserReward
 } from "./initialize";
 import { _getDayId, _getWeekId } from "./helpers";
 import { UserOptionData } from "../generated/schema";
@@ -279,7 +279,7 @@ export function handleUpdateReferral(event: UpdateReferral): void {
         referrerReferralData.save();
 
         let dayID = _getDayId(event.block.timestamp);
-        let userRewardEntity = _loadOrCreateUserRewards(
+        let userRewardEntity = _loadOrCreateUserReward(
             dayID,
             event.block.timestamp
           );
