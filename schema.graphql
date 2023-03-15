@@ -9,8 +9,8 @@ type OptionContract @entity {
   id: Bytes!
   address: Bytes
   isPaused: Boolean!
-  openUp: Int
-  openDown: Int
+  openUp: BigInt!
+  openDown: BigInt!
   openInterest: BigInt!
   tradeCount: Int!
   volume: BigInt!
