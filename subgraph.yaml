@@ -30,8 +30,8 @@ dataSources:
                 handler: handleExercise
               - event: UpdateReferral(address,address,bool,uint256,uint256,uint256,string)
                 handler: handleUpdateReferral
-              - event: Pause(bool)
-                handler: handlePause
+              # - event: Pause(bool)
+              #   handler: handlePause
           file: ./src/mapping.ts
     - kind: ethereum/contract
       name: BufferRouter
