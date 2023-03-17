@@ -4,10 +4,10 @@ schema:
 dataSources:
     - kind: ethereum/contract
       name: BufferBinaryOptions
-      network: mumbai
+      network: chapel
       source:
           abi: BufferBinaryOptions
-          startBlock: 31816581
+          startBlock: 28121073
       mapping:
           kind: ethereum/events
           apiVersion: 0.0.6
@@ -35,11 +35,11 @@ dataSources:
           file: ./src/mapping.ts
     - kind: ethereum/contract
       name: BufferRouter
-      network: mumbai
+      network: chapel
       source:
-          address: "0x3E8d70286567bf962261a81Da5DBDe6cBbc444C4"
+          address: "0x0452fb3d229132f7B8b9D815D993B227304c053e"
           abi: BufferRouter
-          startBlock: 31816581
+          startBlock: 28121073
       mapping:
           kind: ethereum/events
           apiVersion: 0.0.6
@@ -61,11 +61,11 @@ dataSources:
           file: ./src/mapping.ts
     - kind: ethereum/contract
       name: BinaryPool
-      network: mumbai
+      network: chapel
       source:
-          address: "0xcE5467a403eb433391F72007E151DBb8119728E0"
+          address: "0x2Cb75c66927B3C1C81004e12B4473FA84a77dFd9"
           abi: BinaryPool
-          startBlock: 31816581
+          startBlock: 28121073
       mapping:
           kind: ethereum/events
           apiVersion: 0.0.6
@@ -89,11 +89,11 @@ dataSources:
           file: ./src/mapping.ts
     - kind: ethereum/contract
       name: USDC
-      network: mumbai
+      network: chapel
       source:
-          address: "0x658e6B62e7ab1d2B29a08F85f8442edEed562b48"
+          address: "0xE6E70757d8AA5A9Ef07673fF3e53EfdD56B8ac30"
           abi: USDC
-          startBlock: 5769624
+          startBlock: 28121073
       mapping:
           kind: ethereum/events
           apiVersion: 0.0.6
