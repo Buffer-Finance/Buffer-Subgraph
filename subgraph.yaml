@@ -39,7 +39,7 @@ dataSources:
       name: BufferRouter
       network: chapel
       source:
-          address: "0x0452fb3d229132f7B8b9D815D993B227304c053e"
+          address: "0x3d095282D1974a35e672e97B2E8ee6cFE3F65426"
           abi: BufferRouter
           startBlock: 28121073
       mapping:
