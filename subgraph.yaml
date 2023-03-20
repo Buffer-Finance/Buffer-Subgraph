@@ -104,6 +104,6 @@ dataSources:
           entities:
               - UserOptionData
           eventHandlers:
-              - event: Unpaused(address)
+              - event: Unpause()
                 handler: handleProvide
           file: ./src/mapping.ts
