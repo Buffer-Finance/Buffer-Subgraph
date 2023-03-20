@@ -191,6 +191,7 @@ export function _loadOrCreateOptionContractEntity(
     optionContract.currentUtilization = ZERO;
     optionContract.payoutForDown = ZERO;
     optionContract.payoutForUp = ZERO;
+    optionContract.token = "USDC"
     optionContract.save();
   }
   return optionContract as OptionContract;

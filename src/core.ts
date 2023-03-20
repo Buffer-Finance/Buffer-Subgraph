@@ -24,7 +24,7 @@ import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import {
   DailyUserStat
 } from "../generated/schema";
-import { State, RouterAddress, BFR, USDC_ADDRESS } from "./config";
+import { State, RouterAddress, USDC_ADDRESS, ARB_TOKEN_ADDRESS } from "./config";
 
 function _logVolumeAndSettlementFeePerContract(
   id: string,
@@ -249,11 +249,11 @@ export function _handleCreate(event: Create): void {
       )
     );
     let tokenReferrenceID = "USDC";
-    // if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
-    //   tokenReferrenceID = "USDC";
-    // } else if (optionContractInstance.tokenX() == Address.fromString(BFR)) {
-    //   tokenReferrenceID = "BFR";
-    // }
+    if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
+      tokenReferrenceID = "USDC";
+    } else if (optionContractInstance.tokenX() == Address.fromString(ARB_TOKEN_ADDRESS)) {
+      tokenReferrenceID = "ARB";
+    }
     optionContractData.token = tokenReferrenceID;
     optionContractData.save();
     let userOptionData = _loadOrCreateOptionDataEntity(
@@ -272,67 +272,67 @@ export function _handleCreate(event: Create): void {
     userOptionData.depositToken = tokenReferrenceID;
     userOptionData.save();
 
-    // Stats
-    let totalFee = event.params.totalFee;
-    updateOpenInterest(
-      timestamp,
-      true,
-      userOptionData.isAbove,
-      userOptionData.totalFee,
-      contractAddress
-    );
-    let settlementFee = event.params.settlementFee;
-    _storeFees(timestamp, settlementFee);
-    _logVolume(timestamp, totalFee);
-    let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
-    dashboardStat.totalVolume = dashboardStat.totalVolume.plus(
-      event.params.totalFee
-    );
-    dashboardStat.totalSettlementFees = dashboardStat.totalSettlementFees.plus(
-      event.params.settlementFee
-    );
-    dashboardStat.totalTrades += 1;
-    dashboardStat.save();
+    if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
+      // Stats
+      let totalFee = event.params.totalFee;
+      updateOpenInterest(
+        timestamp,
+        true,
+        userOptionData.isAbove,
+        userOptionData.totalFee,
+        contractAddress
+      );
+      let settlementFee = event.params.settlementFee;
+      _storeFees(timestamp, settlementFee);
+      _logVolume(timestamp, totalFee);
+      let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
+      dashboardStat.totalVolume = dashboardStat.totalVolume.plus(
+        event.params.totalFee
+      );
+      dashboardStat.totalSettlementFees = dashboardStat.totalSettlementFees.plus(
+        event.params.settlementFee
+      );
+      dashboardStat.totalTrades += 1;
+      dashboardStat.save();
 
-    // Dashboard
-    _logVolumeAndSettlementFeePerContract(
-      _getHourId(timestamp),
-      "hourly",
-      timestamp,
-      contractAddress,
-      tokenReferrenceID,
-      event.params.totalFee,
-      event.params.settlementFee
-    );
+      // Dashboard
+      _logVolumeAndSettlementFeePerContract(
+        _getHourId(timestamp),
+        "hourly",
+        timestamp,
+        contractAddress,
+        tokenReferrenceID,
+        event.params.totalFee,
+        event.params.settlementFee
+      );
 
-    // Daily
-    let dayID = _getDayId(timestamp);
-    let feeAndRevenueStat = _loadOrCreateDailyRevenueAndFee(dayID, timestamp);
-    feeAndRevenueStat.totalFee = feeAndRevenueStat.totalFee.plus(
-      event.params.totalFee
-    );
-    feeAndRevenueStat.settlementFee = feeAndRevenueStat.settlementFee.plus(
-      event.params.settlementFee
-    );
-    feeAndRevenueStat.save();
-    
-    let userRewardEntity = _loadOrCreateUserRewards(
-      dayID,
-      timestamp
-    );
-    // userRewardEntity.cumulativeReward = userRewardEntity.cumulativeReward.plus((totalFee.times(new BigInt(15000000)).div(new BigInt(100000000))).minus(settlementFee));
-    userRewardEntity.save()
+      // Daily
+      let dayID = _getDayId(timestamp);
+      let feeAndRevenueStat = _loadOrCreateDailyRevenueAndFee(dayID, timestamp);
+      feeAndRevenueStat.totalFee = feeAndRevenueStat.totalFee.plus(
+        event.params.totalFee
+      );
+      feeAndRevenueStat.settlementFee = feeAndRevenueStat.settlementFee.plus(
+        event.params.settlementFee
+      );
+      feeAndRevenueStat.save();
+      
+      let userRewardEntity = _loadOrCreateUserRewards(
+        dayID,
+        timestamp
+      );
+      // userRewardEntity.cumulativeReward = userRewardEntity.cumulativeReward.plus((totalFee.times(new BigInt(15000000)).div(new BigInt(100000000))).minus(settlementFee));
+      userRewardEntity.save()
 
-    // Weekly
-    let weeklyFeeAndRevenueStat = _loadOrCreateWeeklyRevenueAndFee(_getWeekId(timestamp), timestamp);
-    weeklyFeeAndRevenueStat.totalFee = weeklyFeeAndRevenueStat.totalFee.plus(
-      event.params.totalFee
-    );
-    weeklyFeeAndRevenueStat.settlementFee = weeklyFeeAndRevenueStat.settlementFee.plus(
-      event.params.settlementFee
-    );
-    weeklyFeeAndRevenueStat.save();
+      // Weekly
+      let weeklyFeeAndRevenueStat = _loadOrCreateWeeklyRevenueAndFee(_getWeekId(timestamp), timestamp);
+      weeklyFeeAndRevenueStat.totalFee = weeklyFeeAndRevenueStat.totalFee.plus(
+        event.params.totalFee
+      );
+      weeklyFeeAndRevenueStat.settlementFee = weeklyFeeAndRevenueStat.settlementFee.plus(
+        event.params.settlementFee
+      );
+      weeklyFeeAndRevenueStat.save();
+    }
   }
-
-
 }

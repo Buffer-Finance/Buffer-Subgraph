@@ -15,7 +15,7 @@ type OptionContract @entity {
   tradeCount: Int!
   volume: BigInt!
   currentUtilization: BigInt
-  token: String
+  token: String!
   payoutForUp: BigInt
   payoutForDown: BigInt
   asset: String

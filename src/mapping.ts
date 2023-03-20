@@ -255,38 +255,43 @@ export function handleExpire(event: Expire): void {
 
 export function handleUpdateReferral(event: UpdateReferral): void {
     let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
+    let optionContractData = _loadOrCreateOptionContractEntity(
+        event.address
+    );
     if (routerContract.contractRegistry(event.address) == true) {
-        let user = event.params.user;
-        let referrer = event.params.referrer;
+        if (optionContractData.token == "USDC") {
+            let user = event.params.user;
+            let referrer = event.params.referrer;
 
-        let userReferralData = _loadOrCreateReferralData(user);
-        userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
-            event.params.rebate
-        );
-        userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
-            event.params.totalFee
-        );
-        userReferralData.save();
+            let userReferralData = _loadOrCreateReferralData(user);
+            userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
+                event.params.rebate
+            );
+            userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
+                event.params.totalFee
+            );
+            userReferralData.save();
 
-        let referrerReferralData = _loadOrCreateReferralData(referrer);
-        referrerReferralData.totalTradesReferred += 1;
-        referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
-            event.params.totalFee
-        );
-        referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
-            event.params.referrerFee
-        );
-        referrerReferralData.save();
+            let referrerReferralData = _loadOrCreateReferralData(referrer);
+            referrerReferralData.totalTradesReferred += 1;
+            referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
+                event.params.totalFee
+            );
+            referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
+                event.params.referrerFee
+            );
+            referrerReferralData.save();
 
-        let dayID = _getDayId(event.block.timestamp);
-        let userRewardEntity = _loadOrCreateUserRewards(
-            dayID,
-            event.block.timestamp
-          );
-        userRewardEntity.referralDiscount = userRewardEntity.referralDiscount.plus(event.params.rebate);
-        userRewardEntity.referralReward = userRewardEntity.referralReward.plus(event.params.referrerFee);
-        userRewardEntity.nftDiscount = userRewardEntity.cumulativeReward.minus(event.params.rebate);
-        userRewardEntity.save()
+            let dayID = _getDayId(event.block.timestamp);
+            let userRewardEntity = _loadOrCreateUserRewards(
+                dayID,
+                event.block.timestamp
+            );
+            userRewardEntity.referralDiscount = userRewardEntity.referralDiscount.plus(event.params.rebate);
+            userRewardEntity.referralReward = userRewardEntity.referralReward.plus(event.params.referrerFee);
+            userRewardEntity.nftDiscount = userRewardEntity.cumulativeReward.minus(event.params.rebate);
+            userRewardEntity.save()
+        }
     }
 }
 
