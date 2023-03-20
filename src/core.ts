@@ -13,7 +13,7 @@ import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import { log, ipfs, json, JSONValue } from "@graphprotocol/graph-ts";
 import { NFT } from "../generated/schema";
 
-import { RouterAddress, BFR, USDC } from "./config";
+import { RouterAddress, BFR, USDC, ARB_TOKEN_ADDRESS } from "./config";
 
 export function _handleCreate(event: Create): void {
     let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
@@ -25,8 +25,8 @@ export function _handleCreate(event: Create): void {
         let tokenReferrenceID = "";
         if (optionContractInstance.tokenX() == Address.fromString(USDC)) {
             tokenReferrenceID = "USDC";
-        } else if (optionContractInstance.tokenX() == Address.fromString(BFR)) {
-            tokenReferrenceID = "BFR";
+        } else if (optionContractInstance.tokenX() == Address.fromString(ARB_TOKEN_ADDRESS)) {
+            tokenReferrenceID = "ARB";
         }
         let userOptionData = _loadOrCreateOptionDataEntity(
             optionID,
