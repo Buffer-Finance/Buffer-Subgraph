@@ -311,8 +311,7 @@ export function _handleCreate(event: Create): void {
         userOptionData.isAbove,
         userOptionData.totalFee
       );
-      let settlementFee = event.params.settlementFee;
-      _storeFees(timestamp, settlementFee);
+      _storeFees(timestamp, event.params.settlementFee);
       _logVolume(timestamp, totalFee);
       let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
       dashboardStat.totalVolume = dashboardStat.totalVolume.plus(
