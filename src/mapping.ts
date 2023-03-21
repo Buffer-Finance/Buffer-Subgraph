@@ -135,7 +135,7 @@ export function handleExercise(event: Exercise): void {
             userOptionData.isAbove,
             userOptionData.totalFee,
             event.address
-        )
+        );
         if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
             updateOpenInterest(
                 timestamp,
