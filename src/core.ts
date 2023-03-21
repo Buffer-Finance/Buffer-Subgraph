@@ -291,7 +291,7 @@ export function _handleCreate(event: Create): void {
       contractAddress
     );
     userOptionData.user = event.params.account;
-    userOptionData.totalFee = 
+    userOptionData.totalFee = totalFee;
     userOptionData.state = optionData.value0;
     userOptionData.strike = optionData.value1;
     userOptionData.amount = optionData.value2;
