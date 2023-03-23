@@ -266,11 +266,11 @@ export function handleExpire(event: Expire): void {
 
 export function handleUpdateReferral(event: UpdateReferral): void {
     let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
-    let optionContractData = _loadOrCreateOptionContractEntity(
+    let optionContractInstance = BufferBinaryOptions.bind(
         event.address
     );
     if (routerContract.contractRegistry(event.address) == true) {
-        if (optionContractData.token == "USDC") {
+        if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
             let user = event.params.user;
             let referrer = event.params.referrer;
 
