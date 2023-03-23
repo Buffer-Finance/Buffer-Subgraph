@@ -11,6 +11,7 @@ import {
   _loadOrCreateOptionDataEntity,
   _loadOrCreateQueuedOptionEntity,
   _loadOrCreateVolumeStat,
+  _loadOrCreateARBVolumeStat,
   _loadOrCreateTradingStatEntity,
   _loadOrCreateAssetTradingStatEntity,
   _loadOrCreateFeeStat,
@@ -18,7 +19,8 @@ import {
   _loadOrCreateDashboardStat,
   _loadOrCreateDailyRevenueAndFee,
   _loadOrCreateWeeklyRevenueAndFee,
-  _loadOrCreateUserRewards
+  _loadOrCreateUserRewards,
+  _loadOrCreateARBFeeStat
 } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import {
@@ -69,6 +71,23 @@ function _logVolume(timestamp: BigInt, amount: BigInt): void {
   hourlyEntity.save();
 }
 
+function _logARBVolume(timestamp: BigInt, amount: BigInt): void {
+  let totalEntity = _loadOrCreateARBVolumeStat("total", "total", timestamp);
+  totalEntity.amount = totalEntity.amount.plus(amount);
+  totalEntity.save();
+
+  let id = _getDayId(timestamp);
+  let dailyEntity = _loadOrCreateARBVolumeStat(id, "daily", timestamp);
+  dailyEntity.amount = dailyEntity.amount.plus(amount);
+  dailyEntity.save();
+
+  let hourID = _getHourId(timestamp);
+  let hourlyEntity = _loadOrCreateARBVolumeStat(hourID, "hourly", timestamp);
+  hourlyEntity.amount = hourlyEntity.amount.plus(amount);
+  hourlyEntity.save();
+}
+
+
 function _storeFees(timestamp: BigInt, fees: BigInt): void {
   let id = _getDayId(timestamp);
   let entity = _loadOrCreateFeeStat(id, "daily", timestamp);
@@ -76,6 +95,17 @@ function _storeFees(timestamp: BigInt, fees: BigInt): void {
   entity.save();
 
   let totalEntity = _loadOrCreateFeeStat("total", "total", timestamp);
+  totalEntity.fee = totalEntity.fee.plus(fees);
+  totalEntity.save();
+}
+
+function _storeARBFees(timestamp: BigInt, fees: BigInt): void {
+  let id = _getDayId(timestamp);
+  let entity = _loadOrCreateARBFeeStat(id, "daily", timestamp);
+  entity.fee = entity.fee.plus(fees);
+  entity.save();
+
+  let totalEntity = _loadOrCreateARBFeeStat("total", "total", timestamp);
   totalEntity.fee = totalEntity.fee.plus(fees);
   totalEntity.save();
 }
@@ -304,7 +334,6 @@ export function _handleCreate(event: Create): void {
 
     if (tokenReferrenceID == "USDC") {
       // Stats
-      let totalFee = event.params.totalFee;
       updateOpenInterest(
         timestamp,
         true,
@@ -361,6 +390,9 @@ export function _handleCreate(event: Create): void {
         event.params.settlementFee
       );
       weeklyFeeAndRevenueStat.save();
+    } else if (tokenReferrenceID == "ARB") {
+      _logARBVolume(timestamp, totalFee);
+      _storeARBFees(timestamp, event.params.settlementFee);
     }
   }
 }

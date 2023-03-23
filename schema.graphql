@@ -84,6 +84,34 @@ type UserOptionData @entity {
   lag: BigInt!
 }
 
+type FeeStat @entity {
+  id: ID!
+  fee: BigInt!
+  period: Period!
+  timestamp: BigInt!
+}
+
+type VolumeStat @entity {
+  id: String!
+  amount: BigInt!
+  period: Period!
+  timestamp: BigInt!
+}
+
+type ARBFeeStat @entity {
+  id: ID!
+  fee: BigInt!
+  period: Period!
+  timestamp: BigInt!
+}
+
+type ARBVolumeStat @entity {
+  id: String!
+  amount: BigInt!
+  period: Period!
+  timestamp: BigInt!
+}
+
 type ReferralData @entity {
   id: Bytes!
   user: User!
@@ -135,20 +163,6 @@ type TradingStat @entity {
   shortOpenInterest: BigInt!
   timestamp: BigInt!
   period: Period!
-}
-
-type FeeStat @entity {
-  id: ID!
-  fee: BigInt!
-  period: Period!
-  timestamp: BigInt!
-}
-
-type VolumeStat @entity {
-  id: String!
-  amount: BigInt!
-  period: Period!
-  timestamp: BigInt!
 }
 
 type PoolStat @entity {
