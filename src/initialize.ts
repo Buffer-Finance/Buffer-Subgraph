@@ -10,6 +10,8 @@ import {
   UserStat,
   FeeStat,
   VolumeStat,
+  ARBFeeStat,
+  ARBVolumeStat,
   Leaderboard,
   WeeklyLeaderboard,
   QueuedOptionData,
@@ -174,6 +176,22 @@ export function _loadOrCreateVolumeStat(
   return entity as VolumeStat;
 }
 
+export function _loadOrCreateARBVolumeStat(
+  id: string,
+  period: string,
+  timestamp: BigInt
+): ARBVolumeStat {
+  let entity = ARBVolumeStat.load(id);
+  if (entity === null) {
+    entity = new ARBVolumeStat(id);
+    entity.period = period;
+    entity.timestamp = timestamp;
+    entity.amount = ZERO;
+    entity.save();
+  }
+  return entity as ARBVolumeStat;
+}
+
 export function _loadOrCreateOptionContractEntity(
   contractAddress: Bytes
 ): OptionContract {
@@ -211,6 +229,22 @@ export function _loadOrCreateFeeStat(
     entity.save();
   }
   return entity as FeeStat;
+}
+
+export function _loadOrCreateARBFeeStat(
+  id: string,
+  period: string,
+  timestamp: BigInt
+): ARBFeeStat {
+  let entity = ARBFeeStat.load(id);
+  if (entity === null) {
+    entity = new ARBFeeStat(id);
+    entity.period = period;
+    entity.timestamp = timestamp;
+    entity.fee = ZERO;
+    entity.save();
+  }
+  return entity as ARBFeeStat;
 }
 
 export function _loadOrCreateReferralData(user: Bytes): ReferralData {
