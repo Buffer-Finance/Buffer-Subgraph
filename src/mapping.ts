@@ -29,6 +29,7 @@ import {
     storePnl,
     storePnlPerContract,
     updateOpenInterest,
+    updateOpenInterestPerContract,
     logUser,
     calculateCurrentUtilization
 } from "./core";
@@ -129,13 +130,18 @@ export function handleExercise(event: Exercise): void {
         );
         let timestamp = userOptionData.creationTime;
         optionContractData.save();
+        updateOpenInterestPerContract(
+            false,
+            userOptionData.isAbove,
+            userOptionData.totalFee,
+            event.address
+        );
         if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
             updateOpenInterest(
                 timestamp,
                 false,
                 userOptionData.isAbove,
-                userOptionData.totalFee,
-                event.address
+                userOptionData.totalFee
             );
             let profit = userOptionData.totalFee.minus(userOptionData.settlementFee);
             storePnl(timestamp, profit, true);
@@ -194,13 +200,18 @@ export function handleExpire(event: Expire): void {
                 optionContractInstance
             );
             optionContractData.save();
+            updateOpenInterestPerContract(
+                false,
+                userOptionData.isAbove,
+                userOptionData.totalFee,
+                event.address
+            )
             if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
                 updateOpenInterest(
                     timestamp,
                     false,
                     userOptionData.isAbove,
-                    userOptionData.totalFee,
-                    event.address
+                    userOptionData.totalFee
                 );
                 storePnl(
                     timestamp,

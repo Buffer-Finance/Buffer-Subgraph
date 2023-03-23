@@ -162,39 +162,87 @@ export function storePnlPerContract(
   dailyEntity.save();
 }
 
+
+export function updateOptionContractData(
+  isAbove: boolean,
+  totalFee: BigInt,
+  contractAddress: Bytes,
+  optionContractInstance: BufferBinaryOptions
+): string {
+  let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
+  let tokenReferrenceID = "USDC";
+  if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
+    tokenReferrenceID = "USDC";
+  } else if (optionContractInstance.tokenX() == Address.fromString(ARB_TOKEN_ADDRESS)) {
+    tokenReferrenceID = "ARB";
+  }
+  optionContractData.token = tokenReferrenceID;
+  optionContractData.tradeCount += 1;
+  optionContractData.volume = optionContractData.volume.plus(
+    totalFee
+  );
+  optionContractData.payoutForDown = calculatePayout(
+    BigInt.fromI32(
+      optionContractInstance.baseSettlementFeePercentageForBelow()
+    )
+  );
+  optionContractData.payoutForUp = calculatePayout(
+    BigInt.fromI32(
+      optionContractInstance.baseSettlementFeePercentageForAbove()
+    )
+  );
+  optionContractData.currentUtilization = calculateCurrentUtilization(
+    optionContractInstance
+  );
+  updateOpenInterestPerContract(
+      true,
+      isAbove,
+      totalFee,
+      contractAddress
+  )
+  return tokenReferrenceID;
+}
+
+export function updateOpenInterestPerContract(
+  increaseInOpenInterest: boolean,
+  isAbove: boolean,
+  totalFee: BigInt,
+  contractAddress: Bytes,
+): void {
+  let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
+  if (isAbove) {
+    optionContractData.openUp = increaseInOpenInterest
+      ? (optionContractData.openUp.plus(totalFee))
+      : (optionContractData.openUp.minus(totalFee));
+  } else {
+    optionContractData.openDown = increaseInOpenInterest
+      ? (optionContractData.openDown.plus(totalFee))
+      : (optionContractData.openDown.minus(totalFee));
+  }
+  optionContractData.openInterest = increaseInOpenInterest
+    ? optionContractData.openInterest.plus(totalFee)
+    : optionContractData.openInterest.minus(totalFee);
+  optionContractData.save();
+}
+
 export function updateOpenInterest(
   timestamp: BigInt,
   increaseInOpenInterest: boolean,
   isAbove: boolean,
   amount: BigInt,
-  contractAddress: Bytes
 ): void {
-  let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
   let totalId = "total";
   let totalEntity = _loadOrCreateTradingStatEntity(totalId, "total", timestamp);
-
   if (isAbove) {
     totalEntity.longOpenInterest = increaseInOpenInterest
       ? totalEntity.longOpenInterest.plus(amount)
       : totalEntity.longOpenInterest.minus(amount);
-    optionContractData.openUp = increaseInOpenInterest
-      ? (optionContractData.openUp.plus(amount))
-      : (optionContractData.openUp.minus(amount));
   } else {
     totalEntity.shortOpenInterest = increaseInOpenInterest
       ? totalEntity.shortOpenInterest.plus(amount)
       : totalEntity.shortOpenInterest.minus(amount);
-    optionContractData.openDown = increaseInOpenInterest
-      ? (optionContractData.openDown.plus(amount))
-      : (optionContractData.openDown.minus(amount));
   }
-  optionContractData.openInterest = increaseInOpenInterest
-    ? optionContractData.openInterest.plus(amount)
-    : optionContractData.openInterest.minus(amount);
-
   totalEntity.save();
-  optionContractData.save();
-
   let dayID = _getDayId(timestamp);
   let dailyEntity = _loadOrCreateTradingStatEntity(dayID, "daily", timestamp);
   dailyEntity.longOpenInterest = totalEntity.longOpenInterest;
@@ -230,60 +278,40 @@ export function _handleCreate(event: Create): void {
     let contractAddress = event.address;
     let optionContractInstance = BufferBinaryOptions.bind(contractAddress);
     let optionData = optionContractInstance.options(optionID);
-    let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
-    optionContractData.currentUtilization = calculateCurrentUtilization(
+    let isAbove = optionData.value6 ? true : false;
+    let totalFee = event.params.totalFee;
+    let tokenReferrenceID = updateOptionContractData(
+      isAbove,
+      totalFee,
+      contractAddress,
       optionContractInstance
     );
-    optionContractData.tradeCount += 1;
-    optionContractData.volume = optionContractData.volume.plus(
-      event.params.totalFee
-    );
-    optionContractData.payoutForDown = calculatePayout(
-      BigInt.fromI32(
-        optionContractInstance.baseSettlementFeePercentageForBelow()
-      )
-    );
-    optionContractData.payoutForUp = calculatePayout(
-      BigInt.fromI32(
-        optionContractInstance.baseSettlementFeePercentageForAbove()
-      )
-    );
-    let tokenReferrenceID = "USDC";
-    if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
-      tokenReferrenceID = "USDC";
-    } else if (optionContractInstance.tokenX() == Address.fromString(ARB_TOKEN_ADDRESS)) {
-      tokenReferrenceID = "ARB";
-    }
-    optionContractData.token = tokenReferrenceID;
-    optionContractData.save();
     let userOptionData = _loadOrCreateOptionDataEntity(
       optionID,
       contractAddress
     );
     userOptionData.user = event.params.account;
-    userOptionData.totalFee = event.params.totalFee;
+    userOptionData.totalFee = totalFee;
     userOptionData.state = optionData.value0;
     userOptionData.strike = optionData.value1;
     userOptionData.amount = optionData.value2;
     userOptionData.expirationTime = optionData.value5;
-    userOptionData.isAbove = optionData.value6 ? true : false;
+    userOptionData.isAbove = isAbove;
     userOptionData.creationTime = optionData.value8;
     userOptionData.settlementFee = event.params.settlementFee;
     userOptionData.depositToken = tokenReferrenceID;
     userOptionData.save();
 
-    if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
+    if (tokenReferrenceID == "USDC") {
       // Stats
       let totalFee = event.params.totalFee;
       updateOpenInterest(
         timestamp,
         true,
         userOptionData.isAbove,
-        userOptionData.totalFee,
-        contractAddress
+        userOptionData.totalFee
       );
-      let settlementFee = event.params.settlementFee;
-      _storeFees(timestamp, settlementFee);
+      _storeFees(timestamp, event.params.settlementFee);
       _logVolume(timestamp, totalFee);
       let dashboardStat = _loadOrCreateDashboardStat(tokenReferrenceID);
       dashboardStat.totalVolume = dashboardStat.totalVolume.plus(
