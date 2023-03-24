@@ -203,12 +203,6 @@ export function updateOptionContractData(
   let tokenReferrenceID = "";
   if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
     tokenReferrenceID = "USDC";
-    updateOpenInterestPerContract(
-      true,
-      isAbove,
-      totalFee,
-      contractAddress
-    );
   } else if (optionContractInstance.tokenX() == Address.fromString(ARB_TOKEN_ADDRESS)) {
     tokenReferrenceID = "ARB";
   }
@@ -331,7 +325,12 @@ export function _handleCreate(event: Create): void {
     userOptionData.settlementFee = event.params.settlementFee;
     userOptionData.depositToken = tokenReferrenceID;
     userOptionData.save();
-
+    updateOpenInterestPerContract(
+      true,
+      isAbove,
+      totalFee,
+      contractAddress
+    );
     if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
       // Stats
       updateOpenInterest(
