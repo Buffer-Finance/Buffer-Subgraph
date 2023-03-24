@@ -203,6 +203,12 @@ export function updateOptionContractData(
   let tokenReferrenceID = "USDC";
   if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
     tokenReferrenceID = "USDC";
+    updateOpenInterestPerContract(
+      true,
+      isAbove,
+      totalFee,
+      contractAddress
+    );
   } else if (optionContractInstance.tokenX() == Address.fromString(ARB_TOKEN_ADDRESS)) {
     tokenReferrenceID = "ARB";
   }
@@ -225,13 +231,6 @@ export function updateOptionContractData(
     optionContractInstance
   );
   optionContractData.save()
-
-  updateOpenInterestPerContract(
-      true,
-      isAbove,
-      totalFee,
-      contractAddress
-  )
   return tokenReferrenceID;
 }
 
