@@ -196,9 +196,9 @@ export function storePnlPerContract(
 export function updateOptionContractData(
   isAbove: boolean,
   totalFee: BigInt,
-  contractAddress: Bytes,
-  optionContractInstance: BufferBinaryOptions
+  contractAddress: Address
 ): string {
+  let optionContractInstance = BufferBinaryOptions.bind(contractAddress);
   let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
   let tokenReferrenceID = "USDC";
   if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
@@ -224,6 +224,8 @@ export function updateOptionContractData(
   optionContractData.currentUtilization = calculateCurrentUtilization(
     optionContractInstance
   );
+  optionContractData.save()
+
   updateOpenInterestPerContract(
       true,
       isAbove,
@@ -313,8 +315,7 @@ export function _handleCreate(event: Create): void {
     let tokenReferrenceID = updateOptionContractData(
       isAbove,
       totalFee,
-      contractAddress,
-      optionContractInstance
+      contractAddress
     );
     let userOptionData = _loadOrCreateOptionDataEntity(
       optionID,
