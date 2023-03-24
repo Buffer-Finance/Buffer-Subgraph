@@ -193,7 +193,7 @@ export function _loadOrCreateARBVolumeStat(
 }
 
 export function _loadOrCreateOptionContractEntity(
-  contractAddress: Bytes
+  contractAddress: Address
 ): OptionContract {
   let optionContract = OptionContract.load(contractAddress);
   if (optionContract == null) {
@@ -209,7 +209,7 @@ export function _loadOrCreateOptionContractEntity(
     optionContract.currentUtilization = ZERO;
     optionContract.payoutForDown = ZERO;
     optionContract.payoutForUp = ZERO;
-    optionContract.token = "USDC"
+    optionContract.token = ""
     optionContract.save();
   }
   return optionContract as OptionContract;

@@ -200,7 +200,7 @@ export function updateOptionContractData(
 ): string {
   let optionContractInstance = BufferBinaryOptions.bind(contractAddress);
   let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
-  let tokenReferrenceID = "USDC";
+  let tokenReferrenceID = "";
   if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
     tokenReferrenceID = "USDC";
     updateOpenInterestPerContract(
@@ -238,7 +238,7 @@ export function updateOpenInterestPerContract(
   increaseInOpenInterest: boolean,
   isAbove: boolean,
   totalFee: BigInt,
-  contractAddress: Bytes,
+  contractAddress: Address
 ): void {
   let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
   if (isAbove) {
@@ -332,7 +332,7 @@ export function _handleCreate(event: Create): void {
     userOptionData.depositToken = tokenReferrenceID;
     userOptionData.save();
 
-    if (tokenReferrenceID == "USDC") {
+    if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
       // Stats
       updateOpenInterest(
         timestamp,
