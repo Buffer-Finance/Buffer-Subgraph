@@ -325,12 +325,14 @@ export function _handleCreate(event: Create): void {
     userOptionData.settlementFee = event.params.settlementFee;
     userOptionData.depositToken = tokenReferrenceID;
     userOptionData.save();
-    updateOpenInterestPerContract(
-      true,
-      isAbove,
-      totalFee,
-      contractAddress
-    );
+    let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
+    if (isAbove) {
+      optionContractData.openUp = optionContractData.openUp.plus(totalFee);
+    } else {
+      optionContractData.openDown = optionContractData.openDown.plus(totalFee);
+    }
+    optionContractData.openInterest = optionContractData.openInterest.plus(totalFee);
+    optionContractData.save();
     if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
       // Stats
       updateOpenInterest(

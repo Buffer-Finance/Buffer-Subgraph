@@ -14,6 +14,7 @@ dataSources:
           language: wasm/assemblyscript
           entities:
               - UserOptionData
+              - OptionContract
           abis:
               - name: BufferBinaryOptions
                 file: ./abis/BufferBinaryOptions.json
