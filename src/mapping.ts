@@ -129,13 +129,13 @@ export function handleExercise(event: Exercise): void {
             optionContractInstance
         );
         let timestamp = userOptionData.creationTime;
+        if (userOptionData.isAbove) {
+            optionContractData.openUp = optionContractData.openUp.minus(userOptionData.totalFee);
+          } else {
+            optionContractData.openDown = optionContractData.openDown.minus(userOptionData.totalFee);
+        }
+        optionContractData.openInterest = optionContractData.openInterest.minus(userOptionData.totalFee);
         optionContractData.save();
-        updateOpenInterestPerContract(
-            false,
-            userOptionData.isAbove,
-            userOptionData.totalFee,
-            event.address
-        );
         if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
             updateOpenInterest(
                 timestamp,
@@ -199,13 +199,12 @@ export function handleExpire(event: Expire): void {
             optionContractData.currentUtilization = calculateCurrentUtilization(
                 optionContractInstance
             );
-            optionContractData.save();
-            updateOpenInterestPerContract(
-                false,
-                userOptionData.isAbove,
-                userOptionData.totalFee,
-                event.address
-            );
+            if (userOptionData.isAbove) {
+              optionContractData.openUp = optionContractData.openUp.minus(userOptionData.totalFee);
+            } else {
+              optionContractData.openDown = optionContractData.openDown.minus(userOptionData.totalFee);
+            }
+            optionContractData.openInterest = optionContractData.openInterest.minus(userOptionData.totalFee);
             optionContractData.save();
             if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
                 updateOpenInterest(
