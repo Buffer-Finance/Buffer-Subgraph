@@ -208,12 +208,6 @@ export function handleExpire(event: Expire): void {
             );
             optionContractData.save();
             if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
-                // updateOpenInterestPerContract(
-                //     false,
-                //     userOptionData.isAbove,
-                //     userOptionData.totalFee,
-                //     event.address
-                // );
                 updateOpenInterest(
                     timestamp,
                     false,
