@@ -201,10 +201,14 @@ export function updateOptionContractData(
   let optionContractInstance = BufferBinaryOptions.bind(contractAddress);
   let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
   let tokenReferrenceID = "";
-  if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
-    tokenReferrenceID = "USDC";
-  } else if (optionContractInstance.tokenX() == Address.fromString(ARB_TOKEN_ADDRESS)) {
-    tokenReferrenceID = "ARB";
+  if (optionContractData.token == "") {
+    if (optionContractInstance.tokenX() == Address.fromString(USDC_ADDRESS)) {
+      tokenReferrenceID = "USDC";
+    } else if (optionContractInstance.tokenX() == Address.fromString(ARB_TOKEN_ADDRESS)) {
+      tokenReferrenceID = "ARB";
+    }
+  } else {
+    tokenReferrenceID = optionContractData.token;
   }
   optionContractData.token = tokenReferrenceID;
   optionContractData.tradeCount += 1;

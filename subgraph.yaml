@@ -105,8 +105,8 @@ dataSources:
           entities:
               - UserOptionData
           eventHandlers:
-              - event: Unpause()
-                handler: handleProvide
+              - event: Transfer(indexed address,indexed address,uint256)
+                handler: handlePause
           file: ./src/mapping.ts
     - kind: ethereum/contract
       name: ERC20
