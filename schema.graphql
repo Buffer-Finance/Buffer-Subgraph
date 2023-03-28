@@ -1,4 +1,10 @@
 type Holder @entity {
   id: Bytes!
   balance: BigInt!
+  counter: Int!
+}
+
+type Counter @entity {
+  id: String!
+  counter: Int!
 }
