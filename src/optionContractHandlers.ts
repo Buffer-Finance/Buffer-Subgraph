@@ -11,15 +11,7 @@ import { _getDayId, _getHourId, _getWeekId } from "./helpers";
 import {
   _loadOrCreateOptionContractEntity,
   _loadOrCreateOptionDataEntity,
-  _loadOrCreateQueuedOptionEntity,
-  _loadOrCreateVolumeStat,
-  _loadOrCreateTradingStatEntity,
-  _loadOrCreateAssetTradingStatEntity,
-  _loadOrCreateFeeStat,
-  _loadOrCreateUserStat,
   _loadOrCreateReferralData,
-  _loadOrCreatePoolStat,
-  _loadOrCreateUserRewards,
 } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import { convertARBToUSDC } from "./convertToUSDC";

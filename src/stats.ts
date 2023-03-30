@@ -1,31 +1,12 @@
-import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
-import {
-  Create,
-  BufferBinaryOptions,
-} from "../generated/BufferBinaryOptions/BufferBinaryOptions";
-import { BinaryPool } from "../generated/BinaryPool/BinaryPool";
-import { User, VolumePerContract } from "../generated/schema";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { _getDayId, _getHourId, _getWeekId } from "./helpers";
 import {
-  _loadOrCreateOptionContractEntity,
-  _loadOrCreateOptionDataEntity,
-  _loadOrCreateQueuedOptionEntity,
   _loadOrCreateVolumeStat,
   _loadOrCreateTradingStatEntity,
   _loadOrCreateAssetTradingStatEntity,
   _loadOrCreateFeeStat,
-  _loadOrCreateUserStat,
   _loadOrCreateUserRewards,
-  _calculateCurrentUtilization,
 } from "./initialize";
-import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
-import { DailyUserStat } from "../generated/schema";
-import {
-  State,
-  RouterAddress,
-  USDC_ADDRESS,
-  ARB_TOKEN_ADDRESS,
-} from "./config";
 
 export function logVolume(timestamp: BigInt, amount: BigInt): void {
   let totalEntity = _loadOrCreateVolumeStat("total", "total", timestamp);

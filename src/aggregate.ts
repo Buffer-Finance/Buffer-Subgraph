@@ -15,7 +15,6 @@ import {
   _loadOrCreateOptionDataEntity,
   _loadOrCreateQueuedOptionEntity,
   _loadOrCreateVolumeStat,
-  _loadOrCreateTradingStatEntity,
   _loadOrCreateAssetTradingStatEntity,
   _loadOrCreateFeeStat,
   _loadOrCreateUserStat,
