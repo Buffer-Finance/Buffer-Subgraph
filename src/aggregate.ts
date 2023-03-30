@@ -40,15 +40,34 @@ import {
 } from "./stats";
 import { UserOptionData } from "../generated/schema";
 import { updateDailyAndWeeklyRevenue, updateLeaderboards } from "./leaderboard";
+import {
+  logVolumeAndSettlementFeePerContract,
+  updateDashboardOverviewStats,
+} from "./dashboard";
 
 export function updateOpeningStats(
   token: string,
   timestamp: BigInt,
   totalFee: BigInt,
   settlementFee: BigInt,
-  isAbove: boolean
+  isAbove: boolean,
+  contractAddress: Bytes
 ): void {
   if (token == "USDC") {
+    // Dashboard Page - overview
+    updateDashboardOverviewStats(totalFee, settlementFee, token);
+
+    // Dashboard Page - markets table
+    logVolumeAndSettlementFeePerContract(
+      _getHourId(timestamp),
+      "hourly",
+      timestamp,
+      contractAddress,
+      token,
+      totalFee,
+      settlementFee
+    );
+
     // Update daily & total fees
     _storeFees(timestamp, settlementFee);
 

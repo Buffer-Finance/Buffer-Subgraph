@@ -32,6 +32,22 @@ import {
   ARB_TOKEN_ADDRESS,
 } from "./config";
 
+// For the overview section
+export function updateDashboardOverviewStats(
+  totalFee: BigInt,
+  settlementFee: BigInt,
+  token: string
+): void {
+  let dashboardStat = _loadOrCreateDashboardStat(token);
+  dashboardStat.totalVolume = dashboardStat.totalVolume.plus(totalFee);
+  dashboardStat.totalSettlementFees = dashboardStat.totalSettlementFees.plus(
+    settlementFee
+  );
+  dashboardStat.totalTrades += 1;
+  dashboardStat.save();
+}
+
+// For the markets table
 export function logVolumeAndSettlementFeePerContract(
   id: string,
   period: string,

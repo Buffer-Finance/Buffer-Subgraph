@@ -27,7 +27,7 @@ import {
   _loadOrCreateUserRewards,
 } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
-import { getARBPrice } from "./arbPrice";
+import { convertARBToUSDC } from "./convertToUSDC";
 import { State, RouterAddress, ARBITRUM_SOLANA_ADDRESS } from "./config";
 import { updateOptionContractData } from "./core";
 import { updateOpeningStats, updateClosingStats } from "./aggregate";
@@ -68,11 +68,12 @@ export function _handleCreate(event: Create): void {
       event.block.timestamp,
       totalFee,
       userOptionData.settlementFee,
-      isAbove
+      isAbove,
+      contractAddress
     );
 
     if (userOptionData.depositToken == "ARB") {
-      userOptionData.ARBVolume = getARBPrice(totalFee);
+      userOptionData.ARBVolume = convertARBToUSDC(totalFee);
       userOptionData.save();
     }
   }
@@ -89,26 +90,28 @@ export function _handleExpire(event: Expire): void {
       event.params.id,
       contractAddress
     );
-    userOptionData.state = State.expired;
-    userOptionData.expirationPrice = event.params.priceAtExpiration;
-    userOptionData.save();
-    updateOptionContractData(
-      false,
-      userOptionData.isAbove,
-      userOptionData.totalFee,
-      contractAddress
-    );
+    if (userOptionData != null) {
+      userOptionData.state = State.expired;
+      userOptionData.expirationPrice = event.params.priceAtExpiration;
+      userOptionData.save();
+      updateOptionContractData(
+        false,
+        userOptionData.isAbove,
+        userOptionData.totalFee,
+        contractAddress
+      );
 
-    updateClosingStats(
-      userOptionData.depositToken,
-      userOptionData.creationTime,
-      userOptionData.totalFee,
-      userOptionData.settlementFee,
-      userOptionData.isAbove,
-      userOptionData.user,
-      contractAddress,
-      false
-    );
+      updateClosingStats(
+        userOptionData.depositToken,
+        userOptionData.creationTime,
+        userOptionData.totalFee,
+        userOptionData.settlementFee,
+        userOptionData.isAbove,
+        userOptionData.user,
+        contractAddress,
+        false
+      );
+    }
   }
 }
 
@@ -123,28 +126,30 @@ export function _handleExercise(event: Exercise): void {
       event.params.id,
       contractAddress
     );
-    userOptionData.state = State.exercised;
-    userOptionData.payout = event.params.profit;
-    userOptionData.expirationPrice = event.params.priceAtExpiration;
-    userOptionData.save();
+    if (userOptionData != null) {
+      userOptionData.state = State.exercised;
+      userOptionData.payout = event.params.profit;
+      userOptionData.expirationPrice = event.params.priceAtExpiration;
+      userOptionData.save();
 
-    updateOptionContractData(
-      false,
-      userOptionData.isAbove,
-      userOptionData.totalFee,
-      contractAddress
-    );
+      updateOptionContractData(
+        false,
+        userOptionData.isAbove,
+        userOptionData.totalFee,
+        contractAddress
+      );
 
-    updateClosingStats(
-      userOptionData.depositToken,
-      userOptionData.creationTime,
-      userOptionData.totalFee,
-      userOptionData.settlementFee,
-      userOptionData.isAbove,
-      userOptionData.user,
-      contractAddress,
-      true
-    );
+      updateClosingStats(
+        userOptionData.depositToken,
+        userOptionData.creationTime,
+        userOptionData.totalFee,
+        userOptionData.settlementFee,
+        userOptionData.isAbove,
+        userOptionData.user,
+        contractAddress,
+        true
+      );
+    }
   }
 }
 
