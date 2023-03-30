@@ -14,7 +14,6 @@ import {
   _loadOrCreateOptionDataEntity,
   _loadOrCreateQueuedOptionEntity,
   _loadOrCreateVolumeStat,
-  _loadOrCreateARBVolumeStat,
   _loadOrCreateTradingStatEntity,
   _loadOrCreateAssetTradingStatEntity,
   _loadOrCreateFeeStat,
@@ -23,7 +22,6 @@ import {
   _loadOrCreateDailyRevenueAndFee,
   _loadOrCreateWeeklyRevenueAndFee,
   _loadOrCreateUserRewards,
-  _loadOrCreateARBFeeStat,
   _loadOrCreatePoolStat,
 } from "./initialize";
 import { USDC } from "../generated/USDC/USDC";

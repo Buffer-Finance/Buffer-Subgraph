@@ -99,20 +99,6 @@ type VolumeStat @entity {
   timestamp: BigInt!
 }
 
-type ARBFeeStat @entity {
-  id: ID!
-  fee: BigInt!
-  period: Period!
-  timestamp: BigInt!
-}
-
-type ARBVolumeStat @entity {
-  id: String!
-  amount: BigInt!
-  period: Period!
-  timestamp: BigInt!
-}
-
 type ReferralData @entity {
   id: Bytes!
   user: User!
