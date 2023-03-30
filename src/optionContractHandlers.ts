@@ -31,6 +31,7 @@ import { convertARBToUSDC } from "./convertToUSDC";
 import { State, RouterAddress, ARBITRUM_SOLANA_ADDRESS } from "./config";
 import { updateOptionContractData } from "./core";
 import { updateOpeningStats, updateClosingStats } from "./aggregate";
+import { referralAndNFTDiscountStats } from "./stats";
 
 export function _handleCreate(event: Create): void {
   let contractAddress = event.address;
@@ -161,47 +162,36 @@ export function _handlePause(event: Pause): void {
 }
 
 export function _handleUpdateReferral(event: UpdateReferral): void {
-  // let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
+  let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
   let optionContractEntity = _loadOrCreateOptionContractEntity(event.address);
-  // if (routerContract.contractRegistry(event.address) == true) {
-  //   if (optionContractEntity.token == "USDC") {
-  //     let user = event.params.user;
-  //     let referrer = event.params.referrer;
+  if (routerContract.contractRegistry(event.address) == true) {
+    if (optionContractEntity.token == "USDC") {
+      let userReferralData = _loadOrCreateReferralData(event.params.user);
+      userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
+        event.params.rebate
+      );
+      userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
+        event.params.totalFee
+      );
+      userReferralData.save();
 
-  //     let userReferralData = _loadOrCreateReferralData(user);
-  //     userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
-  //       event.params.rebate
-  //     );
-  //     userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
-  //       event.params.totalFee
-  //     );
-  //     userReferralData.save();
+      let referrerReferralData = _loadOrCreateReferralData(
+        event.params.referrer
+      );
+      referrerReferralData.totalTradesReferred += 1;
+      referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
+        event.params.totalFee
+      );
+      referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
+        event.params.referrerFee
+      );
+      referrerReferralData.save();
 
-  //     let referrerReferralData = _loadOrCreateReferralData(referrer);
-  //     referrerReferralData.totalTradesReferred += 1;
-  //     referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
-  //       event.params.totalFee
-  //     );
-  //     referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
-  //       event.params.referrerFee
-  //     );
-  //     referrerReferralData.save();
-
-  //     let dayID = _getDayId(event.block.timestamp);
-  //     let userRewardEntity = _loadOrCreateUserRewards(
-  //       dayID,
-  //       event.block.timestamp
-  //     );
-  //     userRewardEntity.referralDiscount = userRewardEntity.referralDiscount.plus(
-  //       event.params.rebate
-  //     );
-  //     userRewardEntity.referralReward = userRewardEntity.referralReward.plus(
-  //       event.params.referrerFee
-  //     );
-  //     userRewardEntity.nftDiscount = userRewardEntity.cumulativeReward.minus(
-  //       event.params.rebate
-  //     );
-  //     userRewardEntity.save();
-  //   }
-  // }
+      referralAndNFTDiscountStats(
+        event.block.timestamp,
+        event.params.rebate,
+        event.params.referrerFee
+      );
+    }
+  }
 }

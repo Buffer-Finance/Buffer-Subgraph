@@ -134,7 +134,6 @@ export function storePnlPerContract(
     contractAddress,
     dayID
   );
-
   if (isProfit) {
     totalEntity.profitCumulative = totalEntity.profitCumulative.plus(pnl);
     dailyEntity.profit = dailyEntity.profit.plus(pnl);
@@ -153,4 +152,41 @@ export function storePnlPerContract(
   dailyEntity.profitCumulative = totalEntityV2.profitCumulative;
   dailyEntity.lossCumulative = totalEntityV2.lossCumulative;
   dailyEntity.save();
+}
+
+// For tracking user benefits for referra / Nft discounts
+export function saveSettlementFeeDiscount(
+  timestamp: BigInt,
+  totalFee: BigInt,
+  settlementFee: BigInt
+): void {
+  let dayID = _getDayId(timestamp);
+  let userRewardEntity = _loadOrCreateUserRewards(dayID, timestamp);
+  userRewardEntity.cumulativeReward = userRewardEntity.cumulativeReward.plus(
+    totalFee
+      .times(BigInt.fromI32(15000000))
+      .div(BigInt.fromI32(100000000))
+      .minus(settlementFee)
+  );
+  userRewardEntity.save();
+}
+
+// Segregating Nfts discounts from Referral Discounts
+export function referralAndNFTDiscountStats(
+  timestamp: BigInt,
+  rebate: BigInt,
+  referrerFee: BigInt
+): void {
+  let dayID = _getDayId(timestamp);
+  let userRewardEntity = _loadOrCreateUserRewards(dayID, timestamp);
+  userRewardEntity.referralDiscount = userRewardEntity.referralDiscount.plus(
+    rebate
+  );
+  userRewardEntity.referralReward = userRewardEntity.referralReward.plus(
+    referrerFee
+  );
+  userRewardEntity.nftDiscount = userRewardEntity.cumulativeReward.minus(
+    rebate
+  );
+  userRewardEntity.save();
 }

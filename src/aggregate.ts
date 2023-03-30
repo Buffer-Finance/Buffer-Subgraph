@@ -37,6 +37,7 @@ import {
   _logVolume,
   storePnl,
   storePnlPerContract,
+  saveSettlementFeeDiscount,
 } from "./stats";
 import { UserOptionData } from "../generated/schema";
 import { updateDailyAndWeeklyRevenue, updateLeaderboards } from "./leaderboard";
@@ -80,10 +81,8 @@ export function updateOpeningStats(
     // Update daily and weekly volume and fees
     updateDailyAndWeeklyRevenue(totalFee, timestamp, settlementFee);
 
-    // let dayID = _getDayId(timestamp);
-    // let userRewardEntity = _loadOrCreateUserRewards(dayID, timestamp);
-    // // userRewardEntity.cumulativeReward = userRewardEntity.cumulativeReward.plus((totalFee.times(new BigInt(15000000)).div(new BigInt(100000000))).minus(settlementFee));
-    // userRewardEntity.save();
+    // Updates referral & NFT discounts tracking
+    saveSettlementFeeDiscount(timestamp, totalFee, settlementFee);
   }
 }
 
