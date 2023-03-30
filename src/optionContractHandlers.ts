@@ -32,6 +32,7 @@ import { State, RouterAddress, ARBITRUM_SOLANA_ADDRESS } from "./config";
 import { updateOptionContractData } from "./core";
 import { updateOpeningStats, updateClosingStats } from "./aggregate";
 import { referralAndNFTDiscountStats } from "./stats";
+import { UserOptionData } from "../generated/schema";
 
 export function _handleCreate(event: Create): void {
   let contractAddress = event.address;
@@ -87,10 +88,8 @@ export function _handleExpire(event: Expire): void {
     routerContract.contractRegistry(contractAddress) == true ||
     contractAddress == Address.fromString(ARBITRUM_SOLANA_ADDRESS)
   ) {
-    let userOptionData = _loadOrCreateOptionDataEntity(
-      event.params.id,
-      contractAddress
-    );
+    let referrenceID = `${event.params.id}${contractAddress}`;
+    let userOptionData = UserOptionData.load(referrenceID);
     if (userOptionData != null) {
       userOptionData.state = State.expired;
       userOptionData.expirationPrice = event.params.priceAtExpiration;
@@ -112,6 +111,11 @@ export function _handleExpire(event: Expire): void {
         contractAddress,
         false
       );
+    } else {
+      throw console.error(
+        "User option data not found for id {} and contract {}",
+        [event.params.id.toString(), event.address.toHexString()]
+      );
     }
   }
 }
@@ -123,10 +127,8 @@ export function _handleExercise(event: Exercise): void {
     routerContract.contractRegistry(contractAddress) == true ||
     contractAddress == Address.fromString(ARBITRUM_SOLANA_ADDRESS)
   ) {
-    let userOptionData = _loadOrCreateOptionDataEntity(
-      event.params.id,
-      contractAddress
-    );
+    let referrenceID = `${event.params.id}${contractAddress}`;
+    let userOptionData = UserOptionData.load(referrenceID);
     if (userOptionData != null) {
       userOptionData.state = State.exercised;
       userOptionData.payout = event.params.profit;
@@ -150,15 +152,13 @@ export function _handleExercise(event: Exercise): void {
         contractAddress,
         true
       );
+    } else {
+      throw console.error(
+        "User option data not found for id {} and contract {}",
+        [event.params.id.toString(), event.address.toHexString()]
+      );
     }
   }
-}
-
-export function _handlePause(event: Pause): void {
-  let isPaused = event.params.isPaused;
-  let optionContract = _loadOrCreateOptionContractEntity(event.address);
-  optionContract.isPaused = isPaused;
-  optionContract.save();
 }
 
 export function _handleUpdateReferral(event: UpdateReferral): void {
@@ -194,4 +194,11 @@ export function _handleUpdateReferral(event: UpdateReferral): void {
       );
     }
   }
+}
+
+export function _handlePause(event: Pause): void {
+  let isPaused = event.params.isPaused;
+  let optionContract = _loadOrCreateOptionContractEntity(event.address);
+  optionContract.isPaused = isPaused;
+  optionContract.save();
 }
