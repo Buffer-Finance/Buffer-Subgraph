@@ -70,35 +70,30 @@ export function _handleExpire(event: Expire): void {
     routerContract.contractRegistry(contractAddress) == true ||
     contractAddress == Address.fromString(ARBITRUM_SOLANA_ADDRESS)
   ) {
-    let referrenceID = `${event.params.id}${contractAddress}`;
-    let userOptionData = UserOptionData.load(referrenceID);
-    if (userOptionData != null) {
-      userOptionData.state = State.expired;
-      userOptionData.expirationPrice = event.params.priceAtExpiration;
-      userOptionData.save();
-      updateOptionContractData(
-        false,
-        userOptionData.isAbove,
-        userOptionData.totalFee,
-        contractAddress
-      );
+    let userOptionData = _loadOrCreateOptionDataEntity(
+      event.params.id,
+      contractAddress
+    );
+    userOptionData.state = State.expired;
+    userOptionData.expirationPrice = event.params.priceAtExpiration;
+    userOptionData.save();
+    updateOptionContractData(
+      false,
+      userOptionData.isAbove,
+      userOptionData.totalFee,
+      contractAddress
+    );
 
-      updateClosingStats(
-        userOptionData.depositToken,
-        userOptionData.creationTime,
-        userOptionData.totalFee,
-        userOptionData.settlementFee,
-        userOptionData.isAbove,
-        userOptionData.user,
-        contractAddress,
-        false
-      );
-    } else {
-      throw console.error(
-        "User option data not found for id {} and contract {}",
-        [event.params.id.toString(), event.address.toHexString()]
-      );
-    }
+    updateClosingStats(
+      userOptionData.depositToken,
+      userOptionData.creationTime,
+      userOptionData.totalFee,
+      userOptionData.settlementFee,
+      userOptionData.isAbove,
+      userOptionData.user,
+      contractAddress,
+      false
+    );
   }
 }
 
@@ -109,37 +104,32 @@ export function _handleExercise(event: Exercise): void {
     routerContract.contractRegistry(contractAddress) == true ||
     contractAddress == Address.fromString(ARBITRUM_SOLANA_ADDRESS)
   ) {
-    let referrenceID = `${event.params.id}${contractAddress}`;
-    let userOptionData = UserOptionData.load(referrenceID);
-    if (userOptionData != null) {
-      userOptionData.state = State.exercised;
-      userOptionData.payout = event.params.profit;
-      userOptionData.expirationPrice = event.params.priceAtExpiration;
-      userOptionData.save();
+    let userOptionData = _loadOrCreateOptionDataEntity(
+      event.params.id,
+      contractAddress
+    );
+    userOptionData.state = State.exercised;
+    userOptionData.payout = event.params.profit;
+    userOptionData.expirationPrice = event.params.priceAtExpiration;
+    userOptionData.save();
 
-      updateOptionContractData(
-        false,
-        userOptionData.isAbove,
-        userOptionData.totalFee,
-        contractAddress
-      );
+    updateOptionContractData(
+      false,
+      userOptionData.isAbove,
+      userOptionData.totalFee,
+      contractAddress
+    );
 
-      updateClosingStats(
-        userOptionData.depositToken,
-        userOptionData.creationTime,
-        userOptionData.totalFee,
-        userOptionData.settlementFee,
-        userOptionData.isAbove,
-        userOptionData.user,
-        contractAddress,
-        true
-      );
-    } else {
-      throw console.error(
-        "User option data not found for id {} and contract {}",
-        [event.params.id.toString(), event.address.toHexString()]
-      );
-    }
+    updateClosingStats(
+      userOptionData.depositToken,
+      userOptionData.creationTime,
+      userOptionData.totalFee,
+      userOptionData.settlementFee,
+      userOptionData.isAbove,
+      userOptionData.user,
+      contractAddress,
+      true
+    );
   }
 }
 
@@ -205,8 +195,11 @@ export function _handleUpdateReferral(event: UpdateReferral): void {
 }
 
 export function _handlePause(event: Pause): void {
-  let isPaused = event.params.isPaused;
-  let optionContract = _loadOrCreateOptionContractEntity(event.address);
-  optionContract.isPaused = isPaused;
-  optionContract.save();
+  let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
+  if (routerContract.contractRegistry(event.address) == true) {
+    let isPaused = event.params.isPaused;
+    let optionContract = _loadOrCreateOptionContractEntity(event.address);
+    optionContract.isPaused = isPaused;
+    optionContract.save();
+  }
 }

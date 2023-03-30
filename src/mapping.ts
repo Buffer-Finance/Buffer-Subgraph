@@ -69,7 +69,7 @@ export function handleUpdateReferral(event: UpdateReferral): void {
 // }
 
 export function handleProvide(event: Provide): void {
-  _handleProvide(event);
+  let a = "a";
 }
 
 export function handleWithdraw(event: Withdraw): void {
