@@ -91,6 +91,29 @@ export function updateOpeningStats(
 
     // Update daily and weekly volume and fees
     updateDailyAndWeeklyRevenue(totalFeeUSDC, timestamp, settlementFeeUSDC);
+
+    // Update daily & total fees
+    storeFees(timestamp, settlementFeeUSDC);
+
+    // Update daily & total volume
+    logVolume(timestamp, totalFeeUSDC);
+
+    // Update daily & total open interest
+    updateOpenInterest(timestamp, true, isAbove, totalFeeUSDC);
+
+    // Updates referral & NFT discounts tracking
+    saveSettlementFeeDiscount(timestamp, totalFeeUSDC, settlementFeeUSDC);
+
+    // Dashboard Page - markets table
+    logVolumeAndSettlementFeePerContract(
+      _getHourId(timestamp),
+      "hourly",
+      timestamp,
+      contractAddress,
+      token,
+      totalFee,
+      settlementFee
+    );
   }
 }
 
@@ -119,19 +142,20 @@ export function updateClosingStats(
     // Update Leaderboards
     updateLeaderboards(totalFee, timestamp, user, isExercised, ZERO);
   } else if (token == "ARB") {
-    let usdcVolume = convertARBToUSDC(totalFee);
+    let totalFeeUSDC = convertARBToUSDC(totalFee);
+    let settlementFeeUSDC = convertARBToUSDC(settlementFee);
     // Update daily & total open interest
-    updateOpenInterest(timestamp, false, isAbove, totalFee);
+    updateOpenInterest(timestamp, false, isAbove, totalFeeUSDC);
     // Update daily & total PnL for stats page
-    storePnl(timestamp, totalFee.minus(settlementFee), isExercised);
+    storePnl(timestamp, totalFeeUSDC.minus(settlementFeeUSDC), isExercised);
     // Update daily & total PnL per contracts for stats page
     storePnlPerContract(
       timestamp,
-      totalFee.minus(settlementFee),
+      totalFeeUSDC.minus(settlementFeeUSDC),
       isExercised,
       contractAddress
     );
     // Update Leaderboards
-    updateLeaderboards(usdcVolume, timestamp, user, isExercised, totalFee);
+    updateLeaderboards(totalFeeUSDC, timestamp, user, isExercised, totalFee);
   }
 }
