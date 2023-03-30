@@ -18,8 +18,6 @@ import {
   _loadOrCreateFeeStat,
   _loadOrCreateUserStat,
   _loadOrCreateDashboardStat,
-  _loadOrCreateDailyRevenueAndFee,
-  _loadOrCreateWeeklyRevenueAndFee,
   _loadOrCreateReferralData,
   _loadOrCreatePoolStat,
   _loadOrCreateUserRewards,

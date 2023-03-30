@@ -16,7 +16,6 @@ import {
   _loadOrCreateFeeStat,
   _loadOrCreateUserStat,
   _loadOrCreateDashboardStat,
-  _loadOrCreateDailyRevenueAndFee,
   _loadOrCreateWeeklyRevenueAndFee,
   _loadOrCreateUserRewards,
   _calculateCurrentUtilization,
