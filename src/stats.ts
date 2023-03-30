@@ -15,7 +15,6 @@ import {
   _loadOrCreateAssetTradingStatEntity,
   _loadOrCreateFeeStat,
   _loadOrCreateUserStat,
-  _loadOrCreateDashboardStat,
   _loadOrCreateUserRewards,
   _calculateCurrentUtilization,
 } from "./initialize";
@@ -28,7 +27,7 @@ import {
   ARB_TOKEN_ADDRESS,
 } from "./config";
 
-export function _logVolume(timestamp: BigInt, amount: BigInt): void {
+export function logVolume(timestamp: BigInt, amount: BigInt): void {
   let totalEntity = _loadOrCreateVolumeStat("total", "total", timestamp);
   totalEntity.amount = totalEntity.amount.plus(amount);
   totalEntity.save();
@@ -44,7 +43,7 @@ export function _logVolume(timestamp: BigInt, amount: BigInt): void {
   hourlyEntity.save();
 }
 
-export function _storeFees(timestamp: BigInt, fees: BigInt): void {
+export function storeFees(timestamp: BigInt, fees: BigInt): void {
   let id = _getDayId(timestamp);
   let entity = _loadOrCreateFeeStat(id, "daily", timestamp);
   entity.fee = entity.fee.plus(fees);

@@ -19,7 +19,6 @@ import {
   _loadOrCreateAssetTradingStatEntity,
   _loadOrCreateFeeStat,
   _loadOrCreateUserStat,
-  _loadOrCreateDashboardStat,
   _loadOrCreateWeeklyRevenueAndFee,
   _loadOrCreateReferralData,
   _loadOrCreatePoolStat,
@@ -31,8 +30,8 @@ import { State, RouterAddress, ARBITRUM_SOLANA_ADDRESS } from "./config";
 import { logUser } from "./core";
 import {
   updateOpenInterest,
-  _storeFees,
-  _logVolume,
+  storeFees,
+  logVolume,
   storePnl,
   storePnlPerContract,
   saveSettlementFeeDiscount,
@@ -56,6 +55,10 @@ export function updateOpeningStats(
   if (token == "USDC") {
     // Dashboard Page - overview
     updateDashboardOverviewStats(totalFee, settlementFee, token);
+    updateDashboardOverviewStats(totalFee, settlementFee, "total");
+
+    // Update daily and weekly volume and fees
+    updateDailyAndWeeklyRevenue(totalFee, timestamp, settlementFee);
 
     // Dashboard Page - markets table
     logVolumeAndSettlementFeePerContract(
@@ -69,19 +72,25 @@ export function updateOpeningStats(
     );
 
     // Update daily & total fees
-    _storeFees(timestamp, settlementFee);
+    storeFees(timestamp, settlementFee);
 
     // Update daily & total volume
-    _logVolume(timestamp, totalFee);
+    logVolume(timestamp, totalFee);
 
     // Update daily & total open interest
     updateOpenInterest(timestamp, true, isAbove, totalFee);
 
-    // Update daily and weekly volume and fees
-    updateDailyAndWeeklyRevenue(totalFee, timestamp, settlementFee);
-
     // Updates referral & NFT discounts tracking
     saveSettlementFeeDiscount(timestamp, totalFee, settlementFee);
+  } else if (token == "ARB") {
+    let totalFeeUSDC = convertARBToUSDC(totalFee);
+    let settlementFeeUSDC = convertARBToUSDC(settlementFee);
+    // Dashboard Page - overview
+    updateDashboardOverviewStats(totalFee, settlementFee, token);
+    updateDashboardOverviewStats(totalFeeUSDC, settlementFeeUSDC, "total");
+
+    // Update daily and weekly volume and fees
+    updateDailyAndWeeklyRevenue(totalFeeUSDC, timestamp, settlementFeeUSDC);
   }
 }
 

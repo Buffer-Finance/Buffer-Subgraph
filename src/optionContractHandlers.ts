@@ -17,7 +17,6 @@ import {
   _loadOrCreateAssetTradingStatEntity,
   _loadOrCreateFeeStat,
   _loadOrCreateUserStat,
-  _loadOrCreateDashboardStat,
   _loadOrCreateReferralData,
   _loadOrCreatePoolStat,
   _loadOrCreateUserRewards,

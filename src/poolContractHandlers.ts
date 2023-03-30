@@ -18,7 +18,6 @@ import {
   _loadOrCreateAssetTradingStatEntity,
   _loadOrCreateFeeStat,
   _loadOrCreateUserStat,
-  _loadOrCreateDashboardStat,
   _loadOrCreateUserRewards,
   _loadOrCreatePoolStat,
 } from "./initialize";

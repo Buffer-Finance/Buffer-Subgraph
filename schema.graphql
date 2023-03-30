@@ -123,6 +123,13 @@ type WeeklyLeaderboard @entity {
   arbVolume: BigInt!
 }
 
+type DashboardStat @entity {
+  id: String!
+  totalVolume: BigInt!
+  totalSettlementFees: BigInt!
+  totalTrades: Int!
+}
+
 type FeeStat @entity {
   id: ID!
   fee: BigInt!
@@ -145,13 +152,6 @@ type ReferralData @entity {
   totalRebateEarned: BigInt!
   totalTradingVolume: BigInt!
   totalDiscountAvailed: BigInt!
-}
-
-type DashboardStat @entity {
-  id: String!
-  totalVolume: BigInt!
-  totalSettlementFees: BigInt!
-  totalTrades: Int!
 }
 
 type TradingStat @entity {
