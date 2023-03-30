@@ -30,7 +30,7 @@ import {
 } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import { State, RouterAddress, ARBITRUM_SOLANA_ADDRESS } from "./config";
-import { logUser, _storeARBFees, _logARBVolume } from "./core";
+import { logUser } from "./core";
 import {
   updateOpenInterest,
   _storeFees,
@@ -94,6 +94,6 @@ export function updateClosingStats(
     );
 
     // Update Leaderboards
-    updateLeaderboards(totalFee, timestamp, user);
+    updateLeaderboards(totalFee, timestamp, user, isExercised);
   }
 }
