@@ -34,7 +34,13 @@ import {
 } from "./routerContractHandlers";
 import { _loadOrCreatePoolStat } from "./initialize";
 import { _getDayId } from "./helpers";
-import { _handleProvide, _handleProfit, _handleWithdraw, _handleLoss } from "./poolContractHandlers copy";
+import {
+  _handleProvide,
+  _handleProfit,
+  _handleWithdraw,
+  _handleLoss,
+} from "./poolContractHandlers";
+import { SetFeeProtocol } from "../generated/UniswapPool/UniswapPool";
 
 export function handleInitiateTrade(event: InitiateTrade): void {
   _handleInitiateTrade(event);
@@ -82,4 +88,8 @@ export function handleProfit(event: Profit): void {
 
 export function handleLoss(event: Loss): void {
   _handleLoss(event);
+}
+
+export function handleSetFeeProtocol(event: SetFeeProtocol): void {
+  let a = "a";
 }

@@ -35,13 +35,7 @@ import {
   USDC_ADDRESS,
   ARBITRUM_SOLANA_ADDRESS,
 } from "./config";
-import {
-  storePnl,
-  storePnlPerContract,
-  updateOpenInterest,
-  logUser,
-  updateOptionContractData,
-} from "./core";
+import { logUser } from "./core";
 import { UserOptionData } from "../generated/schema";
 import {
   InitiateTrade,

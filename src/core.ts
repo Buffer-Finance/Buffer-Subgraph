@@ -36,12 +36,13 @@ export function updateOptionContractData(
   increaseInOpenInterest: boolean,
   isAbove: boolean,
   totalFee: BigInt,
-  contractAddress: Address,
-  totalLockedAmount: BigInt,
-  poolAddress: Address
+  contractAddress: Address
 ): string {
   let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
   let tokenReferrenceID = optionContractData.token;
+  let optionContractInstance = BufferBinaryOptions.bind(contractAddress);
+  let totalLockedAmount = optionContractInstance.totalLockedAmount();
+  let poolAddress = optionContractInstance.pool();
   optionContractData.tradeCount += 1;
   optionContractData.volume = optionContractData.volume.plus(totalFee);
   if (isAbove) {
@@ -96,7 +97,7 @@ export function logUser(timestamp: BigInt, account: Address): void {
   }
 }
 
-function _logVolumeAndSettlementFeePerContract(
+export function _logVolumeAndSettlementFeePerContract(
   id: string,
   period: string,
   timestamp: BigInt,
@@ -123,23 +124,7 @@ function _logVolumeAndSettlementFeePerContract(
   }
 }
 
-function _logVolume(timestamp: BigInt, amount: BigInt): void {
-  let totalEntity = _loadOrCreateVolumeStat("total", "total", timestamp);
-  totalEntity.amount = totalEntity.amount.plus(amount);
-  totalEntity.save();
-
-  let id = _getDayId(timestamp);
-  let dailyEntity = _loadOrCreateVolumeStat(id, "daily", timestamp);
-  dailyEntity.amount = dailyEntity.amount.plus(amount);
-  dailyEntity.save();
-
-  let hourID = _getHourId(timestamp);
-  let hourlyEntity = _loadOrCreateVolumeStat(hourID, "hourly", timestamp);
-  hourlyEntity.amount = hourlyEntity.amount.plus(amount);
-  hourlyEntity.save();
-}
-
-function _logARBVolume(timestamp: BigInt, amount: BigInt): void {
+export function _logARBVolume(timestamp: BigInt, amount: BigInt): void {
   let totalEntity = _loadOrCreateARBVolumeStat("total", "total", timestamp);
   totalEntity.amount = totalEntity.amount.plus(amount);
   totalEntity.save();
@@ -155,18 +140,7 @@ function _logARBVolume(timestamp: BigInt, amount: BigInt): void {
   hourlyEntity.save();
 }
 
-function _storeFees(timestamp: BigInt, fees: BigInt): void {
-  let id = _getDayId(timestamp);
-  let entity = _loadOrCreateFeeStat(id, "daily", timestamp);
-  entity.fee = entity.fee.plus(fees);
-  entity.save();
-
-  let totalEntity = _loadOrCreateFeeStat("total", "total", timestamp);
-  totalEntity.fee = totalEntity.fee.plus(fees);
-  totalEntity.save();
-}
-
-function _storeARBFees(timestamp: BigInt, fees: BigInt): void {
+export function _storeARBFees(timestamp: BigInt, fees: BigInt): void {
   let id = _getDayId(timestamp);
   let entity = _loadOrCreateARBFeeStat(id, "daily", timestamp);
   entity.fee = entity.fee.plus(fees);
@@ -175,100 +149,4 @@ function _storeARBFees(timestamp: BigInt, fees: BigInt): void {
   let totalEntity = _loadOrCreateARBFeeStat("total", "total", timestamp);
   totalEntity.fee = totalEntity.fee.plus(fees);
   totalEntity.save();
-}
-
-export function storePnl(
-  timestamp: BigInt,
-  pnl: BigInt,
-  isProfit: boolean
-): void {
-  let totalEntity = _loadOrCreateTradingStatEntity("total", "total", timestamp);
-  let dayID = _getDayId(timestamp);
-  let dailyEntity = _loadOrCreateTradingStatEntity(dayID, "daily", timestamp);
-
-  if (isProfit) {
-    totalEntity.profitCumulative = totalEntity.profitCumulative.plus(pnl);
-    dailyEntity.profit = dailyEntity.profit.plus(pnl);
-  } else {
-    totalEntity.lossCumulative = totalEntity.lossCumulative.plus(pnl);
-    dailyEntity.loss = dailyEntity.loss.plus(pnl);
-  }
-  totalEntity.save();
-  let totalEntityV2 = _loadOrCreateTradingStatEntity(
-    "total",
-    "total",
-    timestamp
-  );
-  dailyEntity.profitCumulative = totalEntityV2.profitCumulative;
-  dailyEntity.lossCumulative = totalEntityV2.lossCumulative;
-  dailyEntity.save();
-}
-
-export function storePnlPerContract(
-  timestamp: BigInt,
-  pnl: BigInt,
-  isProfit: boolean,
-  contractAddress: Bytes
-): void {
-  let totalID = `total-${contractAddress}`;
-  let totalEntity = _loadOrCreateAssetTradingStatEntity(
-    totalID,
-    "total",
-    timestamp,
-    contractAddress,
-    "total"
-  );
-  let dayID = _getDayId(timestamp);
-  let id = `${dayID}-${contractAddress}`;
-  let dailyEntity = _loadOrCreateAssetTradingStatEntity(
-    id,
-    "daily",
-    timestamp,
-    contractAddress,
-    dayID
-  );
-
-  if (isProfit) {
-    totalEntity.profitCumulative = totalEntity.profitCumulative.plus(pnl);
-    dailyEntity.profit = dailyEntity.profit.plus(pnl);
-  } else {
-    totalEntity.lossCumulative = totalEntity.lossCumulative.plus(pnl);
-    dailyEntity.loss = dailyEntity.loss.plus(pnl);
-  }
-  totalEntity.save();
-  let totalEntityV2 = _loadOrCreateAssetTradingStatEntity(
-    totalID,
-    "total",
-    timestamp,
-    contractAddress,
-    "total"
-  );
-  dailyEntity.profitCumulative = totalEntityV2.profitCumulative;
-  dailyEntity.lossCumulative = totalEntityV2.lossCumulative;
-  dailyEntity.save();
-}
-
-export function updateOpenInterest(
-  timestamp: BigInt,
-  increaseInOpenInterest: boolean,
-  isAbove: boolean,
-  amount: BigInt
-): void {
-  let totalId = "total";
-  let totalEntity = _loadOrCreateTradingStatEntity(totalId, "total", timestamp);
-  if (isAbove) {
-    totalEntity.longOpenInterest = increaseInOpenInterest
-      ? totalEntity.longOpenInterest.plus(amount)
-      : totalEntity.longOpenInterest.minus(amount);
-  } else {
-    totalEntity.shortOpenInterest = increaseInOpenInterest
-      ? totalEntity.shortOpenInterest.plus(amount)
-      : totalEntity.shortOpenInterest.minus(amount);
-  }
-  totalEntity.save();
-  let dayID = _getDayId(timestamp);
-  let dailyEntity = _loadOrCreateTradingStatEntity(dayID, "daily", timestamp);
-  dailyEntity.longOpenInterest = totalEntity.longOpenInterest;
-  dailyEntity.shortOpenInterest = totalEntity.shortOpenInterest;
-  dailyEntity.save();
 }
