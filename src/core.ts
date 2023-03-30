@@ -1,31 +1,15 @@
-import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
+import { BigInt, Address } from "@graphprotocol/graph-ts";
 import {
-  Create,
   BufferBinaryOptions,
 } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
-import { BinaryPool } from "../generated/BinaryPool/BinaryPool";
-import { User, VolumePerContract } from "../generated/schema";
-import { _getDayId, _getHourId, _getWeekId } from "./helpers";
+import { User } from "../generated/schema";
+import { _getDayId } from "./helpers";
 import {
   _loadOrCreateOptionContractEntity,
-  _loadOrCreateOptionDataEntity,
-  _loadOrCreateQueuedOptionEntity,
-  _loadOrCreateVolumeStat,
-  _loadOrCreateAssetTradingStatEntity,
-  _loadOrCreateFeeStat,
   _loadOrCreateUserStat,
-  _loadOrCreateWeeklyRevenueAndFee,
-  _loadOrCreateUserRewards,
   _calculateCurrentUtilization,
 } from "./initialize";
-import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import { DailyUserStat } from "../generated/schema";
-import {
-  State,
-  RouterAddress,
-  USDC_ADDRESS,
-  ARB_TOKEN_ADDRESS,
-} from "./config";
 
 export function updateOptionContractData(
   increaseInOpenInterest: boolean,

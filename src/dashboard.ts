@@ -1,32 +1,7 @@
-import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
-import {
-  Create,
-  BufferBinaryOptions,
-} from "../generated/BufferBinaryOptions/BufferBinaryOptions";
-import { BinaryPool } from "../generated/BinaryPool/BinaryPool";
-import { User, VolumePerContract } from "../generated/schema";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { VolumePerContract } from "../generated/schema";
 import { _getDayId, _getHourId, _getWeekId } from "./helpers";
-import {
-  _loadOrCreateOptionContractEntity,
-  _loadOrCreateOptionDataEntity,
-  _loadOrCreateQueuedOptionEntity,
-  _loadOrCreateVolumeStat,
-  _loadOrCreateAssetTradingStatEntity,
-  _loadOrCreateFeeStat,
-  _loadOrCreateUserStat,
-  _loadOrCreateDashboardStat,
-  _loadOrCreateWeeklyRevenueAndFee,
-  _loadOrCreateUserRewards,
-  _calculateCurrentUtilization,
-} from "./initialize";
-import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
-import { DailyUserStat } from "../generated/schema";
-import {
-  State,
-  RouterAddress,
-  USDC_ADDRESS,
-  ARB_TOKEN_ADDRESS,
-} from "./config";
+import { _loadOrCreateDashboardStat } from "./initialize";
 
 // For the overview section
 export function updateDashboardOverviewStats(

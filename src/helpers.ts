@@ -1,5 +1,4 @@
 import { BigInt } from "@graphprotocol/graph-ts";
-import { Address } from "@graphprotocol/graph-ts";
 
 export function _getDayId(timestamp: BigInt): string {
   let dayTimestamp = (timestamp.toI32() - 16 * 3600) / 86400;
@@ -15,4 +14,3 @@ export function _getHourId(timestamp: BigInt): string {
   let hourTimestamp = (timestamp.toI32() - 16 * 3600) / 3600;
   return hourTimestamp.toString();
 }
-

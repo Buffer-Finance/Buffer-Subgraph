@@ -1,32 +1,6 @@
-import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
-import {
-  Create,
-  Expire,
-  Exercise,
-  UpdateReferral,
-  Pause,
-  BufferBinaryOptions,
-} from "../generated/BufferBinaryOptions/BufferBinaryOptions";
-import { BinaryPool, Profit } from "../generated/BinaryPool/BinaryPool";
-import { User, VolumePerContract } from "../generated/schema";
-import { _getDayId, _getHourId, _getWeekId } from "./helpers";
-import {
-  _loadOrCreateOptionContractEntity,
-  _loadOrCreateOptionDataEntity,
-  _loadOrCreateQueuedOptionEntity,
-  _loadOrCreateVolumeStat,
-  _loadOrCreateAssetTradingStatEntity,
-  _loadOrCreateFeeStat,
-  _loadOrCreateUserStat,
-  _loadOrCreateWeeklyRevenueAndFee,
-  _loadOrCreateReferralData,
-  _loadOrCreatePoolStat,
-  _loadOrCreateUserRewards,
-  ZERO,
-} from "./initialize";
-import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
-import { State, RouterAddress, ARBITRUM_SOLANA_ADDRESS } from "./config";
-import { logUser } from "./core";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { _getHourId } from "./helpers";
+import { ZERO } from "./initialize";
 import {
   updateOpenInterest,
   storeFees,
@@ -35,7 +9,6 @@ import {
   storePnlPerContract,
   saveSettlementFeeDiscount,
 } from "./stats";
-import { UserOptionData } from "../generated/schema";
 import { updateDailyAndWeeklyRevenue, updateLeaderboards } from "./leaderboard";
 import {
   logVolumeAndSettlementFeePerContract,

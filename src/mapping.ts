@@ -6,20 +6,16 @@ import {
   Pause,
 } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import {
-  BinaryPool,
   Provide,
   Withdraw,
   Profit,
   Loss,
 } from "../generated/BinaryPool/BinaryPool";
-import { USDC } from "../generated/USDC/USDC";
 import {
   InitiateTrade,
   CancelTrade,
   OpenTrade,
 } from "../generated/BufferRouter/BufferRouter";
-import { USDC_ADDRESS } from "./config";
-import { Address, BigInt, log } from "@graphprotocol/graph-ts";
 import {
   _handleCreate,
   _handleExpire,
@@ -32,8 +28,6 @@ import {
   _handleOpenTrade,
   _handleInitiateTrade,
 } from "./routerContractHandlers";
-import { _loadOrCreatePoolStat } from "./initialize";
-import { _getDayId } from "./helpers";
 import {
   _handleProvide,
   _handleProfit,

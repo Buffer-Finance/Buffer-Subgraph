@@ -1,7 +1,6 @@
 import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   UserOptionData,
-  User,
   OptionContract,
   ReferralData,
   DashboardStat,
@@ -21,12 +20,7 @@ import {
 import { _getDayId } from "./helpers";
 import { BufferBinaryOptions } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import { BinaryPool } from "../generated/BinaryPool/BinaryPool";
-import {
-  State,
-  RouterAddress,
-  USDC_ADDRESS,
-  ARB_TOKEN_ADDRESS,
-} from "./config";
+import { USDC_ADDRESS, ARB_TOKEN_ADDRESS } from "./config";
 
 export const ZERO = BigInt.fromI32(0);
 
