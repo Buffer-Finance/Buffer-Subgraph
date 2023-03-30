@@ -71,11 +71,6 @@ export function _handleCreate(event: Create): void {
       isAbove,
       contractAddress
     );
-
-    if (userOptionData.depositToken == "ARB") {
-      userOptionData.ARBVolume = convertARBToUSDC(totalFee);
-      userOptionData.save();
-    }
   }
 }
 

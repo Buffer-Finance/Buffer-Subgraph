@@ -28,7 +28,7 @@ import {
   ARB_TOKEN_ADDRESS,
 } from "./config";
 
-let ZERO = BigInt.fromI32(0);
+export const ZERO = BigInt.fromI32(0);
 
 export function _calculateCurrentUtilization(
   totalLockedAmount: BigInt,
@@ -201,6 +201,7 @@ export function _loadOrCreateWeeklyLeaderboardEntity(
     entity.netPnL = ZERO;
     entity.tradesWon = 0;
     entity.winRate = 0;
+    entity.arbVolume = ZERO;
     entity.save();
   }
   return entity as WeeklyLeaderboard;

@@ -21,6 +21,16 @@ type OptionContract @entity {
   asset: String
 }
 
+type VolumePerContract @entity {
+  id: String!
+  amount: BigInt!
+  period: Period!
+  timestamp: BigInt!
+  depositToken: String!
+  optionContract: OptionContract!
+  settlementFee: BigInt!
+}
+
 type QueuedOptionData @entity {
   id: String!
   optionContract: OptionContract!
@@ -57,12 +67,39 @@ type UserOptionData @entity {
   queueID: BigInt
   settlementFee: BigInt!
   lag: BigInt!
-  ARBVolume: String
 }
 
 type User @entity {
   id: Bytes!
   address: Bytes!
+}
+
+type UserStat @entity {
+  id: ID!
+  uniqueCount: Int!
+  uniqueCountCumulative: Int!
+  period: Period!
+  timestamp: BigInt
+  existingCount: Int!
+  users: [User!]!
+}
+
+type DailyUserStat @entity {
+  id: String!
+}
+
+type DailyRevenueAndFee @entity {
+  id: String!
+  totalFee: BigInt!
+  settlementFee: BigInt!
+  timestamp: BigInt!
+}
+
+type WeeklyRevenueAndFee @entity {
+  id: String!
+  totalFee: BigInt!
+  settlementFee: BigInt!
+  timestamp: BigInt!
 }
 
 type Leaderboard @entity {
@@ -83,6 +120,7 @@ type WeeklyLeaderboard @entity {
   timestamp: String!
   tradesWon: Int!
   winRate: Int!
+  arbVolume: BigInt!
 }
 
 type FeeStat @entity {
@@ -116,30 +154,6 @@ type DashboardStat @entity {
   totalTrades: Int!
 }
 
-type VolumePerContract @entity {
-  id: String!
-  amount: BigInt!
-  period: Period!
-  timestamp: BigInt!
-  depositToken: String!
-  optionContract: OptionContract!
-  settlementFee: BigInt!
-}
-
-type UserStat @entity {
-  id: ID!
-  uniqueCount: Int!
-  uniqueCountCumulative: Int!
-  period: Period!
-  timestamp: BigInt
-  existingCount: Int!
-  users: [User!]!
-}
-
-type DailyUserStat @entity {
-  id: String!
-}
-
 type TradingStat @entity {
   id: ID!
   profit: BigInt!
@@ -158,20 +172,6 @@ type PoolStat @entity {
   period: Period!
   timestamp: BigInt!
   rate: BigInt!
-}
-
-type DailyRevenueAndFee @entity {
-  id: String!
-  totalFee: BigInt!
-  settlementFee: BigInt!
-  timestamp: BigInt!
-}
-
-type WeeklyRevenueAndFee @entity {
-  id: String!
-  totalFee: BigInt!
-  settlementFee: BigInt!
-  timestamp: BigInt!
 }
 
 type BFRHolderData @entity {

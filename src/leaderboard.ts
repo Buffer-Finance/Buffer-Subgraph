@@ -37,10 +37,11 @@ export function updateLeaderboards(
   totalFee: BigInt,
   timestamp: BigInt,
   user: Bytes,
-  isExercised: boolean
+  isExercised: boolean,
+  arbVolume: BigInt
 ): void {
   _updateDailyLeaderboard(totalFee, timestamp, user, isExercised);
-  _updateWeeklyLeaderboard(totalFee, timestamp, user, isExercised);
+  _updateWeeklyLeaderboard(totalFee, timestamp, user, isExercised, arbVolume);
 }
 
 //To calculate Reward Pool for leaderboards
@@ -92,7 +93,8 @@ function _updateWeeklyLeaderboard(
   totalFee: BigInt,
   timestamp: BigInt,
   user: Bytes,
-  isExercised: boolean
+  isExercised: boolean,
+  arbVolume: BigInt
 ): void {
   let weeklyLeaderboardEntity = _loadOrCreateWeeklyLeaderboardEntity(
     _getWeekId(timestamp),
@@ -105,6 +107,9 @@ function _updateWeeklyLeaderboard(
   weeklyLeaderboardEntity.netPnL = isExercised
     ? weeklyLeaderboardEntity.netPnL.plus(totalFee)
     : weeklyLeaderboardEntity.netPnL.minus(totalFee);
+  weeklyLeaderboardEntity.arbVolume = weeklyLeaderboardEntity.arbVolume.plus(
+    arbVolume
+  );
   if (isExercised) {
     weeklyLeaderboardEntity.tradesWon += 1;
     weeklyLeaderboardEntity.winRate =

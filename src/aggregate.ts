@@ -25,6 +25,7 @@ import {
   _loadOrCreateReferralData,
   _loadOrCreatePoolStat,
   _loadOrCreateUserRewards,
+  ZERO,
 } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import { State, RouterAddress, ARBITRUM_SOLANA_ADDRESS } from "./config";
@@ -43,6 +44,7 @@ import {
   logVolumeAndSettlementFeePerContract,
   updateDashboardOverviewStats,
 } from "./dashboard";
+import { convertARBToUSDC } from "./convertToUSDC";
 
 export function updateOpeningStats(
   token: string,
@@ -97,10 +99,8 @@ export function updateClosingStats(
   if (token == "USDC") {
     // Update daily & total open interest
     updateOpenInterest(timestamp, false, isAbove, totalFee);
-
     // Update daily & total PnL for stats page
     storePnl(timestamp, totalFee.minus(settlementFee), isExercised);
-
     // Update daily & total PnL per contracts for stats page
     storePnlPerContract(
       timestamp,
@@ -108,8 +108,22 @@ export function updateClosingStats(
       isExercised,
       contractAddress
     );
-
     // Update Leaderboards
-    updateLeaderboards(totalFee, timestamp, user, isExercised);
+    updateLeaderboards(totalFee, timestamp, user, isExercised, ZERO);
+  } else if (token == "ARB") {
+    let usdcVolume = convertARBToUSDC(totalFee);
+    // Update daily & total open interest
+    updateOpenInterest(timestamp, false, isAbove, totalFee);
+    // Update daily & total PnL for stats page
+    storePnl(timestamp, totalFee.minus(settlementFee), isExercised);
+    // Update daily & total PnL per contracts for stats page
+    storePnlPerContract(
+      timestamp,
+      totalFee.minus(settlementFee),
+      isExercised,
+      contractAddress
+    );
+    // Update Leaderboards
+    updateLeaderboards(usdcVolume, timestamp, user, isExercised, totalFee);
   }
 }
