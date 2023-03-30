@@ -174,18 +174,6 @@ type PoolStat @entity {
   rate: BigInt!
 }
 
-type BFRHolderData @entity {
-  id: String!
-  holders: Int!
-  period: Period!
-  timestamp: BigInt!
-}
-
-type BFRHolder @entity {
-  id: String!
-  balance: BigInt!
-}
-
 type AssetTradingStat @entity {
   id: ID!
   contractAddress: Bytes!
@@ -206,4 +194,16 @@ type UserRewards @entity {
   cumulativeReward: BigInt!
   period: Period!
   timestamp: BigInt!
+}
+
+type BFRHolderData @entity {
+  id: String!
+  holders: Int!
+  period: Period!
+  timestamp: BigInt!
+}
+
+type BFRHolder @entity {
+  id: String!
+  balance: BigInt!
 }
