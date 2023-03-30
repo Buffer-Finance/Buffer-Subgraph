@@ -155,8 +155,8 @@ export function _handleUpdateReferral(event: UpdateReferral): void {
   let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
   let optionContractEntity = _loadOrCreateOptionContractEntity(event.address);
   if (routerContract.contractRegistry(event.address) == true) {
+    let userReferralData = _loadOrCreateReferralData(event.params.user);
     if (optionContractEntity.token == "USDC") {
-      let userReferralData = _loadOrCreateReferralData(event.params.user);
       userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
         event.params.rebate
       );
@@ -181,6 +181,32 @@ export function _handleUpdateReferral(event: UpdateReferral): void {
         event.block.timestamp,
         event.params.rebate,
         event.params.referrerFee
+      );
+    } else if (optionContractEntity.token == "ARB") {
+      userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
+        convertARBToUSDC(event.params.rebate)
+      );
+      userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
+        convertARBToUSDC(event.params.totalFee)
+      );
+      userReferralData.save();
+
+      let referrerReferralData = _loadOrCreateReferralData(
+        event.params.referrer
+      );
+      referrerReferralData.totalTradesReferred += 1;
+      referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
+        convertARBToUSDC(event.params.totalFee)
+      );
+      referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
+        convertARBToUSDC(event.params.referrerFee)
+      );
+      referrerReferralData.save();
+
+      referralAndNFTDiscountStats(
+        event.block.timestamp,
+        convertARBToUSDC(event.params.rebate),
+        convertARBToUSDC(event.params.referrerFee)
       );
     }
   }
