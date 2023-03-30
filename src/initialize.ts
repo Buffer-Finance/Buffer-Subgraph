@@ -18,13 +18,81 @@ import {
   DailyRevenueAndFee,
   WeeklyRevenueAndFee,
   PoolStat,
-  UserRewards
+  UserRewards,
 } from "../generated/schema";
 import { _getDayId } from "./helpers";
+import { BufferBinaryOptions } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
+import { BinaryPool } from "../generated/BinaryPool/BinaryPool";
 import {
-  BufferBinaryOptions
-} from "../generated/BufferBinaryOptions/BufferBinaryOptions";
+  State,
+  RouterAddress,
+  USDC_ADDRESS,
+  ARB_TOKEN_ADDRESS,
+} from "./config";
+
 let ZERO = BigInt.fromI32(0);
+
+export function _calculateCurrentUtilization(
+  totalLockedAmount: BigInt,
+  poolAddress: Address
+): BigInt {
+  let poolContractInstance = BinaryPool.bind(poolAddress);
+  let currentUtilization = totalLockedAmount
+    .times(BigInt.fromI64(1000000000000000000))
+    .div(poolContractInstance.totalTokenXBalance());
+  return currentUtilization;
+}
+
+//TODO: Scan Config for settlement fee update
+export function calculatePayout(settlementFeePercent: BigInt): BigInt {
+  let payout = BigInt.fromI64(1000000000000000000).minus(
+    settlementFeePercent.times(BigInt.fromI64(200000000000000))
+  );
+  return payout;
+}
+
+export function _loadOrCreateOptionContractEntity(
+  contractAddress: Address
+): OptionContract {
+  let optionContract = OptionContract.load(contractAddress);
+  if (optionContract == null) {
+    let optionContractInstance = BufferBinaryOptions.bind(
+      Address.fromBytes(contractAddress)
+    );
+    let totalLockedAmount = optionContractInstance.totalLockedAmount();
+    let poolAddress = optionContractInstance.pool();
+    optionContract = new OptionContract(contractAddress);
+    optionContract.address = contractAddress;
+    optionContract.isPaused = optionContractInstance.isPaused();
+    optionContract.volume = ZERO;
+    optionContract.tradeCount = 0;
+    optionContract.openDown = ZERO;
+    optionContract.openUp = ZERO;
+    optionContract.openInterest = ZERO;
+    optionContract.currentUtilization = ZERO;
+    optionContract.payoutForDown = ZERO;
+    optionContract.payoutForUp = ZERO;
+    optionContract.asset = optionContractInstance.assetPair();
+    let optionContractToken = optionContractInstance.tokenX();
+    if (optionContractToken == Address.fromString(USDC_ADDRESS)) {
+      optionContract.token = "USDC";
+    } else if (optionContractToken == Address.fromString(ARB_TOKEN_ADDRESS)) {
+      optionContract.token = "ARB";
+    }
+    optionContract.payoutForDown = calculatePayout(
+      BigInt.fromI32(
+        optionContractInstance.baseSettlementFeePercentageForBelow()
+      )
+    );
+    optionContract.payoutForUp = calculatePayout(
+      BigInt.fromI32(
+        optionContractInstance.baseSettlementFeePercentageForAbove()
+      )
+    );
+    optionContract.save();
+  }
+  return optionContract as OptionContract;
+}
 
 export function _loadOrCreateTradingStatEntity(
   id: string,
@@ -80,7 +148,7 @@ export function _loadOrCreateQueuedOptionEntity(
     entity.optionContract = contractAddress;
     entity.queuedTimestamp = ZERO;
     entity.lag = ZERO;
-    entity.processTime = ZERO
+    entity.processTime = ZERO;
     entity.save();
   }
   return entity as QueuedOptionData;
@@ -117,7 +185,7 @@ export function _loadOrCreateLeaderboardEntity(
     entity.totalTrades = 0;
     entity.volume = ZERO;
     entity.netPnL = ZERO;
-    entity.save()
+    entity.save();
   }
   return entity as Leaderboard;
 }
@@ -137,7 +205,7 @@ export function _loadOrCreateWeeklyLeaderboardEntity(
     entity.netPnL = ZERO;
     entity.tradesWon = 0;
     entity.winRate = 0;
-    entity.save()
+    entity.save();
   }
   return entity as WeeklyLeaderboard;
 }
@@ -190,30 +258,6 @@ export function _loadOrCreateARBVolumeStat(
     entity.save();
   }
   return entity as ARBVolumeStat;
-}
-
-export function _loadOrCreateOptionContractEntity(
-  contractAddress: Address
-): OptionContract {
-  let optionContract = OptionContract.load(contractAddress);
-  if (optionContract == null) {
-    let optionContractInstance = BufferBinaryOptions.bind(Address.fromBytes(contractAddress));
-    optionContract = new OptionContract(contractAddress);
-    optionContract.address = contractAddress;
-    optionContract.isPaused = optionContractInstance.isPaused();
-    optionContract.volume = ZERO;
-    optionContract.tradeCount = 0;
-    optionContract.openDown = ZERO;
-    optionContract.openUp = ZERO;
-    optionContract.openInterest = ZERO;
-    optionContract.currentUtilization = ZERO;
-    optionContract.payoutForDown = ZERO;
-    optionContract.payoutForUp = ZERO;
-    optionContract.token = ""
-    optionContract.asset = optionContractInstance.assetPair();
-    optionContract.save();
-  }
-  return optionContract as OptionContract;
 }
 
 export function _loadOrCreateFeeStat(
@@ -275,7 +319,7 @@ export function _loadOrCreateDashboardStat(id: string): DashboardStat {
   return dashboardStat as DashboardStat;
 }
 
-export function _loadOrCreatePoolStat(id: string, period:string): PoolStat {
+export function _loadOrCreatePoolStat(id: string, period: string): PoolStat {
   let poolStat = PoolStat.load(id);
   if (poolStat == null) {
     poolStat = new PoolStat(id);
