@@ -82,6 +82,7 @@ type UserOptionData @entity {
   queueID: BigInt
   settlementFee: BigInt!
   lag: BigInt!
+  ARBVolume : BigInt!
 }
 
 type FeeStat @entity {

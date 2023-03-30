@@ -39,7 +39,6 @@ import {
   storePnl,
   storePnlPerContract,
   updateOpenInterest,
-  updateOpenInterestPerContract,
   logUser,
   updateOptionContractData,
 } from "./core";

@@ -59,8 +59,6 @@ export function _loadOrCreateOptionContractEntity(
     let optionContractInstance = BufferBinaryOptions.bind(
       Address.fromBytes(contractAddress)
     );
-    let totalLockedAmount = optionContractInstance.totalLockedAmount();
-    let poolAddress = optionContractInstance.pool();
     optionContract = new OptionContract(contractAddress);
     optionContract.address = contractAddress;
     optionContract.isPaused = optionContractInstance.isPaused();

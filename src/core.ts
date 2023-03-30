@@ -21,7 +21,7 @@ import {
   _loadOrCreateWeeklyRevenueAndFee,
   _loadOrCreateUserRewards,
   _loadOrCreateARBFeeStat,
-  _calculateCurrentUtilization
+  _calculateCurrentUtilization,
 } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import { DailyUserStat } from "../generated/schema";
@@ -63,6 +63,37 @@ export function updateOptionContractData(
   );
   optionContractData.save();
   return tokenReferrenceID;
+}
+
+export function logUser(timestamp: BigInt, account: Address): void {
+  let user = User.load(account);
+  let id = _getDayId(timestamp);
+  let dailyUserStatid = `${id}-${account.toString()}`;
+  let userStat = _loadOrCreateUserStat(id, "daily", timestamp);
+  if (user == null) {
+    let totalUserStat = _loadOrCreateUserStat("total", "total", timestamp);
+    totalUserStat.uniqueCountCumulative =
+      totalUserStat.uniqueCountCumulative + 1;
+    totalUserStat.save();
+
+    userStat.uniqueCount = userStat.uniqueCount + 1;
+    userStat.save();
+
+    user = new User(account);
+    user.address = account;
+    user.save();
+
+    let dailyUserStat = new DailyUserStat(dailyUserStatid);
+    dailyUserStat.save();
+  } else {
+    let entity = DailyUserStat.load(dailyUserStatid);
+    if (entity == null) {
+      userStat.existingCount += 1;
+      userStat.save();
+      entity = new DailyUserStat(dailyUserStatid);
+      entity.save();
+    }
+  }
 }
 
 function _logVolumeAndSettlementFeePerContract(
@@ -146,39 +177,6 @@ function _storeARBFees(timestamp: BigInt, fees: BigInt): void {
   totalEntity.save();
 }
 
-export function logUser(timestamp: BigInt, account: Address): void {
-  let user = User.load(account);
-  let id = _getDayId(timestamp);
-  let dailyUserStatid = `${id}-${account.toString()}`;
-  let userStat = _loadOrCreateUserStat(id, "daily", timestamp);
-  if (user == null) {
-    let totalUserStat = _loadOrCreateUserStat("total", "total", timestamp);
-    totalUserStat.uniqueCountCumulative =
-      totalUserStat.uniqueCountCumulative + 1;
-    totalUserStat.save();
-
-    userStat.uniqueCount = userStat.uniqueCount + 1;
-    userStat.existingCount += 1;
-    userStat.users = userStat.users.concat([account]);
-    userStat.save();
-
-    user = new User(account);
-    user.address = account;
-    user.save();
-
-    let dailyUserStat = new DailyUserStat(dailyUserStatid);
-    dailyUserStat.save();
-  } else {
-    let entity = DailyUserStat.load(dailyUserStatid);
-    if (entity == null) {
-      userStat.existingCount += 1;
-      userStat.save();
-      entity = new DailyUserStat(dailyUserStatid);
-      entity.save();
-    }
-  }
-}
-
 export function storePnl(
   timestamp: BigInt,
   pnl: BigInt,
@@ -248,28 +246,6 @@ export function storePnlPerContract(
   dailyEntity.profitCumulative = totalEntityV2.profitCumulative;
   dailyEntity.lossCumulative = totalEntityV2.lossCumulative;
   dailyEntity.save();
-}
-
-export function updateOpenInterestPerContract(
-  increaseInOpenInterest: boolean,
-  isAbove: boolean,
-  totalFee: BigInt,
-  contractAddress: Address
-): void {
-  let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
-  if (isAbove) {
-    optionContractData.openUp = increaseInOpenInterest
-      ? optionContractData.openUp.plus(totalFee)
-      : optionContractData.openUp.minus(totalFee);
-  } else {
-    optionContractData.openDown = increaseInOpenInterest
-      ? optionContractData.openDown.plus(totalFee)
-      : optionContractData.openDown.minus(totalFee);
-  }
-  optionContractData.openInterest = increaseInOpenInterest
-    ? optionContractData.openInterest.plus(totalFee)
-    : optionContractData.openInterest.minus(totalFee);
-  optionContractData.save();
 }
 
 export function updateOpenInterest(
