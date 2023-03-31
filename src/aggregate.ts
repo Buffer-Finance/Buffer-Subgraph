@@ -42,6 +42,15 @@ export function updateOpeningStats(
       totalFee,
       settlementFee
     );
+    logVolumeAndSettlementFeePerContract(
+      _getHourId(timestamp),
+      "hourly",
+      timestamp,
+      contractAddress,
+      "total",
+      totalFee,
+      settlementFee
+    );
 
     // Update daily & total fees
     storeFees(timestamp, settlementFee);
@@ -57,12 +66,34 @@ export function updateOpeningStats(
   } else if (token == "ARB") {
     let totalFeeUSDC = convertARBToUSDC(totalFee);
     let settlementFeeUSDC = convertARBToUSDC(settlementFee);
+
     // Dashboard Page - overview
     updateDashboardOverviewStats(totalFee, settlementFee, token);
     updateDashboardOverviewStats(totalFeeUSDC, settlementFeeUSDC, "total");
 
     // Update daily and weekly volume and fees
     updateDailyAndWeeklyRevenue(totalFeeUSDC, timestamp, settlementFeeUSDC);
+
+    // Dashboard Page - markets table
+    logVolumeAndSettlementFeePerContract(
+      _getHourId(timestamp),
+      "hourly",
+      timestamp,
+      contractAddress,
+      token,
+      totalFee,
+      settlementFee
+    );
+    // Dashboard Page - markets table
+    logVolumeAndSettlementFeePerContract(
+      _getHourId(timestamp),
+      "hourly",
+      timestamp,
+      contractAddress,
+      "total",
+      totalFeeUSDC,
+      settlementFeeUSDC
+    );
 
     // Update daily & total fees
     storeFees(timestamp, settlementFeeUSDC);
@@ -75,17 +106,6 @@ export function updateOpeningStats(
 
     // Updates referral & NFT discounts tracking
     saveSettlementFeeDiscount(timestamp, totalFeeUSDC, settlementFeeUSDC);
-
-    // Dashboard Page - markets table
-    logVolumeAndSettlementFeePerContract(
-      _getHourId(timestamp),
-      "hourly",
-      timestamp,
-      contractAddress,
-      token,
-      totalFee,
-      settlementFee
-    );
   }
 }
 
