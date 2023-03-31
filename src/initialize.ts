@@ -15,6 +15,7 @@ import {
   DailyRevenueAndFee,
   WeeklyRevenueAndFee,
   PoolStat,
+  ARBPoolStat,
   UserRewards,
 } from "../generated/schema";
 import { _getDayId } from "./helpers";
@@ -287,6 +288,20 @@ export function _loadOrCreatePoolStat(id: string, period: string): PoolStat {
     poolStat.rate = ZERO;
   }
   return poolStat as PoolStat;
+}
+
+export function _loadOrCreateARBPoolStat(
+  id: string,
+  period: string
+): ARBPoolStat {
+  let poolStat = ARBPoolStat.load(id);
+  if (poolStat == null) {
+    poolStat = new ARBPoolStat(id);
+    poolStat.amount = ZERO;
+    poolStat.period = period;
+    poolStat.rate = ZERO;
+  }
+  return poolStat as ARBPoolStat;
 }
 
 export function _loadOrCreateDailyRevenueAndFee(

@@ -81,9 +81,9 @@ export function handleLoss(event: Loss): void {
 }
 
 export function handleSetFeeProtocol(event: SetFeeProtocol): void {
-  console.log("skip");
+  let a = "a";
 }
 
 export function handleTransfer(event: Transfer): void {
-  console.log("skip");
+  let a = "a";
 }

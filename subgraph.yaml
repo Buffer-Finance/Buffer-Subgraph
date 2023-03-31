@@ -69,7 +69,7 @@ dataSources:
     source:
       address: "0x81c48D31365e6B526f6BBadC5c9aaFd822134863"
       abi: UniswapPool
-      startBlock: 56585555
+      startBlock: 70813585
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -84,7 +84,7 @@ dataSources:
           handler: handleSetFeeProtocol
       file: ./src/mapping.ts
   - kind: ethereum/contract
-    name: BinaryPool
+    name: BinaryPoolUSDC
     network: arbitrum-one
     source:
       address: "0x6Ec7B10bF7331794adAaf235cb47a2A292cD9c7e"
@@ -118,6 +118,54 @@ dataSources:
       address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
       abi: USDC
       startBlock: 48022251
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      abis:
+        - name: USDC
+          file: ./abis/USDC.json
+      entities:
+        - UserOptionData
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleSetFeeProtocol
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: BinaryPoolARB
+    network: arbitrum-one
+    source:
+      address: "0xaE0628C88EC6C418B3F5C005f804E905f8123833"
+      abi: BinaryPool
+      startBlock: 70813585
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - UserOptionData
+      abis:
+        - name: BinaryPool
+          file: ./abis/BinaryPool.json
+        - name: USDC
+          file: ./abis/USDC.json
+      eventHandlers:
+        - event: Provide(indexed address,uint256,uint256)
+          handler: handleProvide
+        - event: Withdraw(indexed address,uint256,uint256)
+          handler: handleWithdraw
+        - event: Profit(indexed uint256,uint256)
+          handler: handleProvide
+        - event: Loss(indexed uint256,uint256)
+          handler: handleWithdraw
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: ARB
+    network: arbitrum-one
+    source:
+      address: "0x912CE59144191C1204E64559FE8253a0e49E6548"
+      abi: USDC
+      startBlock: 70813585
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
