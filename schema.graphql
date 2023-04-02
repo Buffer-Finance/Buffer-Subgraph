@@ -157,10 +157,20 @@ type ReferralData @entity {
   id: Bytes!
   user: User!
   totalTradesReferred: Int!
+  totalTradesReferredARB: Int!
+  totalTradesReferredUSDC: Int!
   totalVolumeOfReferredTrades: BigInt!
+  totalVolumeOfReferredTradesARB: BigInt!
+  totalVolumeOfReferredTradesUSDC: BigInt!
   totalRebateEarned: BigInt!
+  totalRebateEarnedARB: BigInt!
+  totalRebateEarnedUSDC: BigInt!
   totalTradingVolume: BigInt!
+  totalTradingVolumeARB: BigInt!
+  totalTradingVolumeUSDC: BigInt!
   totalDiscountAvailed: BigInt!
+  totalDiscountAvailedARB: BigInt!
+  totalDiscountAvailedUSDC: BigInt!
 }
 
 type TradingStat @entity {

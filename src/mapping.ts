@@ -61,7 +61,7 @@ export function handleUpdateReferral(event: UpdateReferral): void {
 }
 
 export function handlePause(event: Pause): void {
-  _handlePause(event);
+  let a = "a";
 }
 
 export function handleProvide(event: Provide): void {

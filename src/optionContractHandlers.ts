@@ -142,7 +142,13 @@ export function _handleUpdateReferral(event: UpdateReferral): void {
       userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
         event.params.rebate
       );
+      userReferralData.totalDiscountAvailedUSDC = userReferralData.totalDiscountAvailedUSDC.plus(
+        event.params.rebate
+      );
       userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
+        event.params.totalFee
+      );
+      userReferralData.totalTradingVolumeUSDC = userReferralData.totalTradingVolumeUSDC.plus(
         event.params.totalFee
       );
       userReferralData.save();
@@ -151,10 +157,17 @@ export function _handleUpdateReferral(event: UpdateReferral): void {
         event.params.referrer
       );
       referrerReferralData.totalTradesReferred += 1;
+      referrerReferralData.totalTradesReferredUSDC += 1;
       referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
         event.params.totalFee
       );
+      referrerReferralData.totalVolumeOfReferredTradesUSDC = referrerReferralData.totalVolumeOfReferredTradesUSDC.plus(
+        event.params.totalFee
+      );
       referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
+        event.params.referrerFee
+      );
+      referrerReferralData.totalRebateEarnedUSDC = referrerReferralData.totalRebateEarnedUSDC.plus(
         event.params.referrerFee
       );
       referrerReferralData.save();
@@ -168,8 +181,14 @@ export function _handleUpdateReferral(event: UpdateReferral): void {
       userReferralData.totalDiscountAvailed = userReferralData.totalDiscountAvailed.plus(
         convertARBToUSDC(event.params.rebate)
       );
+      userReferralData.totalDiscountAvailedARB = userReferralData.totalDiscountAvailedARB.plus(
+        event.params.rebate
+      );
       userReferralData.totalTradingVolume = userReferralData.totalTradingVolume.plus(
         convertARBToUSDC(event.params.totalFee)
+      );
+      userReferralData.totalTradingVolumeARB = userReferralData.totalTradingVolumeARB.plus(
+        event.params.totalFee
       );
       userReferralData.save();
 
@@ -177,11 +196,19 @@ export function _handleUpdateReferral(event: UpdateReferral): void {
         event.params.referrer
       );
       referrerReferralData.totalTradesReferred += 1;
+      referrerReferralData.totalTradesReferredARB += 1;
+
       referrerReferralData.totalVolumeOfReferredTrades = referrerReferralData.totalVolumeOfReferredTrades.plus(
         convertARBToUSDC(event.params.totalFee)
       );
+      referrerReferralData.totalVolumeOfReferredTradesARB = referrerReferralData.totalVolumeOfReferredTradesARB.plus(
+        event.params.totalFee
+      );
       referrerReferralData.totalRebateEarned = referrerReferralData.totalRebateEarned.plus(
         convertARBToUSDC(event.params.referrerFee)
+      );
+      referrerReferralData.totalRebateEarnedARB = referrerReferralData.totalRebateEarnedARB.plus(
+        event.params.referrerFee
       );
       referrerReferralData.save();
 
