@@ -197,6 +197,15 @@ export function _loadOrCreateWeeklyLeaderboardEntity(
     entity.tradesWon = 0;
     entity.winRate = 0;
     entity.arbVolume = ZERO;
+    entity.arbNetPnL = ZERO;
+    entity.arbTotalTrades = 0;
+    entity.arbTradesWon = 0;
+    entity.arbWinRate = 0;
+    entity.usdcVolume = ZERO;
+    entity.usdcNetPnL = ZERO;
+    entity.usdcTotalTrades = 0;
+    entity.usdcTradesWon = 0;
+    entity.usdcWinRate = 0;
     entity.save();
   }
   return entity as WeeklyLeaderboard;

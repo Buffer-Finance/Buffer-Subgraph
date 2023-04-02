@@ -121,6 +121,15 @@ type WeeklyLeaderboard @entity {
   tradesWon: Int!
   winRate: Int!
   arbVolume: BigInt!
+  arbNetPnL: BigInt!
+  arbTotalTrades: Int!
+  arbTradesWon: Int!
+  arbWinRate: Int!
+  usdcVolume: BigInt!
+  usdcNetPnL: BigInt!
+  usdcTotalTrades: Int!
+  usdcTradesWon: Int!
+  usdcWinRate: Int!
 }
 
 type DashboardStat @entity {

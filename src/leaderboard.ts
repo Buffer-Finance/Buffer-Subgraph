@@ -13,10 +13,22 @@ export function updateLeaderboards(
   timestamp: BigInt,
   user: Bytes,
   isExercised: boolean,
-  arbVolume: BigInt
+  arbVolume: BigInt,
+  isARB: boolean,
+  usdcVolume: BigInt,
+  isUSDC: boolean
 ): void {
   _updateDailyLeaderboard(totalFee, timestamp, user, isExercised);
-  _updateWeeklyLeaderboard(totalFee, timestamp, user, isExercised, arbVolume);
+  _updateWeeklyLeaderboard(
+    totalFee,
+    timestamp,
+    user,
+    isExercised,
+    arbVolume,
+    isUSDC,
+    usdcVolume,
+    isARB
+  );
 }
 
 //To calculate Reward Pool for leaderboards
@@ -69,7 +81,10 @@ function _updateWeeklyLeaderboard(
   timestamp: BigInt,
   user: Bytes,
   isExercised: boolean,
-  arbVolume: BigInt
+  arbVolume: BigInt,
+  isUSDC: boolean,
+  usdcVolume: BigInt,
+  isARB: boolean
 ): void {
   let weeklyLeaderboardEntity = _loadOrCreateWeeklyLeaderboardEntity(
     _getWeekId(timestamp),
@@ -82,14 +97,41 @@ function _updateWeeklyLeaderboard(
   weeklyLeaderboardEntity.netPnL = isExercised
     ? weeklyLeaderboardEntity.netPnL.plus(totalFee)
     : weeklyLeaderboardEntity.netPnL.minus(totalFee);
+  if (isExercised) {
+    weeklyLeaderboardEntity.tradesWon += 1;
+  }
+  weeklyLeaderboardEntity.winRate =
+    (weeklyLeaderboardEntity.tradesWon * 100000) /
+    weeklyLeaderboardEntity.totalTrades;
   weeklyLeaderboardEntity.arbVolume = weeklyLeaderboardEntity.arbVolume.plus(
     arbVolume
   );
-  if (isExercised) {
-    weeklyLeaderboardEntity.tradesWon += 1;
-    weeklyLeaderboardEntity.winRate =
-      (weeklyLeaderboardEntity.tradesWon * 100000) /
-      weeklyLeaderboardEntity.totalTrades;
+  weeklyLeaderboardEntity.arbNetPnL = isExercised
+    ? weeklyLeaderboardEntity.arbNetPnL.plus(arbVolume)
+    : weeklyLeaderboardEntity.arbNetPnL.minus(arbVolume);
+  let arbTotalTrades = isARB ? 1 : 0;
+  weeklyLeaderboardEntity.arbTotalTrades += arbTotalTrades;
+  weeklyLeaderboardEntity.arbTradesWon += isExercised ? arbTotalTrades : 0;
+  if (weeklyLeaderboardEntity.arbTotalTrades > 0) {
+    weeklyLeaderboardEntity.arbWinRate =
+      (weeklyLeaderboardEntity.arbTradesWon * 100000) /
+      weeklyLeaderboardEntity.arbTotalTrades;
   }
+
+  weeklyLeaderboardEntity.usdcVolume = weeklyLeaderboardEntity.usdcVolume.plus(
+    usdcVolume
+  );
+  weeklyLeaderboardEntity.usdcNetPnL = isExercised
+    ? weeklyLeaderboardEntity.usdcNetPnL.plus(usdcVolume)
+    : weeklyLeaderboardEntity.usdcNetPnL.minus(usdcVolume);
+  let usdcTotalTrades = isUSDC ? 1 : 0;
+  weeklyLeaderboardEntity.usdcTotalTrades += usdcTotalTrades;
+  weeklyLeaderboardEntity.usdcTradesWon += isExercised ? usdcTotalTrades : 0;
+  if (weeklyLeaderboardEntity.usdcTotalTrades > 0) {
+    weeklyLeaderboardEntity.usdcWinRate =
+      (weeklyLeaderboardEntity.usdcTradesWon * 100000) /
+      weeklyLeaderboardEntity.usdcTotalTrades;
+  }
+
   weeklyLeaderboardEntity.save();
 }

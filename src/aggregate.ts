@@ -132,7 +132,16 @@ export function updateClosingStats(
       contractAddress
     );
     // Update Leaderboards
-    updateLeaderboards(totalFee, timestamp, user, isExercised, ZERO);
+    updateLeaderboards(
+      totalFee,
+      timestamp,
+      user,
+      isExercised,
+      ZERO,
+      false,
+      totalFee,
+      true
+    );
   } else if (token == "ARB") {
     let totalFeeUSDC = convertARBToUSDC(totalFee);
     let settlementFeeUSDC = convertARBToUSDC(settlementFee);
@@ -148,6 +157,15 @@ export function updateClosingStats(
       contractAddress
     );
     // Update Leaderboards
-    updateLeaderboards(totalFeeUSDC, timestamp, user, isExercised, totalFee);
+    updateLeaderboards(
+      totalFeeUSDC,
+      timestamp,
+      user,
+      isExercised,
+      totalFee,
+      true,
+      ZERO,
+      false
+    );
   }
 }
