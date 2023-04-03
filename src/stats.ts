@@ -8,30 +8,50 @@ import {
   _loadOrCreateUserRewards,
 } from "./initialize";
 
-export function logVolume(timestamp: BigInt, amount: BigInt): void {
+export function logVolume(
+  timestamp: BigInt,
+  amount: BigInt,
+  volumeARB: BigInt,
+  volumeUSDC: BigInt
+): void {
   let totalEntity = _loadOrCreateVolumeStat("total", "total", timestamp);
   totalEntity.amount = totalEntity.amount.plus(amount);
+  totalEntity.VolumeARB = totalEntity.VolumeARB.plus(volumeARB);
+  totalEntity.VolumeUSDC = totalEntity.VolumeUSDC.plus(volumeUSDC);
   totalEntity.save();
 
   let id = _getDayId(timestamp);
   let dailyEntity = _loadOrCreateVolumeStat(id, "daily", timestamp);
   dailyEntity.amount = dailyEntity.amount.plus(amount);
+  dailyEntity.VolumeARB = dailyEntity.VolumeARB.plus(volumeARB);
+  dailyEntity.VolumeUSDC = dailyEntity.VolumeUSDC.plus(volumeUSDC);
   dailyEntity.save();
 
   let hourID = _getHourId(timestamp);
   let hourlyEntity = _loadOrCreateVolumeStat(hourID, "hourly", timestamp);
   hourlyEntity.amount = hourlyEntity.amount.plus(amount);
+  hourlyEntity.VolumeARB = hourlyEntity.VolumeARB.plus(volumeARB);
+  hourlyEntity.VolumeUSDC = hourlyEntity.VolumeUSDC.plus(volumeUSDC);
   hourlyEntity.save();
 }
 
-export function storeFees(timestamp: BigInt, fees: BigInt): void {
+export function storeFees(
+  timestamp: BigInt,
+  fees: BigInt,
+  feesARB: BigInt,
+  feesUSDC: BigInt
+): void {
   let id = _getDayId(timestamp);
   let entity = _loadOrCreateFeeStat(id, "daily", timestamp);
   entity.fee = entity.fee.plus(fees);
+  entity.feeARB = entity.feeARB.plus(feesARB);
+  entity.feeUSDC = entity.feeUSDC.plus(feesUSDC);
   entity.save();
 
   let totalEntity = _loadOrCreateFeeStat("total", "total", timestamp);
   totalEntity.fee = totalEntity.fee.plus(fees);
+  totalEntity.feeARB = totalEntity.feeARB.plus(feesARB);
+  totalEntity.feeUSDC = totalEntity.feeUSDC.plus(feesUSDC);
   totalEntity.save();
 }
 
@@ -63,7 +83,9 @@ export function updateOpenInterest(
 export function storePnl(
   timestamp: BigInt,
   pnl: BigInt,
-  isProfit: boolean
+  isProfit: boolean,
+  pnlUSDC: BigInt,
+  pnlARB: BigInt
 ): void {
   let dayID = _getDayId(timestamp);
   let dailyEntity = _loadOrCreateTradingStatEntity(dayID, "daily", timestamp);
@@ -71,10 +93,20 @@ export function storePnl(
 
   if (isProfit) {
     totalEntity.profitCumulative = totalEntity.profitCumulative.plus(pnl);
+    totalEntity.profitCumulativeUSDC = totalEntity.profitCumulativeUSDC.plus(
+      pnlUSDC
+    );
+    totalEntity.profitCumulativeARB = totalEntity.profitCumulativeARB.plus(pnlARB);
     dailyEntity.profit = dailyEntity.profit.plus(pnl);
+    dailyEntity.profitUSDC = dailyEntity.profitUSDC.plus(pnlUSDC);
+    dailyEntity.profitARB = dailyEntity.profitARB.plus(pnlARB);
   } else {
     totalEntity.lossCumulative = totalEntity.lossCumulative.plus(pnl);
+    totalEntity.lossCumulativeUSDC = totalEntity.lossCumulativeUSDC.plus(pnlUSDC);
+    totalEntity.lossCumulativeARB = totalEntity.lossCumulativeARB.plus(pnlARB);
     dailyEntity.loss = dailyEntity.loss.plus(pnl);
+    dailyEntity.lossARB = dailyEntity.lossARB.plus(pnlARB);
+    dailyEntity.lossUSDC = dailyEntity.lossUSDC.plus(pnlUSDC);
   }
   totalEntity.save();
   let totalEntityV2 = _loadOrCreateTradingStatEntity(
@@ -83,7 +115,11 @@ export function storePnl(
     timestamp
   );
   dailyEntity.profitCumulative = totalEntityV2.profitCumulative;
+  dailyEntity.profitCumulativeUSDC = totalEntityV2.profitCumulativeUSDC;
+  dailyEntity.profitCumulativeARB = totalEntityV2.profitCumulativeARB;
   dailyEntity.lossCumulative = totalEntityV2.lossCumulative;
+  dailyEntity.lossCumulativeARB = totalEntityV2.lossCumulativeARB;
+  dailyEntity.lossCumulativeUSDC = totalEntityV2.lossCumulativeUSDC;
   dailyEntity.save();
 }
 

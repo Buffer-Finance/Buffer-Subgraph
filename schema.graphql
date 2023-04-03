@@ -144,6 +144,8 @@ type FeeStat @entity {
   fee: BigInt!
   period: Period!
   timestamp: BigInt!
+  feeARB: BigInt!
+  feeUSDC: BigInt!
 }
 
 type VolumeStat @entity {
@@ -151,6 +153,8 @@ type VolumeStat @entity {
   amount: BigInt!
   period: Period!
   timestamp: BigInt!
+  VolumeARB: BigInt!
+  VolumeUSDC: BigInt!
 }
 
 type ReferralData @entity {
@@ -176,11 +180,23 @@ type ReferralData @entity {
 type TradingStat @entity {
   id: ID!
   profit: BigInt!
+  profitUSDC: BigInt!
+  profitARB: BigInt!
   loss: BigInt!
+  lossUSDC: BigInt!
+  lossARB: BigInt!
   profitCumulative: BigInt!
+  profitCumulativeUSDC: BigInt!
+  profitCumulativeARB: BigInt!
   lossCumulative: BigInt!
+  lossCumulativeUSDC: BigInt!
+  lossCumulativeARB: BigInt!
   longOpenInterest: BigInt!
+  longOpenInterestUSDC: BigInt!
+  longOpenInterestARB: BigInt!
   shortOpenInterest: BigInt!
+  shortOpenInterestUSDC: BigInt!
+  shortOpenInterestARB: BigInt!
   timestamp: BigInt!
   period: Period!
 }

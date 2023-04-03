@@ -53,10 +53,10 @@ export function updateOpeningStats(
     );
 
     // Update daily & total fees
-    storeFees(timestamp, settlementFee);
+    storeFees(timestamp, settlementFee, ZERO, settlementFee);
 
     // Update daily & total volume
-    logVolume(timestamp, totalFee);
+    logVolume(timestamp, totalFee, ZERO, totalFee);
 
     // Update daily & total open interest
     updateOpenInterest(timestamp, true, isAbove, totalFee);
@@ -96,10 +96,10 @@ export function updateOpeningStats(
     );
 
     // Update daily & total fees
-    storeFees(timestamp, settlementFeeUSDC);
+    storeFees(timestamp, settlementFeeUSDC, settlementFeeUSDC, ZERO);
 
     // Update daily & total volume
-    logVolume(timestamp, totalFeeUSDC);
+    logVolume(timestamp, totalFeeUSDC, totalFeeUSDC, ZERO);
 
     // Update daily & total open interest
     updateOpenInterest(timestamp, true, isAbove, totalFeeUSDC);
@@ -123,7 +123,13 @@ export function updateClosingStats(
     // Update daily & total open interest
     updateOpenInterest(timestamp, false, isAbove, totalFee);
     // Update daily & total PnL for stats page
-    storePnl(timestamp, totalFee.minus(settlementFee), isExercised);
+    storePnl(
+      timestamp,
+      totalFee.minus(settlementFee),
+      isExercised,
+      totalFee.minus(settlementFee),
+      ZERO
+    );
     // Update daily & total PnL per contracts for stats page
     storePnlPerContract(
       timestamp,
@@ -148,7 +154,13 @@ export function updateClosingStats(
     // Update daily & total open interest
     updateOpenInterest(timestamp, false, isAbove, totalFeeUSDC);
     // Update daily & total PnL for stats page
-    storePnl(timestamp, totalFeeUSDC.minus(settlementFeeUSDC), isExercised);
+    storePnl(
+      timestamp,
+      totalFeeUSDC.minus(settlementFeeUSDC),
+      isExercised,
+      ZERO,
+      totalFeeUSDC.minus(settlementFeeUSDC)
+    );
     // Update daily & total PnL per contracts for stats page
     storePnlPerContract(
       timestamp,

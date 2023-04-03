@@ -98,8 +98,20 @@ export function _loadOrCreateTradingStatEntity(
     entity.loss = ZERO;
     entity.profitCumulative = ZERO;
     entity.lossCumulative = ZERO;
+    entity.profitUSDC = ZERO;
+    entity.lossUSDC = ZERO;
+    entity.profitCumulativeUSDC = ZERO;
+    entity.lossCumulativeUSDC = ZERO;
+    entity.profitARB = ZERO;
+    entity.lossARB = ZERO;
+    entity.profitCumulativeARB = ZERO;
+    entity.lossCumulativeARB = ZERO;
     entity.longOpenInterest = ZERO;
+    entity.longOpenInterestUSDC = ZERO;
+    entity.longOpenInterestARB = ZERO;
     entity.shortOpenInterest = ZERO;
+    entity.shortOpenInterestARB = ZERO;
+    entity.shortOpenInterestUSDC = ZERO;
   }
   entity.timestamp = timestamp;
   return entity as TradingStat;
@@ -240,6 +252,8 @@ export function _loadOrCreateVolumeStat(
     entity.period = period;
     entity.timestamp = timestamp;
     entity.amount = ZERO;
+    entity.VolumeUSDC = ZERO;
+    entity.VolumeARB = ZERO;
     entity.save();
   }
   return entity as VolumeStat;
@@ -256,6 +270,8 @@ export function _loadOrCreateFeeStat(
     entity.period = period;
     entity.timestamp = timestamp;
     entity.fee = ZERO;
+    entity.feeARB = ZERO;
+    entity.feeUSDC = ZERO;
     entity.save();
   }
   return entity as FeeStat;
