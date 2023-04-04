@@ -220,11 +220,19 @@ type ARBPoolStat @entity {
 type AssetTradingStat @entity {
   id: ID!
   contractAddress: Bytes!
-  profit: BigInt!
   periodID: String!
+  profit: BigInt!
+  profitARB: BigInt!
+  profitUSDC: BigInt!
   loss: BigInt!
+  lossARB: BigInt!
+  lossUSDC: BigInt!
   profitCumulative: BigInt!
+  profitCumulativeUSDC: BigInt!
+  profitCumulativeARB: BigInt!
   lossCumulative: BigInt!
+  lossCumulativeUSDC: BigInt!
+  lossCumulativeARB: BigInt!
   timestamp: BigInt!
   period: Period!
 }

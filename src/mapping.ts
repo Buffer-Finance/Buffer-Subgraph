@@ -61,11 +61,11 @@ export function handleUpdateReferral(event: UpdateReferral): void {
 }
 
 export function handlePause(event: Pause): void {
-  let a = "a";
+  _handlePause(event);
 }
 
 export function handleProvide(event: Provide): void {
-  _handleChangeInPool(event.block.timestamp, event.address);
+  let a = "a";
 }
 
 export function handleWithdraw(event: Withdraw): void {
