@@ -117,7 +117,8 @@ export function updateClosingStats(
   isAbove: boolean,
   user: Bytes,
   contractAddress: Bytes,
-  isExercised: boolean
+  isExercised: boolean,
+  netPnL: BigInt
 ): void {
   if (token == "USDC") {
     // Update daily & total open interest
@@ -146,11 +147,16 @@ export function updateClosingStats(
       ZERO,
       false,
       totalFee,
-      true
+      true,
+      netPnL,
+      ZERO,
+      netPnL
     );
   } else if (token == "ARB") {
     let totalFeeUSDC = convertARBToUSDC(totalFee);
     let settlementFeeUSDC = convertARBToUSDC(settlementFee);
+    let netPnLUSDC = convertARBToUSDC(netPnL);
+
     // Update daily & total open interest
     updateOpenInterest(timestamp, false, isAbove, totalFeeUSDC);
     // Update daily & total PnL for stats page
@@ -177,7 +183,10 @@ export function updateClosingStats(
       totalFee,
       true,
       ZERO,
-      false
+      false,
+      netPnLUSDC,
+      netPnL,
+      ZERO
     );
   }
 }

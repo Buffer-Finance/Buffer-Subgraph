@@ -16,7 +16,10 @@ export function updateLeaderboards(
   arbVolume: BigInt,
   isARB: boolean,
   usdcVolume: BigInt,
-  isUSDC: boolean
+  isUSDC: boolean,
+  netPnL: BigInt,
+  arbNetPnL: BigInt,
+  usdcNetPnL: BigInt
 ): void {
   _updateDailyLeaderboard(totalFee, timestamp, user, isExercised);
   _updateWeeklyLeaderboard(
@@ -27,7 +30,10 @@ export function updateLeaderboards(
     arbVolume,
     isUSDC,
     usdcVolume,
-    isARB
+    isARB,
+    netPnL,
+    arbNetPnL,
+    usdcNetPnL
   );
 }
 
@@ -84,31 +90,36 @@ function _updateWeeklyLeaderboard(
   arbVolume: BigInt,
   isUSDC: boolean,
   usdcVolume: BigInt,
-  isARB: boolean
+  isARB: boolean,
+  netPnL: BigInt,
+  arbNetPnL: BigInt,
+  usdcNetPnL: BigInt
 ): void {
   let weeklyLeaderboardEntity = _loadOrCreateWeeklyLeaderboardEntity(
     _getWeekId(timestamp),
     user
   );
+
   weeklyLeaderboardEntity.volume = weeklyLeaderboardEntity.volume.plus(
     totalFee
   );
   weeklyLeaderboardEntity.totalTrades += 1;
   weeklyLeaderboardEntity.netPnL = isExercised
-    ? weeklyLeaderboardEntity.netPnL.plus(totalFee)
-    : weeklyLeaderboardEntity.netPnL.minus(totalFee);
+    ? weeklyLeaderboardEntity.netPnL.plus(netPnL)
+    : weeklyLeaderboardEntity.netPnL.minus(netPnL);
   if (isExercised) {
     weeklyLeaderboardEntity.tradesWon += 1;
   }
   weeklyLeaderboardEntity.winRate =
     (weeklyLeaderboardEntity.tradesWon * 100000) /
     weeklyLeaderboardEntity.totalTrades;
+
   weeklyLeaderboardEntity.arbVolume = weeklyLeaderboardEntity.arbVolume.plus(
     arbVolume
   );
   weeklyLeaderboardEntity.arbNetPnL = isExercised
-    ? weeklyLeaderboardEntity.arbNetPnL.plus(arbVolume)
-    : weeklyLeaderboardEntity.arbNetPnL.minus(arbVolume);
+    ? weeklyLeaderboardEntity.arbNetPnL.plus(arbNetPnL)
+    : weeklyLeaderboardEntity.arbNetPnL.minus(arbNetPnL);
   let arbTotalTrades = isARB ? 1 : 0;
   weeklyLeaderboardEntity.arbTotalTrades += arbTotalTrades;
   weeklyLeaderboardEntity.arbTradesWon += isExercised ? arbTotalTrades : 0;
@@ -122,8 +133,8 @@ function _updateWeeklyLeaderboard(
     usdcVolume
   );
   weeklyLeaderboardEntity.usdcNetPnL = isExercised
-    ? weeklyLeaderboardEntity.usdcNetPnL.plus(usdcVolume)
-    : weeklyLeaderboardEntity.usdcNetPnL.minus(usdcVolume);
+    ? weeklyLeaderboardEntity.usdcNetPnL.plus(arbNetPnL)
+    : weeklyLeaderboardEntity.usdcNetPnL.minus(usdcNetPnL);
   let usdcTotalTrades = isUSDC ? 1 : 0;
   weeklyLeaderboardEntity.usdcTotalTrades += usdcTotalTrades;
   weeklyLeaderboardEntity.usdcTradesWon += isExercised ? usdcTotalTrades : 0;

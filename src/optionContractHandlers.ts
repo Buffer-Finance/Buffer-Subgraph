@@ -92,7 +92,8 @@ export function _handleExpire(event: Expire): void {
       userOptionData.isAbove,
       userOptionData.user,
       contractAddress,
-      false
+      false,
+      userOptionData.totalFee
     );
   }
 }
@@ -128,7 +129,8 @@ export function _handleExercise(event: Exercise): void {
       userOptionData.isAbove,
       userOptionData.user,
       contractAddress,
-      true
+      true,
+      event.params.profit.minus(userOptionData.totalFee)
     );
   }
 }
