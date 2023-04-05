@@ -365,14 +365,18 @@ export function _loadOrCreateDailyRevenueAndFee(
 
 export function _loadOrCreateWeeklyRevenueAndFee(
   id: string,
-  timestamp: BigInt
+  timestamp: BigInt,
+  tokenId: string
 ): WeeklyRevenueAndFee {
-  let entity = WeeklyRevenueAndFee.load(id);
+  let lookUpId = `${id}${tokenId}`;
+  let entity = WeeklyRevenueAndFee.load(lookUpId);
   if (entity === null) {
-    entity = new WeeklyRevenueAndFee(id);
+    entity = new WeeklyRevenueAndFee(lookUpId);
     entity.totalFee = ZERO;
     entity.settlementFee = ZERO;
     entity.timestamp = timestamp;
+    entity.weekId = id;
+    entity.tokenId = tokenId;
     entity.save();
   }
   return entity as WeeklyRevenueAndFee;

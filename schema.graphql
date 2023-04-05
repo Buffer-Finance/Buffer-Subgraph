@@ -97,6 +97,8 @@ type DailyRevenueAndFee @entity {
 
 type WeeklyRevenueAndFee @entity {
   id: String!
+  weekId: String!
+  tokenId: String!
   totalFee: BigInt!
   settlementFee: BigInt!
   timestamp: BigInt!

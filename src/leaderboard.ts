@@ -41,7 +41,8 @@ export function updateLeaderboards(
 export function updateDailyAndWeeklyRevenue(
   totalFee: BigInt,
   timestamp: BigInt,
-  settlementFee: BigInt
+  settlementFee: BigInt,
+  token: string
 ): void {
   // Daily
   let dayID = _getDayId(timestamp);
@@ -55,7 +56,8 @@ export function updateDailyAndWeeklyRevenue(
   // Weekly
   let weeklyFeeAndRevenue = _loadOrCreateWeeklyRevenueAndFee(
     _getWeekId(timestamp),
-    timestamp
+    timestamp,
+    token
   );
   weeklyFeeAndRevenue.totalFee = weeklyFeeAndRevenue.totalFee.plus(totalFee);
   weeklyFeeAndRevenue.settlementFee = weeklyFeeAndRevenue.settlementFee.plus(
