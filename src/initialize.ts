@@ -318,6 +318,7 @@ export function _loadOrCreateDashboardStat(id: string): DashboardStat {
     dashboardStat.totalSettlementFees = ZERO;
     dashboardStat.totalVolume = ZERO;
     dashboardStat.totalTrades = 0;
+    dashboardStat.openInterest = ZERO;
     dashboardStat.save();
   }
   return dashboardStat as DashboardStat;

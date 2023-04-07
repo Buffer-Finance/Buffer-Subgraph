@@ -13,6 +13,7 @@ import { updateDailyAndWeeklyRevenue, updateLeaderboards } from "./leaderboard";
 import {
   logVolumeAndSettlementFeePerContract,
   updateDashboardOverviewStats,
+  logOpenInterest,
 } from "./dashboard";
 import { convertARBToUSDC } from "./convertToUSDC";
 
@@ -64,6 +65,9 @@ export function updateOpeningStats(
 
     // Updates referral & NFT discounts tracking
     saveSettlementFeeDiscount(timestamp, totalFee, settlementFee);
+
+    logOpenInterest(token, totalFee, true);
+    logOpenInterest("total", totalFee, true);
   } else if (token == "ARB") {
     let totalFeeUSDC = convertARBToUSDC(totalFee);
     let settlementFeeUSDC = convertARBToUSDC(settlementFee);
@@ -113,6 +117,9 @@ export function updateOpeningStats(
 
     // Updates referral & NFT discounts tracking
     saveSettlementFeeDiscount(timestamp, totalFeeUSDC, settlementFeeUSDC);
+
+    logOpenInterest(token, totalFee, true);
+    logOpenInterest("total", totalFeeUSDC, true);
   }
 }
 
@@ -159,6 +166,8 @@ export function updateClosingStats(
       ZERO,
       netPnL
     );
+    logOpenInterest(token, totalFee, false);
+    logOpenInterest("total", totalFee, false);
   } else if (token == "ARB") {
     let totalFeeUSDC = convertARBToUSDC(totalFee);
     let settlementFeeUSDC = convertARBToUSDC(settlementFee);
@@ -195,5 +204,7 @@ export function updateClosingStats(
       netPnL,
       ZERO
     );
+    logOpenInterest(token, totalFee, false);
+    logOpenInterest("total", totalFeeUSDC, false);
   }
 }
