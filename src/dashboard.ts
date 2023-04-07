@@ -45,3 +45,15 @@ export function logVolumeAndSettlementFeePerContract(
     entity.save();
   }
 }
+
+export function logOpenInterest(
+  token: string,
+  amount: BigInt,
+  isOpen: boolean
+): void {
+  let dashboardStat = _loadOrCreateDashboardStat(token);
+  dashboardStat.openInterest = isOpen
+    ? dashboardStat.openInterest.plus(amount)
+    : dashboardStat.openInterest.minus(amount);
+  dashboardStat.save();
+}

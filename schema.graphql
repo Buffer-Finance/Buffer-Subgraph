@@ -139,6 +139,7 @@ type DashboardStat @entity {
   totalVolume: BigInt!
   totalSettlementFees: BigInt!
   totalTrades: Int!
+  openInterest: BigInt!
 }
 
 type FeeStat @entity {
