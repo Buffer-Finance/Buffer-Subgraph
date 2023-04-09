@@ -77,12 +77,7 @@ export function _handleExpire(event: Expire): void {
     userOptionData.state = State.expired;
     userOptionData.expirationPrice = event.params.priceAtExpiration;
     userOptionData.save();
-    updateOptionContractData(
-      false,
-      userOptionData.isAbove,
-      userOptionData.totalFee,
-      contractAddress
-    );
+
 
     updateClosingStats(
       userOptionData.depositToken,
@@ -113,13 +108,6 @@ export function _handleExercise(event: Exercise): void {
     userOptionData.payout = event.params.profit;
     userOptionData.expirationPrice = event.params.priceAtExpiration;
     userOptionData.save();
-
-    updateOptionContractData(
-      false,
-      userOptionData.isAbove,
-      userOptionData.totalFee,
-      contractAddress
-    );
 
     updateClosingStats(
       userOptionData.depositToken,

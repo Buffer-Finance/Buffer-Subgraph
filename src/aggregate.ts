@@ -1,4 +1,4 @@
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { _getHourId } from "./helpers";
 import { ZERO } from "./initialize";
 import {
@@ -16,6 +16,7 @@ import {
   logOpenInterest,
 } from "./dashboard";
 import { convertARBToUSDC } from "./convertToUSDC";
+import { updateOptionContractData } from "./core";
 
 export function updateOpeningStats(
   token: string,
@@ -166,6 +167,12 @@ export function updateClosingStats(
       ZERO,
       netPnL
     );
+    updateOptionContractData(
+      false,
+      isAbove,
+      totalFee,
+      Address.fromBytes(contractAddress)
+    );
     logOpenInterest(token, totalFee, false);
     logOpenInterest("total", totalFee, false);
   } else if (token == "ARB") {
@@ -203,6 +210,12 @@ export function updateClosingStats(
       netPnLUSDC,
       netPnL,
       ZERO
+    );
+    updateOptionContractData(
+      false,
+      isAbove,
+      totalFee,
+      Address.fromBytes(contractAddress)
     );
     logOpenInterest(token, totalFee, false);
     logOpenInterest("total", totalFeeUSDC, false);
