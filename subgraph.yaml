@@ -1,13 +1,13 @@
-specVersion: 0.0.6
+specVersion: 0.0.4
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: BufferBinaryOptions
-    network: arbitrum-one
+    network: arbitrum-goerli
     source:
       abi: BufferBinaryOptions
-      startBlock: 56585555
+      startBlock: 5769624
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -23,8 +23,6 @@ dataSources:
           file: ./abis/BinaryPool.json
         - name: BufferRouter
           file: ./abis/BufferRouter.json
-        - name: UniswapPool
-          file: ./abis/UniswapPool.json
       eventHandlers:
         - event: Create(indexed address,indexed uint256,uint256,uint256)
           handler: handleCreate
@@ -39,11 +37,11 @@ dataSources:
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: BufferRouter
-    network: arbitrum-one
+    network: arbitrum-goerli
     source:
-      address: "0x0e0A1241C9cE6649d5D30134a194BA3E24130305"
+      address: "0x76c52E83d7dcCc70107a66BAd44D042D22D06be7"
       abi: BufferRouter
-      startBlock: 56585555
+      startBlock: 5769624
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -64,32 +62,12 @@ dataSources:
           handler: handleOpenTrade
       file: ./src/mapping.ts
   - kind: ethereum/contract
-    name: UniswapPool
-    network: arbitrum-one
+    name: BinaryPool
+    network: arbitrum-goerli
     source:
-      address: "0x81c48D31365e6B526f6BBadC5c9aaFd822134863"
-      abi: UniswapPool
-      startBlock: 70813585
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.6
-      language: wasm/assemblyscript
-      abis:
-        - name: UniswapPool
-          file: ./abis/UniswapPool.json
-      entities:
-        - UserOptionData
-      eventHandlers:
-        - event: SetFeeProtocol(uint8,uint8,uint8,uint8)
-          handler: handleSetFeeProtocol
-      file: ./src/mapping.ts
-  - kind: ethereum/contract
-    name: BinaryPoolUSDC
-    network: arbitrum-one
-    source:
-      address: "0x6Ec7B10bF7331794adAaf235cb47a2A292cD9c7e"
+      address: "0x1CDA6A34D84F444183E89D2D41D920EeaE883439"
       abi: BinaryPool
-      startBlock: 70813585
+      startBlock: 5769624
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -104,99 +82,10 @@ dataSources:
       eventHandlers:
         - event: Provide(indexed address,uint256,uint256)
           handler: handleProvide
-        # - event: Withdraw(indexed address,uint256,uint256)
-        #   handler: handleWithdraw
-        # - event: Profit(indexed uint256,uint256)
-        #   handler: handleProvide
-        # - event: Loss(indexed uint256,uint256)
-        #   handler: handleWithdraw
+        - event: Withdraw(indexed address,uint256,uint256)
+          handler: handleWithdraw
+        - event: Profit(indexed uint256,uint256)
+          handler: handleProvide
+        - event: Loss(indexed uint256,uint256)
+          handler: handleWithdraw
       file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: USDC
-  #   network: arbitrum-one
-  #   source:
-  #     address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
-  #     abi: USDC
-  #     startBlock: 48022251
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     abis:
-  #       - name: USDC
-  #         file: ./abis/USDC.json
-  #     entities:
-  #       - UserOptionData
-  #     eventHandlers:
-  #       - event: Transfer(indexed address,indexed address,uint256)
-  #         handler: handleSetFeeProtocol
-  #     file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: BinaryPoolARB
-  #   network: arbitrum-one
-  #   source:
-  #     address: "0xaE0628C88EC6C418B3F5C005f804E905f8123833"
-  #     abi: BinaryPool
-  #     startBlock: 70813585
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - UserOptionData
-  #     abis:
-  #       - name: BinaryPool
-  #         file: ./abis/BinaryPool.json
-  #       - name: USDC
-  #         file: ./abis/USDC.json
-  #     eventHandlers:
-  #       - event: Provide(indexed address,uint256,uint256)
-  #         handler: handleProvide
-  #       - event: Withdraw(indexed address,uint256,uint256)
-  #         handler: handleWithdraw
-  #       - event: Profit(indexed uint256,uint256)
-  #         handler: handleProvide
-  #       - event: Loss(indexed uint256,uint256)
-  #         handler: handleWithdraw
-  #     file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: ARB
-  #   network: arbitrum-one
-  #   source:
-  #     address: "0x912CE59144191C1204E64559FE8253a0e49E6548"
-  #     abi: USDC
-  #     startBlock: 70813585
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     abis:
-  #       - name: USDC
-  #         file: ./abis/USDC.json
-  #     entities:
-  #       - UserOptionData
-  #     eventHandlers:
-  #       - event: Transfer(indexed address,indexed address,uint256)
-  #         handler: handleSetFeeProtocol
-  #     file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: ERC20
-  #   network: arbitrum-one
-  #   source:
-  #     address: "0x1A5B0aaF478bf1FDA7b934c76E7692D722982a6D"
-  #     abi: ERC20
-  #     startBlock: 25921235
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.6
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - BFRHolder
-  #       - BFRHolderBalance
-  #     abis:
-  #       - name: ERC20
-  #         file: ./abis/ERC20.json
-  #     eventHandlers:
-  #       - event: Transfer(indexed address,indexed address,uint256)
-  #         handler: handleTransfer
-  #     file: ./src/BFRmapping.ts
