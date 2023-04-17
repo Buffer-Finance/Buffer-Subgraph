@@ -30,12 +30,20 @@ export function _handleCreate(event: Create): void {
     let optionData = optionContractInstance.options(optionID);
     let isAbove = optionData.value6 ? true : false;
     let totalFee = event.params.totalFee;
-    let tokenReferrenceID = updateOptionContractData(
+    let poolToken = updateOptionContractData(
       true,
       isAbove,
       totalFee,
       contractAddress
     );
+    let tokenReferrenceID = "";
+    if (poolToken == "USDC_POL") {
+      tokenReferrenceID = "USDC";
+    } else if (poolToken == "ARB") {
+      tokenReferrenceID = "ARB";
+    } else if (poolToken == "USDC") {
+      tokenReferrenceID = "USDC";
+    }
     let userOptionData = _loadOrCreateOptionDataEntity(
       optionID,
       contractAddress
@@ -50,6 +58,7 @@ export function _handleCreate(event: Create): void {
     userOptionData.creationTime = optionData.value8;
     userOptionData.settlementFee = event.params.settlementFee;
     userOptionData.depositToken = tokenReferrenceID;
+    userOptionData.poolToken = poolToken;
     userOptionData.save();
 
     updateOpeningStats(
@@ -58,7 +67,8 @@ export function _handleCreate(event: Create): void {
       totalFee,
       userOptionData.settlementFee,
       isAbove,
-      contractAddress
+      contractAddress,
+      userOptionData.poolToken
     );
   }
 }

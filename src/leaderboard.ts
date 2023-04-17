@@ -135,7 +135,7 @@ function _updateWeeklyLeaderboard(
     usdcVolume
   );
   weeklyLeaderboardEntity.usdcNetPnL = isExercised
-    ? weeklyLeaderboardEntity.usdcNetPnL.plus(arbNetPnL)
+    ? weeklyLeaderboardEntity.usdcNetPnL.plus(usdcNetPnL)
     : weeklyLeaderboardEntity.usdcNetPnL.minus(usdcNetPnL);
   let usdcTotalTrades = isUSDC ? 1 : 0;
   weeklyLeaderboardEntity.usdcTotalTrades += usdcTotalTrades;
@@ -145,6 +145,5 @@ function _updateWeeklyLeaderboard(
       (weeklyLeaderboardEntity.usdcTradesWon * 100000) /
       weeklyLeaderboardEntity.usdcTotalTrades;
   }
-
   weeklyLeaderboardEntity.save();
 }

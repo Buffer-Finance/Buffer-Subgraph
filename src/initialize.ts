@@ -21,7 +21,7 @@ import {
 import { _getDayId } from "./helpers";
 import { BufferBinaryOptions } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import { BinaryPool } from "../generated/BinaryPool/BinaryPool";
-import { USDC_ADDRESS, ARB_TOKEN_ADDRESS } from "./config";
+import { ARB_POOL_CONTRACT, USDC_POL_POOL_CONTRACT, USDC_POOL_CONTRACT } from "./config";
 
 export const ZERO = BigInt.fromI32(0);
 
@@ -64,11 +64,16 @@ export function _loadOrCreateOptionContractEntity(
     optionContract.payoutForDown = ZERO;
     optionContract.payoutForUp = ZERO;
     optionContract.asset = optionContractInstance.assetPair();
-    let optionContractToken = optionContractInstance.tokenX();
-    if (optionContractToken == Address.fromString(USDC_ADDRESS)) {
+    let optionContractPool = optionContractInstance.pool();
+    if (optionContractPool == Address.fromString(USDC_POL_POOL_CONTRACT)) {
       optionContract.token = "USDC";
-    } else if (optionContractToken == Address.fromString(ARB_TOKEN_ADDRESS)) {
+      optionContract.pool = "USDC_POL";
+    } else if (optionContractPool == Address.fromString(ARB_POOL_CONTRACT)) {
       optionContract.token = "ARB";
+      optionContract.pool = "ARB";
+    } else if (optionContractPool == Address.fromString(USDC_POOL_CONTRACT)) {
+      optionContract.token = "USDC";
+      optionContract.pool = "USDC";
     }
     optionContract.payoutForDown = calculatePayout(
       BigInt.fromI32(

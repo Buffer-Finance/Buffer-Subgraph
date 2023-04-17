@@ -24,16 +24,17 @@ export function updateOpeningStats(
   totalFee: BigInt,
   settlementFee: BigInt,
   isAbove: boolean,
-  contractAddress: Bytes
+  contractAddress: Bytes,
+  poolToken: string
 ): void {
   if (token == "USDC") {
     // Dashboard Page - overview
-    updateDashboardOverviewStats(totalFee, settlementFee, token);
+    updateDashboardOverviewStats(totalFee, settlementFee, poolToken);
     updateDashboardOverviewStats(totalFee, settlementFee, "total");
 
     // Update daily and weekly volume and fees
     updateDailyAndWeeklyRevenue(totalFee, timestamp, settlementFee, "total");
-    updateDailyAndWeeklyRevenue(totalFee, timestamp, settlementFee, "USDC");
+    updateDailyAndWeeklyRevenue(totalFee, timestamp, settlementFee, token);
 
     // Dashboard Page - markets table
     logVolumeAndSettlementFeePerContract(
@@ -74,7 +75,7 @@ export function updateOpeningStats(
     let settlementFeeUSDC = convertARBToUSDC(settlementFee);
 
     // Dashboard Page - overview
-    updateDashboardOverviewStats(totalFee, settlementFee, token);
+    updateDashboardOverviewStats(totalFee, settlementFee, poolToken);
     updateDashboardOverviewStats(totalFeeUSDC, settlementFeeUSDC, "total");
 
     // Update daily and weekly volume and fees
@@ -84,7 +85,7 @@ export function updateOpeningStats(
       settlementFeeUSDC,
       "total"
     );
-    updateDailyAndWeeklyRevenue(totalFee, timestamp, settlementFee, "ARB");
+    updateDailyAndWeeklyRevenue(totalFee, timestamp, settlementFee, token);
 
     // Dashboard Page - markets table
     logVolumeAndSettlementFeePerContract(

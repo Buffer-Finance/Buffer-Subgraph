@@ -19,6 +19,7 @@ type OptionContract @entity {
   payoutForUp: BigInt
   payoutForDown: BigInt
   asset: String
+  pool:String!
 }
 
 type VolumePerContract @entity {
@@ -67,6 +68,7 @@ type UserOptionData @entity {
   queueID: BigInt
   settlementFee: BigInt!
   lag: BigInt!
+  poolToken: String!
 }
 
 type User @entity {
