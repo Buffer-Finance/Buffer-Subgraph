@@ -85,7 +85,6 @@ type LBFRStatsPerUser @entity {
   period: Period!
   timestamp: BigInt!
   lBFRAlloted: BigInt!
-  lBFRClaimed: BigInt!
   volume: BigInt!
   periodID: String!
   userAddress: Bytes!
