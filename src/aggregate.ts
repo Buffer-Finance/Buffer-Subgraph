@@ -41,11 +41,11 @@ export function updateLBFRStats(
   );
 
   if (token == "USDC") {
-    totalFee = totalFee.div(BigInt.fromI32(1e6));
+    totalFee = totalFee.div(BigInt.fromI64(1000000));
     LBFRStat.volumeUSDC = LBFRStat.volumeUSDC.plus(totalFee);
     TotalLBFRStat.volumeUSDC = TotalLBFRStat.volumeUSDC.plus(totalFee);
   } else if (token == "ARB") {
-    totalFee = totalFee.div(BigInt.fromI32(1e18));
+    totalFee = totalFee.div(BigInt.fromI64(1000000000000000000));
     LBFRStat.volumeARB = LBFRStat.volumeARB.plus(totalFee);
     TotalLBFRStat.volumeARB = TotalLBFRStat.volumeARB.plus(totalFee);
   }
