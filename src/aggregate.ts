@@ -39,18 +39,22 @@ export function updateLBFRStats(
     userAddress,
     "total"
   );
+
+  if (token == "USDC") {
+    totalFee = totalFee.div(BigInt.fromI32(1e6));
+    LBFRStat.volumeUSDC = LBFRStat.volumeUSDC.plus(totalFee);
+    TotalLBFRStat.volumeUSDC = TotalLBFRStat.volumeUSDC.plus(totalFee);
+  } else if (token == "ARB") {
+    totalFee = totalFee.div(BigInt.fromI32(1e18));
+    LBFRStat.volumeARB = LBFRStat.volumeARB.plus(totalFee);
+    TotalLBFRStat.volumeARB = TotalLBFRStat.volumeARB.plus(totalFee);
+  }
   LBFRStat.volume = LBFRStat.volume.plus(totalFee);
   TotalLBFRStat.volume = TotalLBFRStat.volume.plus(totalFee);
   let lbfrAlloted = _getLBFRAlloted(LBFRStat.volume, totalFee);
   LBFRStat.lBFRAlloted = LBFRStat.lBFRAlloted.plus(lbfrAlloted);
   TotalLBFRStat.lBFRAlloted = TotalLBFRStat.lBFRAlloted.plus(lbfrAlloted);
-  if (token == "USDC") {
-    LBFRStat.volumeUSDC = LBFRStat.volumeUSDC.plus(totalFee);
-    TotalLBFRStat.volumeUSDC = TotalLBFRStat.volumeUSDC.plus(totalFee);
-  } else if (token == "ARB") {
-    LBFRStat.volumeARB = LBFRStat.volumeARB.plus(totalFee);
-    TotalLBFRStat.volumeARB = TotalLBFRStat.volumeARB.plus(totalFee);
-  }
+
   LBFRStat.save();
   TotalLBFRStat.save();
 }
