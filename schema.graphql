@@ -19,17 +19,7 @@ type OptionContract @entity {
   payoutForUp: BigInt
   payoutForDown: BigInt
   asset: String
-  pool:String!
-}
-
-type VolumePerContract @entity {
-  id: String!
-  amount: BigInt!
-  period: Period!
-  timestamp: BigInt!
-  depositToken: String!
-  optionContract: OptionContract!
-  settlementFee: BigInt!
+  pool: String!
 }
 
 type QueuedOptionData @entity {
@@ -90,176 +80,22 @@ type DailyUserStat @entity {
   id: String!
 }
 
-type DailyRevenueAndFee @entity {
+type LBFRStatsPerUser @entity {
   id: String!
-  totalFee: BigInt!
-  settlementFee: BigInt!
+  period: Period!
   timestamp: BigInt!
-}
-
-type WeeklyRevenueAndFee @entity {
-  id: String!
-  weekId: String!
-  tokenId: String!
-  totalFee: BigInt!
-  settlementFee: BigInt!
-  timestamp: BigInt!
-}
-
-type Leaderboard @entity {
-  id: String!
-  user: Bytes!
-  netPnL: BigInt!
-  totalTrades: Int!
+  lBFRAlloted: BigInt!
+  lBFRClaimed: BigInt!
   volume: BigInt!
-  timestamp: String!
-}
-
-type WeeklyLeaderboard @entity {
-  id: String!
-  user: Bytes!
-  netPnL: BigInt!
-  totalTrades: Int!
-  volume: BigInt!
-  timestamp: String!
-  tradesWon: Int!
-  winRate: Int!
-  arbVolume: BigInt!
-  arbNetPnL: BigInt!
-  arbTotalTrades: Int!
-  arbTradesWon: Int!
-  arbWinRate: Int!
-  usdcVolume: BigInt!
-  usdcNetPnL: BigInt!
-  usdcTotalTrades: Int!
-  usdcTradesWon: Int!
-  usdcWinRate: Int!
-}
-
-type DashboardStat @entity {
-  id: String!
-  totalVolume: BigInt!
-  totalSettlementFees: BigInt!
-  totalTrades: Int!
-  openInterest: BigInt!
-}
-
-type FeeStat @entity {
-  id: ID!
-  fee: BigInt!
-  period: Period!
-  timestamp: BigInt!
-  feeARB: BigInt!
-  feeUSDC: BigInt!
-}
-
-type VolumeStat @entity {
-  id: String!
-  amount: BigInt!
-  period: Period!
-  timestamp: BigInt!
-  VolumeARB: BigInt!
-  VolumeUSDC: BigInt!
-}
-
-type ReferralData @entity {
-  id: Bytes!
-  user: User!
-  totalTradesReferred: Int!
-  totalTradesReferredARB: Int!
-  totalTradesReferredUSDC: Int!
-  totalVolumeOfReferredTrades: BigInt!
-  totalVolumeOfReferredTradesARB: BigInt!
-  totalVolumeOfReferredTradesUSDC: BigInt!
-  totalRebateEarned: BigInt!
-  totalRebateEarnedARB: BigInt!
-  totalRebateEarnedUSDC: BigInt!
-  totalTradingVolume: BigInt!
-  totalTradingVolumeARB: BigInt!
-  totalTradingVolumeUSDC: BigInt!
-  totalDiscountAvailed: BigInt!
-  totalDiscountAvailedARB: BigInt!
-  totalDiscountAvailedUSDC: BigInt!
-}
-
-type TradingStat @entity {
-  id: ID!
-  profit: BigInt!
-  profitUSDC: BigInt!
-  profitARB: BigInt!
-  loss: BigInt!
-  lossUSDC: BigInt!
-  lossARB: BigInt!
-  profitCumulative: BigInt!
-  profitCumulativeUSDC: BigInt!
-  profitCumulativeARB: BigInt!
-  lossCumulative: BigInt!
-  lossCumulativeUSDC: BigInt!
-  lossCumulativeARB: BigInt!
-  longOpenInterest: BigInt!
-  longOpenInterestUSDC: BigInt!
-  longOpenInterestARB: BigInt!
-  shortOpenInterest: BigInt!
-  shortOpenInterestUSDC: BigInt!
-  shortOpenInterestARB: BigInt!
-  timestamp: BigInt!
-  period: Period!
-}
-
-type PoolStat @entity {
-  id: ID!
-  amount: BigInt!
-  period: Period!
-  timestamp: BigInt!
-  rate: BigInt!
-}
-
-type ARBPoolStat @entity {
-  id: ID!
-  amount: BigInt!
-  period: Period!
-  timestamp: BigInt!
-  rate: BigInt!
-}
-
-type AssetTradingStat @entity {
-  id: ID!
-  contractAddress: Bytes!
   periodID: String!
-  profit: BigInt!
-  profitARB: BigInt!
-  profitUSDC: BigInt!
-  loss: BigInt!
-  lossARB: BigInt!
-  lossUSDC: BigInt!
-  profitCumulative: BigInt!
-  profitCumulativeUSDC: BigInt!
-  profitCumulativeARB: BigInt!
-  lossCumulative: BigInt!
-  lossCumulativeUSDC: BigInt!
-  lossCumulativeARB: BigInt!
-  timestamp: BigInt!
-  period: Period!
+  userAddress: Bytes!
+  volumeUSDC: BigInt!
+  volumeARB: BigInt!
 }
 
-type UserRewards @entity {
-  id: ID!
-  referralReward: BigInt!
-  referralDiscount: BigInt!
-  nftDiscount: BigInt!
-  cumulativeReward: BigInt!
-  period: Period!
+type ClaimedLBFRPerUser @entity {
+  id: Bytes!
   timestamp: BigInt!
-}
-
-type BFRHolderData @entity {
-  id: String!
-  holders: Int!
-  period: Period!
-  timestamp: BigInt!
-}
-
-type BFRHolder @entity {
-  id: String!
-  balance: BigInt!
+  lBFRClaimed: BigInt!
+  userAddress: Bytes!
 }
