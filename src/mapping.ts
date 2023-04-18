@@ -2,15 +2,9 @@ import {
   Create,
   Expire,
   Exercise,
-  UpdateReferral,
   Pause,
 } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
-import {
-  Provide,
-  Withdraw,
-  Profit,
-  Loss,
-} from "../generated/BinaryPool/BinaryPool";
+import { MintLBFR } from "../generated/FaucetLBFR/FaucetLBFR";
 import {
   InitiateTrade,
   CancelTrade,
@@ -20,7 +14,6 @@ import {
   _handleCreate,
   _handleExpire,
   _handleExercise,
-  _handleUpdateReferral,
   _handlePause,
 } from "./optionContractHandlers";
 import {
@@ -28,6 +21,7 @@ import {
   _handleOpenTrade,
   _handleInitiateTrade,
 } from "./routerContractHandlers";
+import { _loadOrCreateClaimedLBFRPerUser } from "./initialize";
 
 export function handleInitiateTrade(event: InitiateTrade): void {
   _handleInitiateTrade(event);
@@ -53,26 +47,18 @@ export function handleExpire(event: Expire): void {
   _handleExpire(event);
 }
 
-export function handleUpdateReferral(event: UpdateReferral): void {
-  _handleUpdateReferral(event);
-}
-
 export function handlePause(event: Pause): void {
   _handlePause(event);
 }
 
-export function handleProvide(event: Provide): void {
-  let a = "a";
-}
-
-export function handleWithdraw(event: Withdraw): void {
-  let a = "a";
-}
-
-export function handleProfit(event: Profit): void {
-  let a = "a";
-}
-
-export function handleLoss(event: Loss): void {
-  let a = "a";
+export function handleMintLBFR(event: MintLBFR): void {
+  let claimedLBFRPerUser = _loadOrCreateClaimedLBFRPerUser(
+    event.params.to,
+    event.block.timestamp
+  );
+  claimedLBFRPerUser.lBFRClaimed = claimedLBFRPerUser.lBFRClaimed.plus(
+    event.params.amount
+  );
+  claimedLBFRPerUser.timestamp = event.block.timestamp;
+  claimedLBFRPerUser.save();
 }

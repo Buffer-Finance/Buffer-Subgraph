@@ -7,6 +7,13 @@ export enum State {
   opened = 6,
 }
 
+export const Slabs = [
+  [0, 100],
+  [50000, 150],
+  [200000, 200],
+  [500000, 400],
+];
+
 export const RouterAddress = "0x76c52E83d7dcCc70107a66BAd44D042D22D06be7";
 export const USDC_ADDRESS = "0x658e6B62e7ab1d2B29a08F85f8442edEed562b48";
 export const BFR = "0x89fEF05446aEA764C53a2f09bB763876FB57ea8E";

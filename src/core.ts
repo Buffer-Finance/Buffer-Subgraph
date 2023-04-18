@@ -1,11 +1,9 @@
 import { BigInt, Address } from "@graphprotocol/graph-ts";
-import { BufferBinaryOptions } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import { User } from "../generated/schema";
 import { _getDayId } from "./helpers";
 import {
   _loadOrCreateOptionContractEntity,
   _loadOrCreateUserStat,
-  _calculateCurrentUtilization,
 } from "./initialize";
 import { DailyUserStat } from "../generated/schema";
 import {
@@ -24,23 +22,9 @@ export function updateOptionContractData(
 ): string {
   let optionContractData = _loadOrCreateOptionContractEntity(contractAddress);
   let poolToken = optionContractData.pool;
-  let optionContractInstance = BufferBinaryOptions.bind(contractAddress);
-  let totalLockedAmount = optionContractInstance.totalLockedAmount();
   let poolAddress = Address.fromString(ADDRESS_ZERO);
   optionContractData.tradeCount += 1;
   optionContractData.volume = optionContractData.volume.plus(totalFee);
-  if (isAbove) {
-    optionContractData.openUp = increaseInOpenInterest
-      ? optionContractData.openUp.plus(totalFee)
-      : optionContractData.openUp.minus(totalFee);
-  } else {
-    optionContractData.openDown = increaseInOpenInterest
-      ? optionContractData.openDown.plus(totalFee)
-      : optionContractData.openDown.minus(totalFee);
-  }
-  optionContractData.openInterest = increaseInOpenInterest
-    ? optionContractData.openInterest.plus(totalFee)
-    : optionContractData.openInterest.minus(totalFee);
   if (poolToken == "USDC_POL") {
     poolAddress = Address.fromString(USDC_POL_POOL_CONTRACT);
   } else if (poolToken == "ARB") {
@@ -48,10 +32,6 @@ export function updateOptionContractData(
   } else if (poolToken == "USDC") {
     poolAddress = Address.fromString(USDC_POOL_CONTRACT);
   }
-  optionContractData.currentUtilization = _calculateCurrentUtilization(
-    totalLockedAmount,
-    poolAddress
-  );
   optionContractData.save();
   return poolToken;
 }
