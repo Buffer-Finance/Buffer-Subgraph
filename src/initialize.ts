@@ -1,16 +1,15 @@
 import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
-  UserOptionData,
   OptionContract,
-  UserStat,
   LBFRStatsPerUser,
-  QueuedOptionData,
   ClaimedLBFRPerUser,
 } from "../generated/schema";
 import { _getDayId, _getWeekId } from "./helpers";
 import { BufferBinaryOptions } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import {
   ARB_POOL_CONTRACT,
+  ARB_TOKEN_ADDRESS,
+  USDC_ADDRESS,
   USDC_POL_POOL_CONTRACT,
   USDC_POOL_CONTRACT,
 } from "./config";
@@ -27,83 +26,15 @@ export function _loadOrCreateOptionContractEntity(
     );
     optionContract = new OptionContract(contractAddress);
     optionContract.address = contractAddress;
-    optionContract.isPaused = optionContractInstance.isPaused();
-    optionContract.volume = ZERO;
-    optionContract.tradeCount = 0;
-    optionContract.openDown = ZERO;
-    optionContract.openUp = ZERO;
-    optionContract.openInterest = ZERO;
-    optionContract.currentUtilization = ZERO;
-    optionContract.payoutForDown = ZERO;
-    optionContract.payoutForUp = ZERO;
-    let optionContractPool = optionContractInstance.pool();
-    if (optionContractPool == Address.fromString(USDC_POL_POOL_CONTRACT)) {
+    let optionContractToken = optionContractInstance.tokenX();
+    if (optionContractToken == Address.fromString(USDC_ADDRESS)) {
       optionContract.token = "USDC";
-      optionContract.pool = "USDC_POL";
-    } else if (optionContractPool == Address.fromString(ARB_POOL_CONTRACT)) {
+    } else if (optionContractToken == Address.fromString(ARB_TOKEN_ADDRESS)) {
       optionContract.token = "ARB";
-      optionContract.pool = "ARB";
-    } else if (optionContractPool == Address.fromString(USDC_POOL_CONTRACT)) {
-      optionContract.token = "USDC";
-      optionContract.pool = "USDC";
     }
     optionContract.save();
   }
   return optionContract as OptionContract;
-}
-
-export function _loadOrCreateQueuedOptionEntity(
-  queueID: BigInt,
-  contractAddress: Bytes
-): QueuedOptionData {
-  let referenceID = `${queueID}${contractAddress}`;
-  let entity = QueuedOptionData.load(referenceID);
-  if (entity == null) {
-    entity = new QueuedOptionData(referenceID);
-    entity.queueID = queueID;
-    entity.optionContract = contractAddress;
-    entity.queuedTimestamp = ZERO;
-    entity.lag = ZERO;
-    entity.processTime = ZERO;
-    entity.save();
-  }
-  return entity as QueuedOptionData;
-}
-
-export function _loadOrCreateOptionDataEntity(
-  optionID: BigInt,
-  contractAddress: Bytes
-): UserOptionData {
-  let referrenceID = `${optionID}${contractAddress}`;
-  let entity = UserOptionData.load(referrenceID);
-  if (entity == null) {
-    entity = new UserOptionData(referrenceID);
-    entity.optionID = optionID;
-    entity.optionContract = contractAddress;
-    entity.amount = ZERO;
-    entity.totalFee = ZERO;
-    entity.queuedTimestamp = ZERO;
-    entity.lag = ZERO;
-  }
-  return entity as UserOptionData;
-}
-
-export function _loadOrCreateUserStat(
-  id: string,
-  period: string,
-  timestamp: BigInt
-): UserStat {
-  let userStat = UserStat.load(id);
-  if (userStat == null) {
-    userStat = new UserStat(id);
-    userStat.period = period;
-    userStat.timestamp = timestamp;
-    userStat.uniqueCount = 0;
-    userStat.uniqueCountCumulative = 0;
-    userStat.users = [];
-    userStat.existingCount = 0;
-  }
-  return userStat as UserStat;
 }
 
 export function _loadOrCreateLBFRStat(

@@ -1,59 +1,32 @@
-import {
-  Create,
-  Expire,
-  Exercise,
-  Pause,
-} from "../generated/BufferBinaryOptions/BufferBinaryOptions";
-import { MintLBFR } from "../generated/FaucetLBFR/FaucetLBFR";
-import {
-  InitiateTrade,
-  CancelTrade,
-  OpenTrade,
-} from "../generated/BufferRouter/BufferRouter";
-import {
-  _handleCreate,
-  _handleExpire,
-  _handleExercise,
-  _handlePause,
-} from "./optionContractHandlers";
-import {
-  _handleCancelTrade,
-  _handleOpenTrade,
-  _handleInitiateTrade,
-} from "./routerContractHandlers";
+import { Create } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
+import { Claim } from "../generated/FaucetLBFR/FaucetLBFR";
 import { _loadOrCreateClaimedLBFRPerUser } from "./initialize";
-
-export function handleInitiateTrade(event: InitiateTrade): void {
-  _handleInitiateTrade(event);
-}
-
-export function handleOpenTrade(event: OpenTrade): void {
-  _handleOpenTrade(event);
-}
-
-export function handleCancelTrade(event: CancelTrade): void {
-  _handleCancelTrade(event);
-}
+import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { _loadOrCreateOptionContractEntity } from "./initialize";
+import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
+import { RouterAddress, LBFR_START_TIMESTAMP } from "./config";
+import { updateLBFRStats } from "./aggregate";
 
 export function handleCreate(event: Create): void {
-  _handleCreate(event);
+  let contractAddress = event.address;
+  let routerContract = BufferRouter.bind(Address.fromString(RouterAddress));
+  if (routerContract.contractRegistry(contractAddress) == true) {
+    if (BigInt.fromI32(LBFR_START_TIMESTAMP) < event.block.timestamp) {
+      let optionContract = _loadOrCreateOptionContractEntity(contractAddress);
+      let token = optionContract.token;
+      updateLBFRStats(
+        token,
+        event.block.timestamp,
+        event.params.totalFee,
+        event.params.account
+      );
+    }
+  }
 }
 
-export function handleExercise(event: Exercise): void {
-  _handleExercise(event);
-}
-
-export function handleExpire(event: Expire): void {
-  _handleExpire(event);
-}
-
-export function handlePause(event: Pause): void {
-  _handlePause(event);
-}
-
-export function handleMintLBFR(event: MintLBFR): void {
+export function handleClaim(event: Claim): void {
   let claimedLBFRPerUser = _loadOrCreateClaimedLBFRPerUser(
-    event.params.to,
+    event.params.account,
     event.block.timestamp
   );
   claimedLBFRPerUser.lBFRClaimed = claimedLBFRPerUser.lBFRClaimed.plus(

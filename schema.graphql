@@ -7,77 +7,8 @@ enum Period {
 
 type OptionContract @entity {
   id: Bytes!
-  address: Bytes
-  isPaused: Boolean!
-  openUp: BigInt!
-  openDown: BigInt!
-  openInterest: BigInt!
-  tradeCount: Int!
-  volume: BigInt!
-  currentUtilization: BigInt
-  token: String!
-  payoutForUp: BigInt
-  payoutForDown: BigInt
-  asset: String
-  pool: String!
-}
-
-type QueuedOptionData @entity {
-  id: String!
-  optionContract: OptionContract!
-  strike: BigInt
-  totalFee: BigInt
-  user: User
-  state: Int
-  isAbove: Boolean
-  queueID: BigInt
-  slippage: BigInt
-  depositToken: String
-  reason: String
-  queuedTimestamp: BigInt!
-  lag: BigInt!
-  processTime: BigInt!
-}
-
-type UserOptionData @entity {
-  id: String!
-  optionContract: OptionContract!
-  optionID: BigInt
-  strike: BigInt
-  totalFee: BigInt!
-  user: User!
-  creationTime: BigInt!
-  queuedTimestamp: BigInt!
-  expirationPrice: BigInt
-  payout: BigInt
-  state: Int
-  amount: BigInt!
-  expirationTime: BigInt
-  isAbove: Boolean
-  depositToken: String!
-  queueID: BigInt
-  settlementFee: BigInt!
-  lag: BigInt!
-  poolToken: String!
-}
-
-type User @entity {
-  id: Bytes!
   address: Bytes!
-}
-
-type UserStat @entity {
-  id: ID!
-  uniqueCount: Int!
-  uniqueCountCumulative: Int!
-  period: Period!
-  timestamp: BigInt
-  existingCount: Int!
-  users: [User!]!
-}
-
-type DailyUserStat @entity {
-  id: String!
+  token: String!
 }
 
 type LBFRStatsPerUser @entity {

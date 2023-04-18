@@ -1,12 +1,3 @@
-export enum State {
-  active = 1,
-  exercised = 2,
-  expired = 3,
-  queued = 4,
-  cancelled = 5,
-  opened = 6,
-}
-
 export const Slabs = [
   [0, 100],
   [50000, 150],
@@ -16,11 +7,10 @@ export const Slabs = [
 
 export const RouterAddress = "0x76c52E83d7dcCc70107a66BAd44D042D22D06be7";
 export const USDC_ADDRESS = "0x658e6B62e7ab1d2B29a08F85f8442edEed562b48";
-export const BFR = "0x89fEF05446aEA764C53a2f09bB763876FB57ea8E";
-export const ARBITRUM_SOLANA_ADDRESS =
-  "0x0000000000000000000000000000000000000000";
 export const ARB_TOKEN_ADDRESS = "0x76Bd15f52dd4A6B274f2C19b16F4934eC27615a8";
 export const USDC_POOL_CONTRACT = "0x1CDA6A34D84F444183E89D2D41D920EeaE883439";
 export const ARB_POOL_CONTRACT = "0x0000000000000000000000000000000000000000";
 export const USDC_POL_POOL_CONTRACT =
   "0x0000000000000000000000000000000000000000";
+
+export const LBFR_START_TIMESTAMP = 1679164382;

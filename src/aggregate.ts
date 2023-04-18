@@ -3,7 +3,24 @@ import { _getWeekId } from "./helpers";
 import { _loadOrCreateLBFRStat } from "./initialize";
 import { Slabs } from "./config";
 
-export function updateOpeningStats(
+function _getLBFRAlloted(
+  userCumulativeWeekVolume: BigInt,
+  totalFee: BigInt
+): BigInt {
+  let lbfrPerUnitVolume = 0;
+  for (let i = 0; i < Slabs.length; i++) {
+    const slab = Slabs[i];
+    if (userCumulativeWeekVolume > BigInt.fromI32(slab[0])) {
+      lbfrPerUnitVolume = slab[1];
+    }
+  }
+  let lbfrAlloted = totalFee
+    .times(BigInt.fromI32(lbfrPerUnitVolume))
+    .div(BigInt.fromI32(100));
+  return lbfrAlloted;
+}
+
+export function updateLBFRStats(
   token: string,
   timestamp: BigInt,
   totalFee: BigInt,
@@ -24,21 +41,9 @@ export function updateOpeningStats(
   );
   LBFRStat.volume = LBFRStat.volume.plus(totalFee);
   TotalLBFRStat.volume = TotalLBFRStat.volume.plus(totalFee);
-
-  let lbfrPerUnitVolume = 0;
-  for (let i = 0; i < Slabs.length; i++) {
-    const slab = Slabs[i];
-    if (LBFRStat.volume > BigInt.fromI32(slab[0])) {
-      lbfrPerUnitVolume = slab[1];
-    }
-  }
-
-  let lbfrAlloted = totalFee
-    .times(BigInt.fromI32(lbfrPerUnitVolume))
-    .div(BigInt.fromI32(100));
+  let lbfrAlloted = _getLBFRAlloted(LBFRStat.volume, totalFee);
   LBFRStat.lBFRAlloted = LBFRStat.lBFRAlloted.plus(lbfrAlloted);
   TotalLBFRStat.lBFRAlloted = TotalLBFRStat.lBFRAlloted.plus(lbfrAlloted);
-
   if (token == "USDC") {
     LBFRStat.volumeUSDC = LBFRStat.volumeUSDC.plus(totalFee);
     TotalLBFRStat.volumeUSDC = TotalLBFRStat.volumeUSDC.plus(totalFee);
@@ -49,4 +54,3 @@ export function updateOpeningStats(
   LBFRStat.save();
   TotalLBFRStat.save();
 }
-

@@ -7,15 +7,14 @@ dataSources:
     network: arbitrum-goerli
     source:
       abi: BufferBinaryOptions
-      startBlock: 5769624
+      startBlock: 9873052
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - UserOptionData
         - OptionContract
-        - User
+        - LBFRStatsPerUser
       abis:
         - name: BufferBinaryOptions
           file: ./abis/BufferBinaryOptions.json
@@ -26,38 +25,6 @@ dataSources:
       eventHandlers:
         - event: Create(indexed address,indexed uint256,uint256,uint256)
           handler: handleCreate
-        - event: Expire(indexed uint256,uint256,uint256)
-          handler: handleExpire
-        - event: Exercise(indexed address,indexed uint256,uint256,uint256)
-          handler: handleExercise
-        - event: Pause(bool)
-          handler: handlePause
-      file: ./src/mapping.ts
-  - kind: ethereum/contract
-    name: BufferRouter
-    network: arbitrum-goerli
-    source:
-      address: "0x76c52E83d7dcCc70107a66BAd44D042D22D06be7"
-      abi: BufferRouter
-      startBlock: 5769624
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.6
-      language: wasm/assemblyscript
-      entities:
-        - UserOptionData
-      abis:
-        - name: BufferBinaryOptions
-          file: ./abis/BufferBinaryOptions.json
-        - name: BufferRouter
-          file: ./abis/BufferRouter.json
-      eventHandlers:
-        - event: InitiateTrade(indexed address,uint256,uint256)
-          handler: handleInitiateTrade
-        - event: CancelTrade(indexed address,uint256,string)
-          handler: handleCancelTrade
-        - event: OpenTrade(indexed address,uint256,uint256)
-          handler: handleOpenTrade
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: FaucetLBFR
@@ -76,6 +43,6 @@ dataSources:
         - name: FaucetLBFR
           file: ./abis/FaucetLBFR.json
       eventHandlers:
-        - event: MintLBFR(address,uint256)
-          handler: handleMintLBFR
+        - event: Claim(address,uint256)
+          handler: handleClaim
       file: ./src/mapping.ts
