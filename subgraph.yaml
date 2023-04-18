@@ -30,7 +30,7 @@ dataSources:
     name: FaucetLBFR
     network: arbitrum-goerli
     source:
-      address: "0x72B213A8F5a07a148b985d3092259490c916cD0c"
+      address: "0xFB7B73277072247c8A9b2d8940D0c8e2D721337c"
       abi: FaucetLBFR
       startBlock: 16873052
     mapping:

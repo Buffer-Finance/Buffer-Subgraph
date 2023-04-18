@@ -2,7 +2,7 @@ import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   OptionContract,
   LBFRStatsPerUser,
-  ClaimedLBFRPerUser,
+  LBFRClaimDataPerUser,
 } from "../generated/schema";
 import { _getDayId, _getWeekId } from "./helpers";
 import { BufferBinaryOptions } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
@@ -60,17 +60,18 @@ export function _loadOrCreateLBFRStat(
   return lbfrStat as LBFRStatsPerUser;
 }
 
-export function _loadOrCreateClaimedLBFRPerUser(
+export function _loadOrCreateLBFRClaimDataPerUser(
   userAddress: Bytes,
   timestamp: BigInt
-): ClaimedLBFRPerUser {
-  let lbfrStat = ClaimedLBFRPerUser.load(userAddress);
+): LBFRClaimDataPerUser {
+  let lbfrStat = LBFRClaimDataPerUser.load(userAddress);
   if (lbfrStat == null) {
-    lbfrStat = new ClaimedLBFRPerUser(userAddress);
-    lbfrStat.timestamp = timestamp;
-    lbfrStat.lBFRClaimed = ZERO;
+    lbfrStat = new LBFRClaimDataPerUser(userAddress);
+    lbfrStat.lastClaimedTimestamp = timestamp;
+    lbfrStat.claimed = ZERO;
+    lbfrStat.claimable = ZERO;
     lbfrStat.userAddress = userAddress;
     lbfrStat.save();
   }
-  return lbfrStat as ClaimedLBFRPerUser;
+  return lbfrStat as LBFRClaimDataPerUser;
 }

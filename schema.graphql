@@ -23,9 +23,10 @@ type LBFRStatsPerUser @entity {
   volumeARB: BigInt!
 }
 
-type ClaimedLBFRPerUser @entity {
+type LBFRClaimDataPerUser @entity {
   id: Bytes!
-  timestamp: BigInt!
-  lBFRClaimed: BigInt!
+  lastClaimedTimestamp: BigInt!
+  claimed: BigInt!
   userAddress: Bytes!
+  claimable: BigInt!
 }

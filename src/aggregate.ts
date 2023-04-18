@@ -10,7 +10,10 @@ function _getLBFRAlloted(
   let lbfrPerUnitVolume = 0;
   for (let i = 0; i < Slabs.length; i++) {
     const slab = Slabs[i];
-    if (userCumulativeWeekVolume > BigInt.fromI32(slab[0])) {
+    if (
+      userCumulativeWeekVolume.div(BigInt.fromI64(1000000000000000000)) >
+      BigInt.fromI32(slab[0])
+    ) {
       lbfrPerUnitVolume = slab[1];
     }
   }
@@ -41,11 +44,15 @@ export function updateLBFRStats(
   );
 
   if (token == "USDC") {
-    totalFee = totalFee.div(BigInt.fromI64(1000000));
+    totalFee = totalFee
+      .times(BigInt.fromI64(1000000000000000000))
+      .div(BigInt.fromI64(1000000));
     LBFRStat.volumeUSDC = LBFRStat.volumeUSDC.plus(totalFee);
     TotalLBFRStat.volumeUSDC = TotalLBFRStat.volumeUSDC.plus(totalFee);
   } else if (token == "ARB") {
-    totalFee = totalFee.div(BigInt.fromI64(1000000000000000000));
+    totalFee = totalFee
+      .times(BigInt.fromI64(1000000000000000000))
+      .div(BigInt.fromI64(1000000000000000000));
     LBFRStat.volumeARB = LBFRStat.volumeARB.plus(totalFee);
     TotalLBFRStat.volumeARB = TotalLBFRStat.volumeARB.plus(totalFee);
   }

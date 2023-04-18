@@ -1,11 +1,15 @@
 import { Create } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import { Claim } from "../generated/FaucetLBFR/FaucetLBFR";
-import { _loadOrCreateClaimedLBFRPerUser } from "./initialize";
+import {
+  _loadOrCreateLBFRClaimDataPerUser,
+  _loadOrCreateOptionContractEntity,
+  _loadOrCreateLBFRStat,
+} from "./initialize";
 import { Address, BigInt } from "@graphprotocol/graph-ts";
-import { _loadOrCreateOptionContractEntity } from "./initialize";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import { RouterAddress, LBFR_START_TIMESTAMP } from "./config";
 import { updateLBFRStats } from "./aggregate";
+import { LBFRStatsPerUser } from "../generated/schema";
 
 export function handleCreate(event: Create): void {
   let contractAddress = event.address;
@@ -25,13 +29,20 @@ export function handleCreate(event: Create): void {
 }
 
 export function handleClaim(event: Claim): void {
-  let claimedLBFRPerUser = _loadOrCreateClaimedLBFRPerUser(
+  let claimDataPerUser = _loadOrCreateLBFRClaimDataPerUser(
     event.params.account,
     event.block.timestamp
   );
-  claimedLBFRPerUser.lBFRClaimed = claimedLBFRPerUser.lBFRClaimed.plus(
-    event.params.amount
+  claimDataPerUser.claimed = claimDataPerUser.claimed.plus(event.params.amount);
+  let lbfrStatsPerUser = _loadOrCreateLBFRStat(
+    "total",
+    event.block.timestamp,
+    event.params.account,
+    "total"
   );
-  claimedLBFRPerUser.timestamp = event.block.timestamp;
-  claimedLBFRPerUser.save();
+  claimDataPerUser.claimable = lbfrStatsPerUser.lBFRAlloted.minus(
+    claimDataPerUser.claimed
+  );
+  claimDataPerUser.lastClaimedTimestamp = event.block.timestamp;
+  claimDataPerUser.save();
 }
