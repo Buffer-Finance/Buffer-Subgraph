@@ -42,7 +42,7 @@ function getLbfrAlloted(
     let lbfrAllotedForLatterSlab = finalVolume
       .minus(latterSlabVolume.minus(initialVolume))
       .times(latterLbfrPerUnitVolume);
-    lbfrAlloted = lbfrAllotedForFormerSlab.plus(lbfrAllotedForLatterSlab);
+    lbfrAlloted = lbfrAllotedForFormerSlab.plus(lbfrAllotedForLatterSlab).div(FACTOR_OF_2);
   }
 
   return lbfrAlloted;
