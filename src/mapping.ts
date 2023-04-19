@@ -33,7 +33,7 @@ export function handleClaim(event: Claim): void {
     event.params.account,
     event.block.timestamp
   );
-  claimDataPerUser.claimed = claimDataPerUser.claimed.plus(event.params.amount);
+  claimDataPerUser.claimed = claimDataPerUser.claimed.plus(event.params.claimedTokens);
   let lbfrStatsPerUser = _loadOrCreateLBFRStat(
     "total",
     event.block.timestamp,

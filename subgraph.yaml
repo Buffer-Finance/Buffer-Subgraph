@@ -15,11 +15,10 @@ dataSources:
       entities:
         - OptionContract
         - LBFRStatsPerUser
+        - LBFRAllotmentDataPerUser
       abis:
         - name: BufferBinaryOptions
           file: ./abis/BufferBinaryOptions.json
-        - name: BinaryPool
-          file: ./abis/BinaryPool.json
         - name: BufferRouter
           file: ./abis/BufferRouter.json
       eventHandlers:

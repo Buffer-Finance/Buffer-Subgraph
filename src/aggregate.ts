@@ -1,6 +1,6 @@
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { _getWeekId } from "./helpers";
-import { _loadOrCreateLBFRStat } from "./initialize";
+import { _loadOrCreateLBFRStat, _loadOrCreateLBFRAllotmentDataPerUser } from "./initialize";
 import { Slabs } from "./config";
 
 function _getLBFRAlloted(
@@ -42,7 +42,10 @@ export function updateLBFRStats(
     userAddress,
     "total"
   );
-
+  let LBFRAllotmentData = _loadOrCreateLBFRAllotmentDataPerUser(
+    userAddress,
+    timestamp
+  );
   if (token == "USDC") {
     totalFee = totalFee
       .times(BigInt.fromI64(1000000000000000000))
@@ -62,6 +65,11 @@ export function updateLBFRStats(
   LBFRStat.lBFRAlloted = LBFRStat.lBFRAlloted.plus(lbfrAlloted);
   TotalLBFRStat.lBFRAlloted = TotalLBFRStat.lBFRAlloted.plus(lbfrAlloted);
 
+  LBFRAllotmentData.totalAllottedTokens = LBFRAllotmentData.totalAllottedTokens.plus(lbfrAlloted)
+  LBFRAllotmentData.totalVolume = LBFRAllotmentData.totalVolume.plus(totalFee)
+  LBFRAllotmentData.timestamp = timestamp;
+
   LBFRStat.save();
   TotalLBFRStat.save();
+  LBFRAllotmentData.save();
 }
