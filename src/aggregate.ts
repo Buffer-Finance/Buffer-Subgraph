@@ -23,11 +23,11 @@ function getLbfrAlloted(
     let minVolume = slab[0];
     let factor = slab[1];
 
-    if (initialVolume.div(FACTOR_OF_18) > minVolume.times(FACTOR_OF_18)) {
+    if (initialVolume > minVolume.times(FACTOR_OF_18)) {
       formerLbfrPerUnitVolume = factor;
     }
 
-    if (finalVolume.div(FACTOR_OF_18) > minVolume.times(FACTOR_OF_18)) {
+    if (finalVolume > minVolume.times(FACTOR_OF_18)) {
       latterSlabVolume = minVolume.times(FACTOR_OF_18);
       latterLbfrPerUnitVolume = factor;
     }
