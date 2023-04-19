@@ -1,14 +1,18 @@
-export enum State {
-    active = 1,
-    exercised = 2,
-    expired = 3,
-    queued = 4,
-    cancelled = 5,
-    opened = 6
-}
+import { BigInt } from "@graphprotocol/graph-ts";
 
-export const RouterAddress = "0x0e0A1241C9cE6649d5D30134a194BA3E24130305";
-export const USDC_ADDRESS = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
-export const BFR = "0x1A5B0aaF478bf1FDA7b934c76E7692D722982a6D";
-export const ARBITRUM_SOLANA_ADDRESS = "0xFE9FAEAA880A6109F2ADF0E4257dC535c7a5Ba20";
-export const ARB_TOKEN_ADDRESS = "0x912CE59144191C1204E64559FE8253a0e49E6548";
+export const Slabs = [
+  [BigInt.fromI32(0), BigInt.fromI32(100)],
+  [BigInt.fromI32(50000), BigInt.fromI32(150)],
+  [BigInt.fromI32(200000), BigInt.fromI32(200)],
+  [BigInt.fromI32(500000), BigInt.fromI32(400)],
+];
+
+export const RouterAddress = "0x76c52E83d7dcCc70107a66BAd44D042D22D06be7";
+export const USDC_ADDRESS = "0x658e6B62e7ab1d2B29a08F85f8442edEed562b48";
+export const ARB_TOKEN_ADDRESS = "0x76Bd15f52dd4A6B274f2C19b16F4934eC27615a8";
+export const USDC_POOL_CONTRACT = "0x1CDA6A34D84F444183E89D2D41D920EeaE883439";
+export const ARB_POOL_CONTRACT = "0x0000000000000000000000000000000000000000";
+export const USDC_POL_POOL_CONTRACT =
+  "0x0000000000000000000000000000000000000000";
+
+export const LBFR_START_TIMESTAMP = 1679164382;
