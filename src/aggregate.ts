@@ -3,26 +3,48 @@ import { _getWeekId } from "./helpers";
 import { _loadOrCreateLBFRStat } from "./initialize";
 import { Slabs } from "./config";
 
-let FACTOR_OF_18 = BigInt.fromI64(1000000000000000000);
-let FACTOR_OF_6 = BigInt.fromI64(1000000);
+const FACTOR_OF_18 = BigInt.fromI64(1000000000000000000);
+const FACTOR_OF_6 = BigInt.fromI64(1000000);
+const ZERO = BigInt.fromI32(0);
+const FACTOR_OF_2 = BigInt.fromI32(100);
 
-function _getLBFRAlloted(
-  userCumulativeWeekVolume: BigInt,
+function getLbfrAlloted(
+  initialVolume: BigInt,
+  finalVolume: BigInt,
   totalFee: BigInt
 ): BigInt {
-  let lbfrPerUnitVolume = 0;
+  let lbfrAlloted = ZERO;
+  let formerLbfrPerUnitVolume = ZERO;
+  let latterLbfrPerUnitVolume = ZERO;
+  let latterSlabVolume = ZERO;
+
   for (let i = 0; i < Slabs.length; i++) {
-    const slab = Slabs[i];
-    if (
-      userCumulativeWeekVolume.div(BigInt.fromI64(1000000000000000000)) >
-      BigInt.fromI32(slab[0])
-    ) {
-      lbfrPerUnitVolume = slab[1];
+    let slab = Slabs[i];
+    let minVolume = slab[0];
+    let factor = slab[1];
+
+    if (initialVolume > minVolume.times(FACTOR_OF_18)) {
+      formerLbfrPerUnitVolume = factor;
+    }
+
+    if (finalVolume > minVolume.times(FACTOR_OF_18)) {
+      latterSlabVolume = minVolume;
+      latterLbfrPerUnitVolume = factor;
     }
   }
-  let lbfrAlloted = totalFee
-    .times(BigInt.fromI32(lbfrPerUnitVolume))
-    .div(BigInt.fromI32(100));
+
+  if (formerLbfrPerUnitVolume == latterLbfrPerUnitVolume) {
+    lbfrAlloted = totalFee.times(latterLbfrPerUnitVolume).div(FACTOR_OF_2);
+  } else {
+    let lbfrAllotedForFormerSlab = latterSlabVolume
+      .minus(initialVolume)
+      .times(formerLbfrPerUnitVolume);
+    let lbfrAllotedForLatterSlab = finalVolume
+      .minus(latterSlabVolume.minus(initialVolume))
+      .times(latterLbfrPerUnitVolume);
+    lbfrAlloted = lbfrAllotedForFormerSlab.plus(lbfrAllotedForLatterSlab);
+  }
+
   return lbfrAlloted;
 }
 
@@ -55,10 +77,13 @@ export function updateLBFRStats(
     LBFRStat.volumeARB = LBFRStat.volumeARB.plus(totalFee);
     TotalLBFRStat.volumeARB = TotalLBFRStat.volumeARB.plus(totalFee);
   }
-  LBFRStat.volume = LBFRStat.volume.plus(totalFee);
+  let initialVolume = LBFRStat.volume;
+  let finalVolume = LBFRStat.volume.plus(totalFee);
+  LBFRStat.volume = finalVolume;
   TotalLBFRStat.volume = TotalLBFRStat.volume.plus(totalFee);
 
-  let lbfrAlloted = _getLBFRAlloted(LBFRStat.volume, totalFee);
+  let lbfrAlloted = getLbfrAlloted(initialVolume, finalVolume, totalFee);
+
   LBFRStat.lBFRAlloted = LBFRStat.lBFRAlloted.plus(lbfrAlloted);
   TotalLBFRStat.lBFRAlloted = TotalLBFRStat.lBFRAlloted.plus(lbfrAlloted);
 
