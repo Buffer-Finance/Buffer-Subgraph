@@ -30,11 +30,3 @@ type LBFRClaimDataPerUser @entity {
   userAddress: Bytes!
   claimable: BigInt!
 }
-
-type LBFRAllotmentDataPerUser @entity {
-  id: Bytes!
-  totalAllottedTokens: BigInt!
-  totalVolume: BigInt!
-  userAddress: Bytes!
-  timestamp: BigInt!
-}

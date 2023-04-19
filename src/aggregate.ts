@@ -1,7 +1,10 @@
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { _getWeekId } from "./helpers";
-import { _loadOrCreateLBFRStat, _loadOrCreateLBFRAllotmentDataPerUser } from "./initialize";
+import { _loadOrCreateLBFRStat } from "./initialize";
 import { Slabs } from "./config";
+
+let FACTOR_OF_18 = BigInt.fromI64(1000000000000000000);
+let FACTOR_OF_6 = BigInt.fromI64(1000000);
 
 function _getLBFRAlloted(
   userCumulativeWeekVolume: BigInt,
@@ -42,34 +45,23 @@ export function updateLBFRStats(
     userAddress,
     "total"
   );
-  let LBFRAllotmentData = _loadOrCreateLBFRAllotmentDataPerUser(
-    userAddress,
-    timestamp
-  );
+
   if (token == "USDC") {
-    totalFee = totalFee
-      .times(BigInt.fromI64(1000000000000000000))
-      .div(BigInt.fromI64(1000000));
+    totalFee = totalFee.times(FACTOR_OF_18).div(FACTOR_OF_6);
     LBFRStat.volumeUSDC = LBFRStat.volumeUSDC.plus(totalFee);
     TotalLBFRStat.volumeUSDC = TotalLBFRStat.volumeUSDC.plus(totalFee);
   } else if (token == "ARB") {
-    totalFee = totalFee
-      .times(BigInt.fromI64(1000000000000000000))
-      .div(BigInt.fromI64(1000000000000000000));
+    totalFee = totalFee.times(FACTOR_OF_18).div(FACTOR_OF_18);
     LBFRStat.volumeARB = LBFRStat.volumeARB.plus(totalFee);
     TotalLBFRStat.volumeARB = TotalLBFRStat.volumeARB.plus(totalFee);
   }
   LBFRStat.volume = LBFRStat.volume.plus(totalFee);
   TotalLBFRStat.volume = TotalLBFRStat.volume.plus(totalFee);
+
   let lbfrAlloted = _getLBFRAlloted(LBFRStat.volume, totalFee);
   LBFRStat.lBFRAlloted = LBFRStat.lBFRAlloted.plus(lbfrAlloted);
   TotalLBFRStat.lBFRAlloted = TotalLBFRStat.lBFRAlloted.plus(lbfrAlloted);
 
-  LBFRAllotmentData.totalAllottedTokens = LBFRAllotmentData.totalAllottedTokens.plus(lbfrAlloted)
-  LBFRAllotmentData.totalVolume = LBFRAllotmentData.totalVolume.plus(totalFee)
-  LBFRAllotmentData.timestamp = timestamp;
-
   LBFRStat.save();
   TotalLBFRStat.save();
-  LBFRAllotmentData.save();
 }

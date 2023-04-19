@@ -15,7 +15,6 @@ dataSources:
       entities:
         - OptionContract
         - LBFRStatsPerUser
-        - LBFRAllotmentDataPerUser
       abis:
         - name: BufferBinaryOptions
           file: ./abis/BufferBinaryOptions.json

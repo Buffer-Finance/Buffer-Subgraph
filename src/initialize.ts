@@ -3,7 +3,6 @@ import {
   OptionContract,
   LBFRStatsPerUser,
   LBFRClaimDataPerUser,
-  LBFRAllotmentDataPerUser
 } from "../generated/schema";
 import { _getDayId, _getWeekId } from "./helpers";
 import { BufferBinaryOptions } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
@@ -75,20 +74,4 @@ export function _loadOrCreateLBFRClaimDataPerUser(
     lbfrStat.save();
   }
   return lbfrStat as LBFRClaimDataPerUser;
-}
-
-export function _loadOrCreateLBFRAllotmentDataPerUser(
-  userAddress: Bytes,
-  timestamp: BigInt
-): LBFRAllotmentDataPerUser {
-  let lbfrStat = LBFRAllotmentDataPerUser.load(userAddress);
-  if (lbfrStat == null) {
-    lbfrStat = new LBFRAllotmentDataPerUser(userAddress);
-    lbfrStat.timestamp = timestamp;
-    lbfrStat.totalAllottedTokens = ZERO;
-    lbfrStat.totalVolume = ZERO;
-    lbfrStat.userAddress = userAddress;
-    lbfrStat.save();
-  }
-  return lbfrStat as LBFRAllotmentDataPerUser;
 }
