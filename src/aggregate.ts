@@ -9,43 +9,31 @@ const ZERO = BigInt.fromI32(0);
 const FACTOR_OF_2 = BigInt.fromI32(100);
 
 function getLbfrAlloted(
-  initialVolume: BigInt,
-  finalVolume: BigInt,
-  totalFee: BigInt
+  userVolume: BigInt,
 ): BigInt {
   let lbfrAlloted = ZERO;
-  let formerLbfrPerUnitVolume = ZERO;
-  let latterLbfrPerUnitVolume = ZERO;
-  let latterSlabVolume = ZERO;
+  
+  let newSlabIndex = ZERO;
 
   for (let i = 0; i < Slabs.length; i++) {
-    let slab = Slabs[i];
-    let minVolume = slab[0];
-    let factor = slab[1];
-
-    if (initialVolume > minVolume.times(FACTOR_OF_18)) {
-      formerLbfrPerUnitVolume = factor;
+    let currentSlab = Slabs[i];
+    // let currentMinVolume = currentSlab[0];
+    if (userVolume > currentSlab[0].times(FACTOR_OF_18)) {
+      newSlabIndex = i;
     }
-
-    if (finalVolume > minVolume.times(FACTOR_OF_18)) {
-      latterSlabVolume = minVolume.times(FACTOR_OF_18);
-      latterLbfrPerUnitVolume = factor;
+    else {
+      break;
     }
   }
 
-  if (formerLbfrPerUnitVolume == latterLbfrPerUnitVolume) {
-    lbfrAlloted = totalFee.times(latterLbfrPerUnitVolume).div(FACTOR_OF_2);
-  } else {
-    let lbfrAllotedForFormerSlab = latterSlabVolume
-      .minus(initialVolume)
-      .times(formerLbfrPerUnitVolume);
-    let lbfrAllotedForLatterSlab = finalVolume
-      .minus(latterSlabVolume.minus(initialVolume))
-      .times(latterLbfrPerUnitVolume);
-    lbfrAlloted = lbfrAllotedForFormerSlab.plus(lbfrAllotedForLatterSlab).div(FACTOR_OF_2);
-  }
-
-  return lbfrAlloted;
+  let newSlab = Slabs[newSlabIndex];
+  // newSlab[0] = minRequiredVolume 
+  // newSlab[1] = LBFR/usdcVolume rate 
+  // newSlab[2] = equivalent lbfr before this slab
+  // TODO: adjust the units, multipliers below
+  return newSlab[2].times(FACTOR_OF_18).plus(
+    userVolume.minus(newSlab[0].times(FACTOR_OF_18)).times(newSlab[1]).div(FACTOR_OF_2)
+  );
 }
 
 export function updateLBFRStats(
@@ -82,8 +70,7 @@ export function updateLBFRStats(
   LBFRStat.volume = finalVolume;
   TotalLBFRStat.volume = TotalLBFRStat.volume.plus(totalFee);
 
-  let lbfrAlloted = getLbfrAlloted(initialVolume, finalVolume, totalFee);
-
+  let lbfrAlloted = getLbfrAlloted(finalVolume).minus(getLbfrAlloted(initialVolume));
   LBFRStat.lBFRAlloted = LBFRStat.lBFRAlloted.plus(lbfrAlloted);
   TotalLBFRStat.lBFRAlloted = TotalLBFRStat.lBFRAlloted.plus(lbfrAlloted);
 

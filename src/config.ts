@@ -1,10 +1,10 @@
 import { BigInt } from "@graphprotocol/graph-ts";
 
 export const Slabs = [
-  [BigInt.fromI32(0), BigInt.fromI32(100)],
-  [BigInt.fromI32(50000), BigInt.fromI32(150)],
-  [BigInt.fromI32(200000), BigInt.fromI32(200)],
-  [BigInt.fromI32(500000), BigInt.fromI32(400)],
+  [BigInt.fromI32(0), BigInt.fromI32(100), BigInt.fromI32(0)],
+  [BigInt.fromI32(50000), BigInt.fromI32(150), BigInt.fromI32(5000000)],
+  [BigInt.fromI32(200000), BigInt.fromI32(200), BigInt.fromI32(27500000)],
+  [BigInt.fromI32(500000), BigInt.fromI32(400), BigInt.fromI32(87500000)],
 ];
 
 export const RouterAddress = "0x76c52E83d7dcCc70107a66BAd44D042D22D06be7";
