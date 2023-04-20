@@ -2,6 +2,7 @@ import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { _getWeekId } from "./helpers";
 import { _loadOrCreateLBFRStat } from "./initialize";
 import { Slabs } from "./config";
+import { convertARBToUSDC } from "./convertARBToUSDC";
 
 const FACTOR_OF_18 = BigInt.fromI64(1000000000000000000);
 const FACTOR_OF_6 = BigInt.fromI64(1000000);
@@ -73,9 +74,9 @@ export function updateLBFRStats(
     LBFRStat.volumeUSDC = LBFRStat.volumeUSDC.plus(totalFee);
     TotalLBFRStat.volumeUSDC = TotalLBFRStat.volumeUSDC.plus(totalFee);
   } else if (token == "ARB") {
-    totalFee = totalFee.times(FACTOR_OF_18).div(FACTOR_OF_18);
     LBFRStat.volumeARB = LBFRStat.volumeARB.plus(totalFee);
     TotalLBFRStat.volumeARB = TotalLBFRStat.volumeARB.plus(totalFee);
+    totalFee = convertARBToUSDC(totalFee).times(FACTOR_OF_18).div(FACTOR_OF_6);
   }
   let initialVolume = LBFRStat.volume;
   let finalVolume = LBFRStat.volume.plus(totalFee);
