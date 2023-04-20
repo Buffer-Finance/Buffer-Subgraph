@@ -1,5 +1,5 @@
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
-import { _getWeekId } from "./helpers";
+import { _getDayId } from "./helpers";
 import { _loadOrCreateLBFRStat } from "./initialize";
 import { Slabs } from "./config";
 
@@ -40,12 +40,12 @@ export function updateLBFRStats(
   totalFee: BigInt,
   userAddress: Bytes
 ): void {
-  let weekID = _getWeekId(timestamp);
+  let dayID = _getDayId(timestamp);
   let LBFRStat = _loadOrCreateLBFRStat(
-    "weekly",
+    "daily",
     timestamp,
     userAddress,
-    weekID
+    dayID
   );
   let TotalLBFRStat = _loadOrCreateLBFRStat(
     "total",

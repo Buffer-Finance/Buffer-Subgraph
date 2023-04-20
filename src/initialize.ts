@@ -4,7 +4,7 @@ import {
   LBFRStatsPerUser,
   LBFRClaimDataPerUser,
 } from "../generated/schema";
-import { _getDayId, _getWeekId } from "./helpers";
+import { _getDayId } from "./helpers";
 import { BufferBinaryOptions } from "../generated/BufferBinaryOptions/BufferBinaryOptions";
 import {
   ARB_POOL_CONTRACT,
