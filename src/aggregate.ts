@@ -34,6 +34,20 @@ function getLbfrAlloted(userVolume: BigInt): BigInt {
   );
 }
 
+function getCurrentSlab(userVolume: BigInt): BigInt {
+  let slabIndex = 0;
+
+  for (let i = 0; i < Slabs.length; i++) {
+    let currentSlab = Slabs[i];
+    if (userVolume > currentSlab[0].times(FACTOR_OF_18)) {
+      slabIndex = i;
+    } else {
+      break;
+    }
+  }
+  return Slabs[slabIndex][1];
+}
+
 export function updateLBFRStats(
   token: string,
   timestamp: BigInt,
@@ -73,6 +87,9 @@ export function updateLBFRStats(
   );
   LBFRStat.lBFRAlloted = LBFRStat.lBFRAlloted.plus(lbfrAlloted);
   TotalLBFRStat.lBFRAlloted = TotalLBFRStat.lBFRAlloted.plus(lbfrAlloted);
+  LBFRStat.claimable = LBFRStat.claimable.plus(lbfrAlloted);
+  TotalLBFRStat.claimable = TotalLBFRStat.claimable.plus(lbfrAlloted);
+  LBFRStat.currentSlab = getCurrentSlab(finalVolume);
 
   LBFRStat.save();
   TotalLBFRStat.save();

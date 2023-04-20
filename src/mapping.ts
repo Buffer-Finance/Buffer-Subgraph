@@ -9,7 +9,7 @@ import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { BufferRouter } from "../generated/BufferRouter/BufferRouter";
 import { RouterAddress, LBFR_START_TIMESTAMP } from "./config";
 import { updateLBFRStats } from "./aggregate";
-import { LBFRStatsPerUser } from "../generated/schema";
+import { _getWeekId } from "./helpers";
 
 export function handleCreate(event: Create): void {
   let contractAddress = event.address;
@@ -34,15 +34,28 @@ export function handleClaim(event: Claim): void {
     event.block.timestamp
   );
   claimDataPerUser.claimed = claimDataPerUser.claimed.plus(event.params.claimedTokens);
-  let lbfrStatsPerUser = _loadOrCreateLBFRStat(
+  let LBFRStatTotal = _loadOrCreateLBFRStat(
     "total",
     event.block.timestamp,
     event.params.account,
     "total"
   );
-  claimDataPerUser.claimable = lbfrStatsPerUser.lBFRAlloted.minus(
+  claimDataPerUser.claimable = LBFRStatTotal.lBFRAlloted.minus(
     claimDataPerUser.claimed
   );
+  let weekID = _getWeekId(event.block.timestamp);
+  let LBFRStatWeekly = _loadOrCreateLBFRStat(
+    "weekly",
+    event.block.timestamp,
+    event.params.account,
+    weekID
+  );
+  LBFRStatWeekly.claimed = LBFRStatWeekly.claimed.plus(event.params.claimedTokens);
+  LBFRStatWeekly.claimable = LBFRStatWeekly.claimable.minus(event.params.claimedTokens);
+  LBFRStatTotal.claimed = LBFRStatTotal.claimed.plus(event.params.claimedTokens);
+  LBFRStatTotal.claimable = LBFRStatTotal.claimable.minus(event.params.claimedTokens);
   claimDataPerUser.lastClaimedTimestamp = event.block.timestamp;
   claimDataPerUser.save();
+  LBFRStatWeekly.save();
+  LBFRStatTotal.save();
 }

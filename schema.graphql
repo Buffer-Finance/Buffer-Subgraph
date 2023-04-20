@@ -21,6 +21,9 @@ type LBFRStatsPerUser @entity {
   userAddress: Bytes!
   volumeUSDC: BigInt!
   volumeARB: BigInt!
+  claimed: BigInt!
+  claimable: BigInt!
+  currentSlab: BigInt!
 }
 
 type LBFRClaimDataPerUser @entity {

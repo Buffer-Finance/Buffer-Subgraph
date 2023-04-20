@@ -54,6 +54,9 @@ export function _loadOrCreateLBFRStat(
     lbfrStat.userAddress = userAddress;
     lbfrStat.volumeUSDC = ZERO;
     lbfrStat.volumeARB = ZERO;
+    lbfrStat.claimable = ZERO;
+    lbfrStat.claimed = ZERO;
+    lbfrStat.currentSlab = ZERO;
     lbfrStat.save();
   }
   return lbfrStat as LBFRStatsPerUser;
