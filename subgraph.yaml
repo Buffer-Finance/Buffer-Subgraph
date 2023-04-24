@@ -41,6 +41,6 @@ dataSources:
         - name: FaucetLBFR
           file: ./abis/FaucetLBFR.json
       eventHandlers:
-        - event: Claim(address,uint256)
+        - event: Claim(address,uint256,uint16)
           handler: handleClaim
       file: ./src/mapping.ts
