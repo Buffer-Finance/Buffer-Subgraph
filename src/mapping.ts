@@ -49,7 +49,7 @@ export function handleClaim(event: Claim): void {
     "weekly",
     event.block.timestamp,
     event.params.account,
-    event.params.weekID
+    event.params.weekID.toString()
   );
   LBFRStatWeekly.claimed = LBFRStatWeekly.claimed.plus(
     event.params.claimedTokens
