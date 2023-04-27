@@ -28,7 +28,7 @@ dataSources:
     name: FaucetLBFR
     network: arbitrum-goerli
     source:
-      address: "0x6E65a4474d7cD2F8A31681fed0E740eFb261Ef51"
+      address: "0xb4e871c107501C779C6D11d1B33500804bc96B65"
       abi: FaucetLBFR
       startBlock: 16873052
     mapping:
@@ -37,10 +37,11 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - ClaimedLBFRPerUser
+        - LBFRStatsPerUser
       abis:
         - name: FaucetLBFR
           file: ./abis/FaucetLBFR.json
       eventHandlers:
-        - event: Claim(address,uint256)
+        - event: Claim(address,uint256,uint256)
           handler: handleClaim
       file: ./src/mapping.ts

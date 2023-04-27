@@ -33,7 +33,9 @@ export function handleClaim(event: Claim): void {
     event.params.account,
     event.block.timestamp
   );
-  claimDataPerUser.claimed = claimDataPerUser.claimed.plus(event.params.claimedTokens);
+  claimDataPerUser.claimed = claimDataPerUser.claimed.plus(
+    event.params.claimedTokens
+  );
   let LBFRStatTotal = _loadOrCreateLBFRStat(
     "total",
     event.block.timestamp,
@@ -43,17 +45,24 @@ export function handleClaim(event: Claim): void {
   claimDataPerUser.claimable = LBFRStatTotal.lBFRAlloted.minus(
     claimDataPerUser.claimed
   );
-  let weekID = _getWeekId(event.block.timestamp);
   let LBFRStatWeekly = _loadOrCreateLBFRStat(
     "weekly",
     event.block.timestamp,
     event.params.account,
-    weekID
+    event.params.weekID.toString()
   );
-  LBFRStatWeekly.claimed = LBFRStatWeekly.claimed.plus(event.params.claimedTokens);
-  LBFRStatWeekly.claimable = LBFRStatWeekly.claimable.minus(event.params.claimedTokens);
-  LBFRStatTotal.claimed = LBFRStatTotal.claimed.plus(event.params.claimedTokens);
-  LBFRStatTotal.claimable = LBFRStatTotal.claimable.minus(event.params.claimedTokens);
+  LBFRStatWeekly.claimed = LBFRStatWeekly.claimed.plus(
+    event.params.claimedTokens
+  );
+  LBFRStatWeekly.claimable = LBFRStatWeekly.claimable.minus(
+    event.params.claimedTokens
+  );
+  LBFRStatTotal.claimed = LBFRStatTotal.claimed.plus(
+    event.params.claimedTokens
+  );
+  LBFRStatTotal.claimable = LBFRStatTotal.claimable.minus(
+    event.params.claimedTokens
+  );
   claimDataPerUser.lastClaimedTimestamp = event.block.timestamp;
   claimDataPerUser.save();
   LBFRStatWeekly.save();
